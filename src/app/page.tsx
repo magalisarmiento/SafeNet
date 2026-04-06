@@ -11,6 +11,12 @@ export default function Home() {
   const [storyState, setStoryState] = useState(0);
   const storyRef = useRef<HTMLElement>(null);
 
+  const simulationMessages = [
+    { name: "Tomás_17", text: "No le cuentes a nadie, es nuestro secreto." },
+    { name: "Mili_22", text: "Sos diferente a los demás, me caés re bien." },
+    { name: "Alex.mp", text: "Si confiás en mí, mandame una foto." }
+  ];
+
   // 1. Observer para revelar elementos al scrollear
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -51,10 +57,10 @@ export default function Home() {
       const t1 = setTimeout(() => setStoryState(2), 1500); // Pausa antes de "MENSAJE..."
       return () => clearTimeout(t1);
     } else if (storyState === 2) {
-      const t2 = setTimeout(() => setStoryState(3), 1800); // Aparece la burbuja escribiendo
+      const t2 = setTimeout(() => setStoryState(3), 1800); // Aparecen las burbujas escribiendo
       return () => clearTimeout(t2);
     } else if (storyState === 3) {
-      const t3 = setTimeout(() => setStoryState(4), 2500); // Se envía el mensaje
+      const t3 = setTimeout(() => setStoryState(4), 2500); // Se envían los mensajes
       return () => clearTimeout(t3);
     } else if (storyState === 4) {
       const t4 = setTimeout(() => setStoryState(5), 1500); // Aparece el subtítulo final
@@ -235,10 +241,23 @@ export default function Home() {
     },
   ];
 
-  const pillars = [
-    { title: "Prevención", text: "Promover hábitos digitales seguros antes de que aparezca una situación de riesgo." },
-    { title: "Concientización", text: "Brindar información clara para reconocer señales, entender el problema y actuar a tiempo." },
-    { title: "Orientación", text: "Ofrecer recursos concretos para acompañar, intervenir y buscar ayuda cuando sea necesario." },
+  // NUEVO MODELO ESTRATÉGICO P.O.C. (Ajuste Minimalista)
+  const pocPillars = [
+    {
+      letter: "P",
+      title: "PREVENCIÓN",
+      text: "Anticiparse al riesgo promoviendo hábitos digitales seguros.",
+    },
+    {
+      letter: "O",
+      title: "OBSERVACIÓN",
+      text: "Detectar señales tempranas en comportamientos y entornos digitales.",
+    },
+    {
+      letter: "C",
+      title: "CONTENCIÓN",
+      text: "Acompañar, intervenir y actuar de forma segura ante situaciones de riesgo.",
+    }
   ];
 
   const navItems = [
@@ -252,9 +271,7 @@ export default function Home() {
   const alertRed = "#FF3C50";
   
   // Gradientes
-  const whiteGlowText = { color: "#FFFFFF", textShadow: "0 0 6px rgba(255,255,255,0.4)" };
   const brandGradient = `linear-gradient(90deg, #FFFFFF 0%, ${mainBlue} 55%, #FFFFFF 100%)`;
-  const blueGradient = `linear-gradient(90deg, ${mainBlue} 0%, #A5D2E5 100%)`;
 
   return (
     <main
@@ -292,7 +309,7 @@ export default function Home() {
             background: ${darkBlueAlt} !important; 
             transform: translateY(-4px) scale(1.03) !important; 
             box-shadow: 0 15px 30px rgba(116, 179, 206, 0.5), 0 0 20px rgba(116, 179, 206, 0.6) !important;
-            animation: none; /* Detiene el idle pulse al interactuar */
+            animation: none;
           }
           
           @keyframes idle-pulse {
@@ -308,7 +325,7 @@ export default function Home() {
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%) !important;
             border: 1px solid rgba(116, 179, 206, 0.15) !important;
             backdrop-filter: blur(10px);
-            color: white; /* Adaptado al modo oscuro para mejor contraste con la red */
+            color: #FFFFFF;
           }
           .card-world::before {
             content: '';
@@ -326,12 +343,140 @@ export default function Home() {
             transform: translateY(-8px); 
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 30px rgba(116, 179, 206, 0.15) !important;
           }
-          .card-world:hover::before {
-            opacity: 1;
-            transform: scale(1);
+
+          /* =========================================
+             NUEVO MODELO P.O.C. COMO FLUJO SISTÉMICO
+             ========================================= */
+          .poc-system-wrapper {
+            position: relative;
+            max-width: 1000px;
+            margin: 40px auto 0;
+            padding: 20px 0;
           }
-          .card-world h3 { color: white !important; }
-          .card-world p { color: #FFFFFF !important; }
+          
+          .poc-connection-line {
+            position: absolute;
+            background: rgba(116, 179, 206, 0.15); /* Línea base tenue */
+            z-index: 0;
+            overflow: hidden;
+          }
+          
+          /* Glow animado que recorre la línea para sensación de proceso */
+          .poc-line-glow {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, ${mainBlue}, transparent);
+            animation: scanLine 3.5s infinite linear;
+          }
+
+          .poc-nodes-grid {
+            display: grid;
+            gap: 40px;
+            position: relative;
+            z-index: 1;
+          }
+
+          .poc-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          }
+
+          /* El nodo circular con la letra */
+          .poc-letter-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #0B2340; /* Fondo oscuro sólido */
+            border: 2px solid ${mainBlue};
+            color: #FFFFFF;
+            font-family: 'LEMON MILK', sans-serif;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            box-shadow: 0 0 15px rgba(116, 179, 206, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+          }
+
+          /* La tarjeta de contenido colgando del nodo */
+          .poc-card-content {
+            background: rgba(12, 24, 44, 0.6);
+            border: 1px solid rgba(116, 179, 206, 0.15);
+            border-radius: 20px;
+            padding: 36px 24px 28px;
+            width: 100%;
+            backdrop-filter: blur(12px);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+          }
+
+          /* Interacciones del nodo */
+          .poc-node:hover {
+            transform: translateY(-5px);
+          }
+          .poc-node:hover .poc-letter-circle {
+            background: ${mainBlue};
+            color: #051024;
+            box-shadow: 0 0 30px rgba(116, 179, 206, 0.5);
+            transform: scale(1.1);
+          }
+          .poc-node:hover .poc-card-content {
+            border-color: rgba(116, 179, 206, 0.5);
+            background: rgba(16, 32, 56, 0.9);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(116, 179, 206, 0.1);
+          }
+
+          /* Diseño Responsivo del Flujo */
+          @media (min-width: 768px) {
+            .poc-nodes-grid {
+              grid-template-columns: repeat(3, 1fr);
+            }
+            .poc-connection-line {
+              top: 56px; /* Centrado verticalmente con el círculo de 72px (20px padding + 36px) */
+              left: 15%;
+              right: 15%;
+              height: 2px;
+            }
+            .poc-line-glow {
+              top: 0; left: 0; width: 30%; height: 100%;
+            }
+            @keyframes scanLine {
+              0% { transform: translateX(-100%); }
+              100% { transform: translateX(400%); }
+            }
+          }
+
+          @media (max-width: 767px) {
+            .poc-nodes-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 40px;
+            }
+            .poc-connection-line {
+              top: 5%;
+              bottom: 5%;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 2px;
+            }
+            .poc-line-glow {
+              top: 0; left: 0; width: 100%; height: 30%;
+              background: linear-gradient(180deg, transparent, ${mainBlue}, transparent);
+              animation: scanLineVertical 3.5s infinite linear;
+            }
+            @keyframes scanLineVertical {
+              0% { transform: translateY(-100%); }
+              100% { transform: translateY(400%); }
+            }
+          }
 
           /* ANIMACIONES SCROLL REVEAL */
           .reveal-on-scroll {
@@ -346,6 +491,7 @@ export default function Home() {
           .delay-100 { transition-delay: 100ms; }
           .delay-200 { transition-delay: 200ms; }
           .delay-300 { transition-delay: 300ms; }
+          .delay-400 { transition-delay: 400ms; }
 
           /* ANIMACIONES KEYFRAMES */
           @keyframes float-advanced {
@@ -381,7 +527,7 @@ export default function Home() {
           }
           .typing-dot {
             display: inline-block; width: 6px; height: 6px;
-            background: rgba(255,255,255,0.7); border-radius: 50%;
+            background: #FFFFFF; border-radius: 50%;
             animation: typing 1.4s infinite ease-in-out;
             margin: 0 2px;
           }
@@ -393,13 +539,9 @@ export default function Home() {
             50% { transform: translateY(-4px); opacity: 1; }
           }
 
-          /* EFECTOS SECCIÓN GROOMING */
-          .custom-blur {
-            filter: blur(12px);
-          }
-          .is-visible.custom-blur {
-            filter: blur(0px);
-          }
+          /* EFECTOS TIMELINE */
+          .custom-blur { filter: blur(12px); }
+          .is-visible.custom-blur { filter: blur(0px); }
           .highlight-white-glow {
             color: #FFFFFF;
             text-shadow: 0 0 6px rgba(255,255,255,0.4);
@@ -407,6 +549,12 @@ export default function Home() {
             transition: all 0.3s ease;
             position: relative;
             cursor: default;
+          }
+          .timeline-step {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          }
+          .timeline-step:hover {
+            transform: translateX(12px);
           }
         `}
       </style>
@@ -436,7 +584,7 @@ export default function Home() {
           display: "flex", flexDirection: "column", alignItems: "flex-end",
           gap: "8px", pointerEvents: "none",
           animation: chatState.visible ? "slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards" : "fadeOut 0.5s ease forwards",
-          opacity: 0, // start hidden
+          opacity: 0,
         }}
       >
         <div style={{
@@ -451,7 +599,7 @@ export default function Home() {
           background: "rgba(15, 25, 45, 0.9)", backdropFilter: "blur(10px)",
           border: `1px solid rgba(255,255,255,0.1)`, borderLeft: `3px solid ${alertRed}`,
           padding: "14px 20px", borderRadius: "18px 18px 4px 18px",
-          color: "white", fontFamily: "'Altone', sans-serif", fontSize: "14px",
+          color: "#FFFFFF", fontFamily: "'Altone', sans-serif", fontSize: "14px",
           boxShadow: "0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(255, 60, 80, 0.15)",
           maxWidth: "250px",
         }}>
@@ -542,7 +690,7 @@ export default function Home() {
             background: "rgba(10, 20, 40, 0.4)", border: "1px solid rgba(116, 179, 206, 0.2)",
             borderRadius: "30px", overflow: "hidden", position: "relative",
             backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-            animation: "float-advanced 12s infinite ease-in-out", // Animación principal de flotación
+            animation: "float-advanced 12s infinite ease-in-out",
           }}
         >
           <div
@@ -569,7 +717,7 @@ export default function Home() {
                 marginBottom: "28px", boxShadow: "0 0 20px rgba(116, 179, 206, 0.1)",
               }}
             >
-              La concientización es el pilar
+              Más tecnología. Más exposición. Más riesgo.
             </div>
 
             <h1
@@ -580,10 +728,10 @@ export default function Home() {
                 textShadow: "0 10px 30px rgba(0,0,0,0.5)",
               }}
             >
-              Las nuevas tecnologías amplifican el <span style={{ color: mainBlue, position: "relative", display: "inline-block" }}>
+              El <span style={{ color: mainBlue, position: "relative", display: "inline-block" }}>
                 grooming
                 <span style={{ position: "absolute", bottom: -5, left: 0, width: "100%", height: "4px", background: brandGradient, borderRadius: "2px" }} />
-              </span>
+              </span> evolucionó. ¿Estamos preparados?
             </h1>
 
             <p
@@ -594,9 +742,7 @@ export default function Home() {
                 maxWidth: "740px", margin: "0 auto 42px",
               }}
             >
-              UNA PLATAFORMA INMERSIVA CON RECORRIDOS ADAPTADOS PARA NIÑOS, ADOLESCENTES,
-              FAMILIAS Y DOCENTES, PENSADA PARA INFORMAR, PREVENIR Y ACOMPAÑAR
-              FRENTE A LAS AMENAZAS OCULTAS ONLINE.
+              SAFENET es una plataforma inmersiva que simula entornos digitales reales para enseñar a niños, adolescentes, familias y docentes a reconocer, prevenir y actuar frente al grooming, y protegerse en los espacios digitales que forman parte de su vida cotidiana.
             </p>
 
             <div className="reveal-on-scroll delay-300" style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
@@ -624,14 +770,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECCIÓN TRANSICIÓN STORYTELLING CON ANIMACIÓN SECUENCIAL */}
+      {/* SECCIÓN TRANSICIÓN STORYTELLING */}
       <section ref={storyRef} style={{ padding: "80px 20px", textAlign: "center", position: "relative", zIndex: 1, minHeight: "400px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
-            
-            {/* Título progresivo */}
+        <div style={{ maxWidth: "1000px", margin: "0 auto", width: "100%" }}>
             <h2 style={{
                 fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(24px, 3vw, 36px)",
-                color: "rgba(255,255,255,0.9)", margin: "0 0 20px"
+                color: "#FFFFFF", margin: "0 0 20px"
             }}>
                 <span style={{
                     opacity: storyState >= 1 ? 1 : 0,
@@ -655,50 +799,52 @@ export default function Home() {
                 </span>
             </h2>
 
-            {/* Chat Simulado de Transición */}
             <div style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                margin: "40px auto 30px", maxWidth: "320px",
+                display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: "24px",
+                margin: "40px auto 30px", maxWidth: "100%",
                 opacity: storyState >= 3 ? 1 : 0,
                 transform: storyState >= 3 ? "translateY(0)" : "translateY(20px)",
                 transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)",
                 filter: storyState >= 3 ? "blur(0)" : "blur(10px)"
             }}>
-                <div style={{
-                    fontSize: "12px", fontFamily: "'Altone', sans-serif", color: alertRed,
-                    fontWeight: "bold", textTransform: "uppercase", letterSpacing: "1px",
-                    marginBottom: "10px", alignSelf: "flex-start", paddingLeft: "12px",
-                    textShadow: `0 0 10px rgba(255, 60, 80, 0.4)`
-                }}>
-                    Desconocido
-                </div>
-                
-                <div style={{
-                    background: "rgba(15, 25, 45, 0.85)", backdropFilter: "blur(12px)",
-                    border: `1px solid rgba(255,255,255,0.08)`, borderLeft: `3px solid ${alertRed}`,
-                    padding: "16px 24px", borderRadius: "18px 18px 18px 4px",
-                    color: "white", fontFamily: "'Altone', sans-serif", fontSize: "16px",
-                    boxShadow: "0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(255, 60, 80, 0.15)",
-                    width: "100%", textAlign: "left"
-                }}>
-                    {storyState === 3 ? (
-                        <div style={{ display: "flex", alignItems: "center", height: "24px" }}>
-                            <span className="typing-dot" />
-                            <span className="typing-dot" />
-                            <span className="typing-dot" />
-                        </div>
-                    ) : (
-                        <span style={{ 
-                            opacity: storyState >= 4 ? 1 : 0, 
-                            transition: "opacity 0.4s ease" 
-                        }}>
-                            No le cuentes a nadie, somos amigos
-                        </span>
-                    )}
-                </div>
+                {simulationMessages.map((msg, index) => (
+                  <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 250px", maxWidth: "320px" }}>
+                      <div style={{
+                          fontSize: "12px", fontFamily: "'Altone', sans-serif", color: alertRed,
+                          fontWeight: "bold", textTransform: "uppercase", letterSpacing: "1px",
+                          marginBottom: "10px", alignSelf: "flex-start", paddingLeft: "12px",
+                          textShadow: `0 0 10px rgba(255, 60, 80, 0.4)`
+                      }}>
+                          {msg.name}
+                      </div>
+                      
+                      <div style={{
+                          background: "rgba(15, 25, 45, 0.85)", backdropFilter: "blur(12px)",
+                          border: `1px solid rgba(255,255,255,0.08)`, borderLeft: `3px solid ${alertRed}`,
+                          padding: "16px 24px", borderRadius: "18px 18px 18px 4px",
+                          color: "#FFFFFF", fontFamily: "'Altone', sans-serif", fontSize: "16px",
+                          boxShadow: "0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(255, 60, 80, 0.15)",
+                          width: "100%", textAlign: "left", minHeight: "85px", display: "flex", alignItems: "center"
+                      }}>
+                          {storyState === 3 ? (
+                              <div style={{ display: "flex", alignItems: "center", height: "24px" }}>
+                                  <span className="typing-dot" />
+                                  <span className="typing-dot" />
+                                  <span className="typing-dot" />
+                              </div>
+                          ) : (
+                              <span style={{ 
+                                  opacity: storyState >= 4 ? 1 : 0, 
+                                  transition: "opacity 0.4s ease" 
+                              }}>
+                                  {msg.text}
+                              </span>
+                          )}
+                      </div>
+                  </div>
+                ))}
             </div>
 
-            {/* Subtítulo Reflexivo Final */}
             <div style={{
                 fontFamily: "'Altone', sans-serif", display: "inline-block", padding: "8px 20px",
                 borderRadius: "999px", background: "rgba(255, 255, 255, 0.08)",
@@ -711,7 +857,7 @@ export default function Home() {
                 filter: storyState >= 5 ? "blur(0)" : "blur(5px)",
                 transition: "all 1.2s ease"
             }}>
-                El peligro en la red no siempre hace ruido. A veces se esconde en lo que parece normal.
+                La confianza digital también puede ser manipulada.
             </div>
         </div>
       </section>
@@ -720,7 +866,7 @@ export default function Home() {
       <section id="que-es" style={{ padding: "100px 20px", position: "relative", zIndex: 1 }}>
         <div style={{
             maxWidth: "1200px", margin: "0 auto", display: "flex", flexWrap: "wrap",
-            gap: "70px", alignItems: "stretch"
+            gap: "70px", alignItems: "center"
           }}
         >
           <div style={{ flex: "0.8 1 350px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
@@ -736,97 +882,132 @@ export default function Home() {
               </div>
               <h2 className="reveal-on-scroll custom-blur delay-200" style={{
                   fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(30px, 3.8vw, 48px)", lineHeight: 1.25,
-                  color: "#FFF", margin: 0, maxWidth: "480px", letterSpacing: "0.5px",
+                  color: "#FFFFFF", margin: 0, maxWidth: "480px", letterSpacing: "0.5px",
                   textShadow: "0 10px 30px rgba(0,0,0,0.4)"
                 }}
               >
-                Reconocer el problema es el primer paso
+                Cómo actúa el grooming
               </h2>
+              <p className="reveal-on-scroll custom-blur delay-300" style={{
+                  fontFamily: "'Altone', sans-serif", fontSize: "18px", lineHeight: 1.6,
+                  color: "#FFFFFF", margin: "20px 0 0", maxWidth: "460px"
+                }}
+              >
+                Ocurre en los espacios digitales que usás todos los días: Instagram, TikTok, Roblox y chats online.
+              </p>
             </div>
           </div>
 
-          <div className="reveal-on-scroll custom-blur delay-300" style={{
-              flex: "1.2 1 450px", display: "flex", flexDirection: "column", justifyContent: "center", height: "100%",
-              padding: "40px 48px",
-              position: "relative"
+          <div className="reveal-on-scroll custom-blur delay-400" style={{
+              flex: "1.2 1 450px", display: "flex", flexDirection: "column", position: "relative"
             }}
           >
-            {/* CONTENIDO REDISEÑADO ESCANEABLE - MINIMALISTA */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "28px", position: "relative", zIndex: 1, marginTop: "16px" }}>
-               
-               {/* Bloque 1 */}
-               <div style={{ borderLeft: "2px solid #FFFFFF", paddingLeft: "18px" }}>
-                 <div style={{ fontSize: "11px", fontFamily: "'Altone', sans-serif", color: "#FFFFFF", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "6px", fontWeight: "bold" }}>
-                   01. El Concepto
-                 </div>
-                 <div style={{ fontSize: "17px", lineHeight: 1.6, color: "#FFFFFF" }}>
-                   Forma de <span className="highlight-white-glow" style={{ fontSize: "14px" }}>VIOLENCIA DIGITAL</span> donde una persona adulta contacta a menores con fines sexuales.
-                 </div>
-               </div>
+            <div style={{ display: "flex", flexDirection: "column", position: "relative", padding: "20px 0" }}>
+              <div style={{ 
+                  position: "absolute", left: "23px", top: "24px", bottom: "40px", width: "2px", 
+                  background: `linear-gradient(to bottom, rgba(116, 179, 206, 0.3) 0%, rgba(116, 179, 206, 0.3) 60%, rgba(255, 60, 80, 0.6) 100%)`,
+                  zIndex: 0 
+              }} />
 
-               {/* Bloque 2 */}
-               <div style={{ borderLeft: "2px solid #FFFFFF", paddingLeft: "18px" }}>
-                 <div style={{ fontSize: "11px", fontFamily: "'Altone', sans-serif", color: "#FFFFFF", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "6px", fontWeight: "bold" }}>
-                   02. Vectores de Contacto
-                 </div>
-                 <div style={{ fontSize: "17px", lineHeight: 1.6, color: "#FFFFFF" }}>
-                   Se oculta en plataformas de confianza como <span className="highlight-white-glow" style={{ fontSize: "14px" }}>REDES SOCIALES, JUEGOS ONLINE Y CHATS</span>.
-                 </div>
-               </div>
+              {[
+                { title: "CONTACTO", desc: "Inicia con un mensaje aparentemente inofensivo." },
+                { title: "CONFIANZA", desc: "Busca generar cercanía y conexión emocional." },
+                { title: "AISLAMIENTO", desc: "Intenta que la conversación sea privada o secreta." },
+                { title: "PEDIDO", desc: "Solicita fotos, información o contenido íntimo." },
+                { title: "PRESIÓN", desc: "Aparecen amenazas, manipulación o chantaje." }
+              ].map((step, i, arr) => {
+                const isLast = i === arr.length - 1;
+                const stepColor = isLast ? alertRed : mainBlue;
+                const glowColor = isLast ? "rgba(255, 60, 80, 0.4)" : "rgba(116, 179, 206, 0.4)";
 
-               {/* Bloque 3 */}
-               <div style={{ borderLeft: "2px solid #FFFFFF", paddingLeft: "18px" }}>
-                 <div style={{ fontSize: "11px", fontFamily: "'Altone', sans-serif", color: "#FFFFFF", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "6px", fontWeight: "bold" }}>
-                   03. Defensa Activa
-                 </div>
-                 <div style={{ fontSize: "17px", lineHeight: 1.6, color: "#FFFFFF" }}>
-                   La educación y las herramientas claras permiten identificar <span className="highlight-white-glow" style={{ fontSize: "14px" }}>SEÑALES DE ALERTA</span> para interceptar la amenaza a tiempo.
-                 </div>
-               </div>
+                return (
+                  <div key={i} className="timeline-step" style={{ 
+                      display: "flex", gap: "28px", position: "relative", zIndex: 1, 
+                      paddingBottom: isLast ? "0" : "36px" 
+                  }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "48px", flexShrink: 0 }}>
+                      <div style={{
+                          width: "48px", height: "48px", borderRadius: "50%",
+                          background: "rgba(5, 16, 36, 0.95)", border: `2px solid ${stepColor}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontFamily: "'LEMON MILK', sans-serif", fontSize: "16px", color: "#FFFFFF",
+                          boxShadow: `0 0 15px ${glowColor}`, zIndex: 2
+                      }}>
+                        0{i + 1}
+                      </div>
+                    </div>
 
+                    <div style={{ paddingTop: "12px", paddingBottom: "10px" }}>
+                      <div style={{ 
+                        fontSize: "20px", fontFamily: "'LEMON MILK', sans-serif", color: "#FFFFFF", 
+                        marginBottom: "8px", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "10px"
+                      }}>
+                        {step.title}
+                        {isLast && <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: alertRed, display: "inline-block", boxShadow: `0 0 8px ${alertRed}` }} />}
+                      </div>
+                      <div style={{ 
+                        fontSize: "17px", lineHeight: 1.6, color: "#FFFFFF", 
+                        fontFamily: "'Altone', sans-serif" 
+                      }}>
+                        {step.desc}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN: NUESTRO ENFOQUE */}
-      <section style={{ padding: "40px 20px 100px", position: "relative", zIndex: 1 }}>
+      {/* SECCIÓN: ENFOQUE DE LA PLATAFORMA (MODELO P.O.C SISTÉMICO) */}
+      <section style={{ padding: "80px 20px 120px", position: "relative", zIndex: 1 }}>
         <div className="reveal-on-scroll" style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ maxWidth: "760px", marginBottom: "50px" }}>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(24px, 3vw, 36px)", color: "#FFF", margin: "0 0 16px" }}>
-              Pilares de la plataforma
+          
+          {/* Header de la sección */}
+          <div style={{ textAlign: "center", marginBottom: "70px" }}>
+            <div style={{
+              fontFamily: "'Altone', sans-serif", fontSize: "13px", fontWeight: 800, letterSpacing: "1.4px",
+              textTransform: "uppercase", color: mainBlue, marginBottom: "16px"
+            }}>
+              Modelo Estratégico
+            </div>
+            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(28px, 4vw, 42px)", color: "#FFFFFF", margin: "0 0 16px" }}>
+              Enfoque de la plataforma
             </h2>
+            <p style={{ fontFamily: "'Altone', sans-serif", fontSize: "18px", color: "#FFFFFF", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
+              Un modelo integral para prevenir, detectar y actuar frente al grooming digital.
+            </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
-            {pillars.map((pillar, idx) => (
-              <article
-                key={pillar.title}
-                className={`reveal-on-scroll delay-${(idx + 1) * 100}`}
-                style={{
-                  background: "rgba(20, 30, 50, 0.5)", border: "1px solid rgba(255, 255, 255, 0.1)", 
-                  borderRadius: "24px", padding: "24px 28px", backdropFilter: "blur(10px)",
-                  transition: "transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
-                  e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(255, 255, 255, 0.05)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                <h3 className="highlight-white-glow" style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "20px", margin: "0 0 16px" }}>
-                  {pillar.title}
-                </h3>
-                <p style={{ fontSize: "16px", lineHeight: 1.6, color: "#FFFFFF", margin: 0 }}>
-                  {pillar.text}
-                </p>
-              </article>
-            ))}
+          <div className="poc-system-wrapper">
+            {/* Línea conectora y su animación */}
+            <div className="poc-connection-line">
+              <div className="poc-line-glow"></div>
+            </div>
+
+            <div className="poc-nodes-grid">
+              {pocPillars.map((pillar, idx) => (
+                <div key={idx} className={`poc-node delay-${(idx + 1) * 100}`}>
+                  
+                  {/* Círculo central con la letra (Nodo funcional) */}
+                  <div className="poc-letter-circle">
+                    {pillar.letter}
+                  </div>
+                  
+                  {/* Tarjeta de contenido debajo del nodo */}
+                  <div className="poc-card-content">
+                    <h3 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "20px", color: "#FFFFFF", marginBottom: "12px", letterSpacing: "0.5px" }}>
+                      {pillar.title}
+                    </h3>
+                    <p style={{ fontFamily: "'Altone', sans-serif", fontSize: "15px", lineHeight: 1.6, color: "#FFFFFF", margin: 0 }}>
+                      {pillar.text}
+                    </p>
+                  </div>
+
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -891,11 +1072,25 @@ export default function Home() {
                 Atención y Denuncia
               </div>
               <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(28px, 3.5vw, 42px)", color: "#FFFFFF", margin: "0 0 16px" }}>
-                ¿Detectaste una amenaza en la red?
+                ¿Sospechás de una situación de grooming?
               </h2>
-              <p style={{ fontSize: "18px", color: "#FFFFFF", margin: 0 }}>
-                El grooming es un delito. Si necesitas ayuda o detectaste un comportamiento sospechoso, comunicate con la línea nacional gratuita y confidencial.
+              <p style={{ fontSize: "18px", color: "#FFFFFF", margin: 0, lineHeight: 1.6 }}>
+                El grooming es un delito. Si detectás una situación sospechosa o necesitás ayuda, podés comunicarte de forma gratuita y confidencial.
               </p>
+
+              {/* Nuevos Contactos Organizados */}
+              <div style={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: "24px", fontFamily: "'Altone', sans-serif" }}>
+                <div>
+                  <div style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "1.2px", color: alertRed, fontWeight: "bold", marginBottom: "6px" }}>Línea Nacional</div>
+                  <div style={{ fontSize: "24px", fontWeight: "bold", color: "#FFFFFF" }}>137</div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "1.2px", color: mainBlue, fontWeight: "bold", marginBottom: "6px" }}>Grooming Argentina</div>
+                  <div style={{ fontSize: "18px", color: "#FFFFFF", fontWeight: 500, marginBottom: "4px" }}>+54 9 11 2481 1722</div>
+                  <div style={{ fontSize: "16px", color: "#FFFFFF" }}>contacto@groomingarg.org</div>
+                </div>
+              </div>
             </div>
 
             <a href="tel:137" className="btn-primary" style={{
