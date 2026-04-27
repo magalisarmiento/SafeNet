@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
+import { trackWorldEntry } from "@/lib/tracking";
 
 export default function DocentesPage() {
+  useEffect(() => {
+    trackWorldEntry("docentes");
+  }, []);
+
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   

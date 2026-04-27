@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { trackWorldEntry } from "@/lib/tracking";
 
 /* ════════════════════════════════════════════════════════════
    TIPOS
@@ -179,7 +180,6 @@ function DmSimModule({ onComplete, onXp }: { onComplete: (pts: number) => void; 
   return (
     <div>
       {xpPop > 0 && <XpPop amount={xpPop} onDone={() => setXpPop(0)} />}
-      {/* Header estilo DM */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: 'rgba(0,0,0,0.3)', borderRadius: '12px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', color: '#FFF', flexShrink: 0 }}>A</div>
         <div>
@@ -302,9 +302,7 @@ function ProfileDetectorModule({ onComplete, onXp }: { onComplete: (pts: number)
       {xpPop > 0 && <XpPop amount={xpPop} onDone={() => setXpPop(0)} />}
       <ProgressBar label={`Perfil ${idx + 1} de ${profiles.length}`} current={idx + 1} max={profiles.length} color={ACCENT} />
 
-      {/* Tarjeta de perfil estilo Instagram */}
       <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.07)', marginBottom: '16px', overflow: 'hidden' }}>
-        {/* Header de perfil */}
         <div style={{ padding: '16px', display: 'flex', gap: '14px', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ width: '54px', height: '54px', borderRadius: '50%', background: `linear-gradient(135deg, ${p.avatar}, ${p.avatar}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold', color: '#FFF', border: `2px solid ${p.avatar}`, flexShrink: 0 }}>
             {p.name.charAt(0)}
@@ -318,7 +316,6 @@ function ProfileDetectorModule({ onComplete, onXp }: { onComplete: (pts: number)
           </div>
         </div>
 
-        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', textAlign: 'center', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           {[['Publicaciones', p.posts], ['Seguidores', p.followers], ['Siguiendo', p.following]].map(([label, val]) => (
             <div key={label}>
@@ -328,13 +325,11 @@ function ProfileDetectorModule({ onComplete, onXp }: { onComplete: (pts: number)
           ))}
         </div>
 
-        {/* Bio */}
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FFF', marginBottom: '4px' }}>{p.name}</div>
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{p.bio}</div>
         </div>
 
-        {/* Grid de posts simulado */}
         <div style={{ padding: '12px 16px 16px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3px' }}>
           {Array.from({ length: Math.min(p.postCount, 6) }).map((_, i) => (
             <div key={i} style={{ aspectRatio: '1', borderRadius: '4px', background: `rgba(${parseInt(p.avatar.slice(1, 2), 16) * 17},${parseInt(p.avatar.slice(2, 3), 16) * 17},${parseInt(p.avatar.slice(3), 16) * 17},0.25)`, border: '1px solid rgba(255,255,255,0.04)' }} />
@@ -343,7 +338,6 @@ function ProfileDetectorModule({ onComplete, onXp }: { onComplete: (pts: number)
         </div>
       </div>
 
-      {/* Veredicto */}
       {!chosen ? (
         <div>
           <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.4)', marginBottom: '10px' }}>¿Como evaluás este perfil?</div>
@@ -525,7 +519,6 @@ function StoryPathModule({ onComplete, onXp }: { onComplete: (pts: number) => vo
 
 /* ════════════════════════════════════════════════════════════
    MÓDULO 4 — ANALIZÁ LAS RED FLAGS
-   El adolescente ve fragmentos de conversacion y marca señales
 ════════════════════════════════════════════════════════════ */
 
 const redFlagMessages = [
@@ -598,7 +591,6 @@ function RedFlagsModule({ onComplete, onXp }: { onComplete: (pts: number) => voi
 
 /* ════════════════════════════════════════════════════════════
    MÓDULO 5 — CAPTURA DE PANTALLA
-   El usuario analiza un chat completo y decide qué hacer
 ════════════════════════════════════════════════════════════ */
 
 const screenshotChat = [
@@ -631,7 +623,6 @@ function ScreenshotModule({ onComplete, onXp }: { onComplete: (pts: number) => v
       {xpPop > 0 && <XpPop amount={xpPop} onDone={() => setXpPop(0)} />}
       <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>Analizá esta conversacion completa</div>
 
-      {/* Chat estilo screenshot */}
       <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)', padding: '14px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '4px' }}>
           <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #764ba2, #667eea)', flexShrink: 0 }} />
@@ -672,6 +663,10 @@ function ScreenshotModule({ onComplete, onXp }: { onComplete: (pts: number) => v
    PÁGINA PRINCIPAL
 ════════════════════════════════════════════════════════════ */
 export default function AdolescentesPage() {
+  useEffect(() => {
+    trackWorldEntry("adolescentes");
+  }, []);
+
   const [view, setView] = useState<View>('intro');
   const [username, setUsername] = useState('');
   const [xp, setXp] = useState(0);
@@ -760,10 +755,8 @@ export default function AdolescentesPage() {
 
       <ParticleNetwork />
 
-      {/* Franja superior */}
       <div style={{ height: '5px', background: BRAND_GRADIENT, position: 'relative', zIndex: 51 }} />
 
-      {/* HEADER */}
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(5,18,43,0.75)', backdropFilter: 'blur(22px)', borderBottom: '1px solid rgba(116,179,206,0.1)' }}>
         <nav style={{ maxWidth: '1200px', margin: '0 auto', minHeight: '80px', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
           <a href="/" style={{ fontFamily: "'LEMON MILK',sans-serif", textDecoration: 'none', color: '#FFF', fontSize: '22px', fontWeight: 'bold', letterSpacing: '1px' }}>SAFENET</a>
@@ -781,10 +774,7 @@ export default function AdolescentesPage() {
         </nav>
       </header>
 
-      {/* VISTAS */}
       <section style={{ padding: '80px 20px', position: 'relative', zIndex: 1 }}>
-
-        {/* ── INTRO ── */}
         {view === 'intro' && (
           <div style={{ maxWidth: '1100px', margin: '0 auto', animation: 'fadeIn 0.6s ease' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center', minHeight: '60vh' }}>
@@ -814,7 +804,6 @@ export default function AdolescentesPage() {
           </div>
         )}
 
-        {/* ── SETUP ── */}
         {view === 'setup' && (
           <div style={{ maxWidth: '520px', margin: '0 auto', animation: 'fadeIn 0.5s ease' }}>
             <div className="card-glass" style={{ padding: '48px 44px', border: '1px solid rgba(116,179,206,0.25)' }}>
@@ -846,10 +835,8 @@ export default function AdolescentesPage() {
           </div>
         )}
 
-        {/* ── WORLD ── */}
         {view === 'world' && (
           <div style={{ maxWidth: '1200px', margin: '0 auto', animation: 'fadeIn 0.5s ease' }}>
-            {/* Header del mundo */}
             <div style={{ marginBottom: '48px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '20px' }}>
                 <div>
@@ -869,7 +856,6 @@ export default function AdolescentesPage() {
               </div>
             </div>
 
-            {/* Grid de misiones */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
               {missions.map((m, i) => {
                 const done = completedModules.has(m.id);
@@ -910,11 +896,9 @@ export default function AdolescentesPage() {
         )}
       </section>
 
-      {/* MODAL DE MÓDULOS */}
       {activeModule && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(5,12,30,0.97)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', animation: 'fadeIn 0.25s ease' }}>
           <div style={{ maxWidth: '560px', width: '100%', maxHeight: '90vh', overflowY: 'auto', background: 'rgba(8,20,45,0.99)', border: '1px solid rgba(116,179,206,0.18)', borderRadius: '24px', padding: '36px', position: 'relative' }}>
-            {/* Header del modal */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <div>
                 <span className="tag-pill" style={{ marginBottom: '6px', display: 'inline-flex' }}>{missions.find(m => m.id === activeModule)?.tag}</span>
@@ -928,7 +912,6 @@ export default function AdolescentesPage() {
               >✕</button>
             </div>
 
-            {/* Contenido del módulo */}
             {activeModule === 'dm_sim' && <DmSimModule onComplete={pts => handleComplete('dm_sim', pts)} onXp={handleXp} />}
             {activeModule === 'profile_detector' && <ProfileDetectorModule onComplete={pts => handleComplete('profile_detector', pts)} onXp={handleXp} />}
             {activeModule === 'story_path' && <StoryPathModule onComplete={pts => handleComplete('story_path', pts)} onXp={handleXp} />}
@@ -938,7 +921,6 @@ export default function AdolescentesPage() {
         </div>
       )}
 
-      {/* FOOTER */}
       <footer style={{ background: 'rgba(5,12,25,0.9)', borderTop: '1px solid rgba(116,179,206,0.08)', padding: '36px 20px', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ fontFamily: "'LEMON MILK',sans-serif", fontSize: '18px', fontWeight: 'bold', color: '#FFF', opacity: 0.85 }}>SAFENET WORLD</div>

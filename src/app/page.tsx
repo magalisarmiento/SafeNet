@@ -226,7 +226,7 @@ export default function Home() {
     },
     {
       title: "Adolescentes de 14 a 17 años",
-      description: "Simulaciones, decisiones y contenidos pensados para redes sociales, mensajería y situaciones reales.",
+      description: "Simulaciones, decisiones y contenidos pensados para redes sociales, mentajería y situaciones reales.",
       href: "/adolescentes",
     },
     {
@@ -269,6 +269,7 @@ export default function Home() {
   const darkBlueAlt = "#5A99B4";
   const lightBlueBg = "rgba(116, 179, 206, 0.12)";
   const alertRed = "#FF3C50";
+  const contrastBlue = "#0B2340"; // Nuevo color azul oscuro para máxima visibilidad en la sección Storytelling
   
   // Gradientes
   const brandGradient = `linear-gradient(90deg, #FFFFFF 0%, ${mainBlue} 55%, #FFFFFF 100%)`;
@@ -527,7 +528,7 @@ export default function Home() {
           }
           .typing-dot {
             display: inline-block; width: 6px; height: 6px;
-            background: #FFFFFF; border-radius: 50%;
+            background: currentColor; border-radius: 50%;
             animation: typing 1.4s infinite ease-in-out;
             margin: 0 2px;
           }
@@ -542,14 +543,6 @@ export default function Home() {
           /* EFECTOS TIMELINE */
           .custom-blur { filter: blur(12px); }
           .is-visible.custom-blur { filter: blur(0px); }
-          .highlight-white-glow {
-            color: #FFFFFF;
-            text-shadow: 0 0 6px rgba(255,255,255,0.4);
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-            cursor: default;
-          }
           .timeline-step {
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           }
@@ -728,10 +721,7 @@ export default function Home() {
                 textShadow: "0 10px 30px rgba(0,0,0,0.5)",
               }}
             >
-              El <span style={{ color: mainBlue, position: "relative", display: "inline-block" }}>
-                grooming
-                <span style={{ position: "absolute", bottom: -5, left: 0, width: "100%", height: "4px", background: brandGradient, borderRadius: "2px" }} />
-              </span> evolucionó. ¿Estamos preparados?
+              El <span style={{ color: mainBlue }}>grooming</span> evolucionó ¿Estamos preparados?
             </h1>
 
             <p
@@ -770,12 +760,134 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECCIÓN TRANSICIÓN STORYTELLING */}
-      <section ref={storyRef} style={{ padding: "80px 20px", textAlign: "center", position: "relative", zIndex: 1, minHeight: "400px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        <div style={{ maxWidth: "1000px", margin: "0 auto", width: "100%" }}>
+      {/* VIDEO YOUTUBE - IMPACTO */}
+      <section
+        id="video-impacto"
+        className="reveal-on-scroll"
+        style={{
+          padding: "90px 20px 100px",
+          position: "relative",
+          zIndex: 1,
+          background: "linear-gradient(180deg, #051024 0%, #071A34 50%, #051024 100%)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: "10%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "720px",
+            height: "420px",
+            background: "rgba(116, 179, 206, 0.12)",
+            filter: "blur(80px)",
+            borderRadius: "50%",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div style={{ maxWidth: "980px", margin: "0 auto", position: "relative", zIndex: 2 }}>
+          <div style={{ textAlign: "center", marginBottom: "34px" }}>
+            <span
+              style={{
+                fontFamily: "'LEMON MILK', sans-serif",
+                display: "inline-flex",
+                padding: "8px 18px",
+                borderRadius: "999px",
+                background: "rgba(116, 179, 206, 0.12)",
+                border: `1px solid rgba(116, 179, 206, 0.35)`,
+                color: mainBlue,
+                fontSize: "11px",
+                letterSpacing: "1.2px",
+                textTransform: "uppercase",
+                marginBottom: "18px",
+              }}
+            >
+              Mirá el mensaje
+            </span>
+
+            <h2
+              style={{
+                fontFamily: "'LEMON MILK', sans-serif",
+                fontSize: "clamp(26px, 3vw, 42px)",
+                lineHeight: 1.2,
+                color: "#FFFFFF",
+                margin: "0 0 14px",
+              }}
+            > 
+              No es ficción, pasa todos los días.
+            </h2>
+
+            <p
+              style={{
+                fontFamily: "'Altone', sans-serif",
+                fontSize: "17px",
+                lineHeight: 1.75,
+                color: "rgba(255,255,255,0.82)",
+                maxWidth: "680px",
+                margin: "0 auto",
+              }}
+            >
+              Un video breve para introducir la problemática:
+            </p>
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              paddingTop: "56.25%",
+              borderRadius: "24px",
+              overflow: "hidden",
+              border: "1px solid rgba(116, 179, 206, 0.28)",
+              boxShadow: "0 30px 80px rgba(0,0,0,0.45), 0 0 40px rgba(116, 179, 206, 0.18)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            <iframe
+              src="https://www.youtube.com/embed/LxfcvzgKmUs"
+              title="Video sobre grooming"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                border: "0",
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+
+      {/* SECCIÓN TRANSICIÓN STORYTELLING (ACTUALIZADA: ACENTO AZUL OSCURO PARA MÁXIMA VISIBILIDAD) */}
+      <section 
+        ref={storyRef} 
+        style={{ 
+          padding: "100px 20px", 
+          textAlign: "center", 
+          position: "relative", 
+          zIndex: 1, 
+          background: mainBlue, // Fondo azul sólido según la imagen
+          minHeight: "500px", 
+          display: "flex", 
+          flexDirection: "column", 
+          justifyContent: "center",
+          transition: "background 1s ease"
+        }}
+      >
+        <div style={{ maxWidth: "1100px", margin: "0 auto", width: "100%" }}>
             <h2 style={{
-                fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(24px, 3vw, 36px)",
-                color: "#FFFFFF", margin: "0 0 20px"
+                fontFamily: "'LEMON MILK', sans-serif", 
+                fontSize: "clamp(24px, 3.5vw, 42px)",
+                color: "#FFFFFF", 
+                margin: "0 0 30px",
+                letterSpacing: "1px"
             }}>
                 <span style={{
                     opacity: storyState >= 1 ? 1 : 0,
@@ -788,12 +900,12 @@ export default function Home() {
                 <br />
                 <span style={{
                     opacity: storyState >= 2 ? 1 : 0,
-                    color: storyState >= 2 ? alertRed : "transparent",
-                    textShadow: storyState >= 2 ? `0 0 25px rgba(255, 60, 80, 0.4)` : "none",
+                    color: contrastBlue, // Acento azul oscuro (reemplazando al rosa para mayor visibilidad)
                     transform: storyState >= 2 ? "scale(1)" : "scale(0.95)",
                     transition: "all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                     display: "inline-block",
-                    marginTop: "10px"
+                    marginTop: "10px",
+                    textShadow: "0 1px 15px rgba(255,255,255,0.2)"
                 }}>
                     MENSAJE..."
                 </span>
@@ -801,30 +913,31 @@ export default function Home() {
 
             <div style={{
                 display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: "24px",
-                margin: "40px auto 30px", maxWidth: "100%",
+                margin: "50px auto 40px", maxWidth: "100%",
                 opacity: storyState >= 3 ? 1 : 0,
                 transform: storyState >= 3 ? "translateY(0)" : "translateY(20px)",
-                transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)",
-                filter: storyState >= 3 ? "blur(0)" : "blur(10px)"
+                transition: "all 0.8s ease"
             }}>
                 {simulationMessages.map((msg, index) => (
-                  <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 250px", maxWidth: "320px" }}>
+                  <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", flex: "1 1 300px", maxWidth: "340px" }}>
                       <div style={{
-                          fontSize: "12px", fontFamily: "'Altone', sans-serif", color: alertRed,
+                          fontSize: "11px", fontFamily: "'LEMON MILK', sans-serif", 
+                          color: contrastBlue, // Nombres en azul oscuro para que resalten más
                           fontWeight: "bold", textTransform: "uppercase", letterSpacing: "1px",
-                          marginBottom: "10px", alignSelf: "flex-start", paddingLeft: "12px",
-                          textShadow: `0 0 10px rgba(255, 60, 80, 0.4)`
+                          marginBottom: "8px", paddingLeft: "10px",
+                          textShadow: "0 1px 2px rgba(255,255,255,0.1)"
                       }}>
                           {msg.name}
                       </div>
                       
                       <div style={{
-                          background: "rgba(15, 25, 45, 0.85)", backdropFilter: "blur(12px)",
-                          border: `1px solid rgba(255,255,255,0.08)`, borderLeft: `3px solid ${alertRed}`,
-                          padding: "16px 24px", borderRadius: "18px 18px 18px 4px",
-                          color: "#FFFFFF", fontFamily: "'Altone', sans-serif", fontSize: "16px",
-                          boxShadow: "0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(255, 60, 80, 0.15)",
-                          width: "100%", textAlign: "left", minHeight: "85px", display: "flex", alignItems: "center"
+                          background: "rgba(255, 255, 255, 0.15)", // Burbuja clara translúcida según la imagen
+                          backdropFilter: "blur(10px)",
+                          borderLeft: `3px solid ${contrastBlue}`, // Borde lateral en azul oscuro
+                          padding: "20px", borderRadius: "4px 20px 20px 20px",
+                          color: "#FFFFFF", fontFamily: "'Altone', sans-serif", fontSize: "15px",
+                          width: "100%", textAlign: "left", minHeight: "80px", display: "flex", alignItems: "center",
+                          boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
                       }}>
                           {storyState === 3 ? (
                               <div style={{ display: "flex", alignItems: "center", height: "24px" }}>
@@ -846,16 +959,14 @@ export default function Home() {
             </div>
 
             <div style={{
-                fontFamily: "'Altone', sans-serif", display: "inline-block", padding: "8px 20px",
-                borderRadius: "999px", background: "rgba(255, 255, 255, 0.08)",
-                border: `1px solid rgba(255, 255, 255, 0.3)`, color: "#FFFFFF",
-                fontSize: "12px", fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase",
-                boxShadow: "0 0 20px rgba(255, 255, 255, 0.1)",
-                marginTop: "20px",
+                fontFamily: "'Altone', sans-serif", display: "inline-block", padding: "10px 24px",
+                borderRadius: "999px", background: "rgba(255, 255, 255, 0.2)",
+                border: `1px solid rgba(255, 255, 255, 0.4)`, color: "#FFFFFF",
+                fontSize: "13px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase",
+                marginTop: "30px",
                 opacity: storyState >= 5 ? 1 : 0,
                 transform: storyState >= 5 ? "translateY(0)" : "translateY(15px)",
-                filter: storyState >= 5 ? "blur(0)" : "blur(5px)",
-                transition: "all 1.2s ease"
+                transition: "all 1s ease"
             }}>
                 La confianza digital también puede ser manipulada.
             </div>
@@ -1012,34 +1123,100 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECCIÓN: RECORRIDOS ESPECÍFICOS */}
-      <section id="mundos" style={{ padding: "100px 20px", position: "relative", zIndex: 1 }}>
+      {/* SECCIÓN: RECORRIDOS ESPECÍFICOS (ACTUALIZADA SEGÚN IMAGEN) */}
+      <section 
+        id="mundos" 
+        style={{ 
+          padding: "100px 20px", 
+          position: "relative", 
+          zIndex: 1, 
+          background: mainBlue, // Fondo azul sólido para coherencia visual
+          transition: "background 1s ease"
+        }}
+      >
         <div className="reveal-on-scroll" style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ maxWidth: "800px", marginBottom: "56px" }}>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(32px, 4.5vw, 54px)", color: "#FFFFFF", margin: "0 0 20px" }}>
+          {/* Header centrado según imagen */}
+          <div style={{ textAlign: "center", marginBottom: "56px", maxWidth: "1000px", margin: "0 auto 56px" }}>
+            <h2 style={{ 
+                fontFamily: "'LEMON MILK', sans-serif", 
+                fontSize: "clamp(32px, 4vw, 52px)", 
+                color: "#FFFFFF", 
+                margin: "0 0 20px",
+                letterSpacing: "1px"
+            }}>
               Un recorrido específico para cada usuario
             </h2>
-            <p style={{ fontSize: "18px", lineHeight: 1.78, color: "#FFFFFF", margin: 0, maxWidth: "690px" }}>
+            <p style={{ 
+                fontSize: "18px", 
+                lineHeight: 1.7, 
+                color: "#FFFFFF", 
+                margin: "0 auto", 
+                maxWidth: "780px",
+                opacity: 0.95
+            }}>
               La plataforma organiza sus contenidos según la edad y el rol de
               cada persona para que la prevención sea más clara y efectiva. Entra al entorno que te corresponda.
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "28px" }}>
+          <div style={{ 
+              display: "grid", 
+              gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))", 
+              gap: "32px" 
+          }}>
             {worlds.map((world, idx) => (
-              <article key={world.title} className={`card-world reveal-on-scroll delay-${(idx % 2 + 1) * 100}`} style={{ padding: "40px 36px", borderRadius: "28px" }}>
-                <h3 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "24px", margin: "0 0 16px", maxWidth: "480px" }}>
+              <article 
+                key={world.title} 
+                className={`reveal-on-scroll delay-${(idx % 2 + 1) * 100}`} 
+                style={{ 
+                  padding: "40px", 
+                  borderRadius: "24px",
+                  background: "rgba(255, 255, 255, 0.12)", // Efecto cristal claro
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                <h3 style={{ 
+                    fontFamily: "'LEMON MILK', sans-serif", 
+                    fontSize: "22px", 
+                    margin: "0 0 16px", 
+                    color: "#FFFFFF",
+                    letterSpacing: "0.5px"
+                }}>
                   {world.title}
                 </h3>
-                <p style={{ fontSize: "17px", lineHeight: 1.82, margin: "0 0 32px", maxWidth: "510px" }}>
+                <p style={{ 
+                    fontSize: "16px", 
+                    lineHeight: 1.8, 
+                    margin: "0 0 32px", 
+                    color: "#FFFFFF",
+                    opacity: 0.9
+                }}>
                   {world.description}
                 </p>
-                <a href={world.href} className="btn-primary" style={{
-                    fontFamily: "'LEMON MILK', sans-serif", display: "inline-flex", padding: "18px 32px", borderRadius: "14px",
-                    textDecoration: "none", background: mainBlue, color: "#FFFFFF", fontSize: "14px", fontWeight: "bold",
+                <a 
+                  href={world.href} 
+                  style={{
+                    fontFamily: "'LEMON MILK', sans-serif", 
+                    display: "inline-flex", 
+                    padding: "16px 32px", 
+                    borderRadius: "12px",
+                    textDecoration: "none", 
+                    background: "#FFFFFF", // Botón blanco
+                    color: mainBlue, // Texto azul
+                    fontSize: "13px", 
+                    fontWeight: "bold",
                     textTransform: "uppercase",
-                    boxShadow: `0 8px 20px rgba(116, 179, 206, 0.3)`,
-                  }}>
+                    boxShadow: `0 10px 25px rgba(0, 0, 0, 0.1)`,
+                    transition: "all 0.3s ease"
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 15px 30px rgba(0, 0, 0, 0.15)"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(0, 0, 0, 0.1)"; }}
+                >
                   Explorar espacio
                 </a>
               </article>

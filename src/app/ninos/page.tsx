@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { trackWorldEntry } from "@/lib/tracking";
 
 type Avatar = {
   id: string;
@@ -1131,6 +1132,10 @@ function MatchingModule({ onComplete, onXp }: any) {
    MAIN PAGE
 ════════════════════════════════ */
 export default function NinosPage() {
+  useEffect(() => {
+    trackWorldEntry("ninos");
+  }, []);
+
   const [view, setView] = useState<'intro' | 'setup' | 'world'>('intro');
   const [nickname, setNickname] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("a1");
