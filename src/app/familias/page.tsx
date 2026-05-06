@@ -1,149 +1,176 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { trackWorldEntry } from "@/lib/tracking";
+// import { trackWorldEntry } from "@/lib/tracking"; // Descomentar en entorno real
 
 export default function FamiliasPage() {
-  useEffect(() => {
+  /* useEffect(() => {
     trackWorldEntry("familias");
-  }, []);
+  }, []); */
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  // 1. Observer para revelar elementos al scrollear (Animaciones)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
-    );
 
-    const elements = document.querySelectorAll('.reveal-on-scroll');
-    elements.forEach((el) => observer.observe(el));
+  // --- DATOS DEL CONTENIDO ESTRUCTURADO ---
 
-    return () => observer.disconnect();
-  }, []);
+  const contextoFamilia = [
+    {
+      num: "01",
+      title: "El peligro invisible",
+      text: "El grooming no empieza con amenazas, empieza con confianza. Para acercarse a los chicos, los acosadores usan formas naturales, perfiles falsos y falsos intereses comunes."
+    },
+    {
+      num: "02",
+      title: "Disponibilidad vs. Control",
+      text: "Tu disponibilidad para escuchar sin juzgar es más importante que cualquier control parental o software de rastreo."
+    },
+    {
+      num: "03",
+      title: "El objetivo: Aislamiento",
+      text: "El acosador buscará siempre alejar a la víctima de su entorno familiar. Mantener el diálogo abierto rompe su principal herramienta de manipulación."
+    }
+  ];
 
-  // SEÑALES CLAVE — mejoradas con datos reales de las infografías
   const keySignals = [
     {
       title: "Oculta la pantalla",
       description: "Cambia de ventana, apaga el celular o gira la pantalla cuando te acercás. Sucede de forma automática, sin explicación.",
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="3" x2="21" y2="21" stroke="#FF3C50" strokeWidth="2" /></svg>
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="3" x2="21" y2="21" stroke="#E63946" strokeWidth="2" /></svg>
     },
     {
       title: "Más tiempo online",
-      description: "Aumenta el uso de dispositivos, especialmente de noche o de madrugada. Se pone ansioso o irritable si se le pide que se desconecte.",
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      description: "Aumenta el uso de dispositivos de noche o madrugada. Se pone ansioso o irritable si se le pide que se desconecte.",
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     },
     {
       title: "Contactos sin explicación",
-      description: "Menciona un \"amigo\" online que no sabe cómo conoció, o recibe regalos, dinero o créditos de juegos de alguien desconocido.",
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      description: "Menciona un 'amigo' online que no sabe cómo conoció, o recibe regalos, dinero o créditos de juegos de un desconocido.",
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     },
     {
       title: "Cambios de conducta",
-      description: "Tristeza, retraimiento o enojo repentinos, especialmente después de usar el celular. Evita hablar, se aleja del grupo familiar o deja actividades que antes disfrutaba.",
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><line x1="12" y1="8" x2="12" y2="15" stroke="#FF3C50"/><line x1="9" y1="11" x2="15" y2="14" stroke="#FF3C50"/></svg>
-    },
+      description: "Tristeza o enojo repentino post-uso del celular. Evita hablar, se aleja de la familia o deja actividades que antes disfrutaba.",
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><line x1="12" y1="8" x2="12" y2="15" stroke="#E63946"/><line x1="9" y1="11" x2="15" y2="14" stroke="#E63946"/></svg>
+    }
   ];
 
-  // BUENAS PRÁCTICAS — reescritas con lógica accionable
+  // NUEVO: Datos para la infografía estilo póster
+  const infografiaReglas = [
+    {
+      title: "Supervisá con quién habla en línea",
+      text: "Involucrate en sus espacios digitales. Jugá con ellos o preguntales quiénes son sus contactos virtuales.",
+      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><circle cx="12" cy="10" r="3"/></svg>,
+      highlight: false
+    },
+    {
+      title: "NO PERMITAS que compartan fotos o ubicación",
+      text: "Una vez que una imagen o dato geográfico se envía, se pierde el control para siempre.",
+      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><line x1="2" y1="2" x2="22" y2="22" stroke="#E63946"/></svg>,
+      highlight: true
+    },
+    {
+      title: "Hablen sobre los peligros de Internet",
+      text: "Explicá, sin generar pánico, que no todos los perfiles de redes sociales y videojuegos son personas reales.",
+      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+      highlight: false
+    },
+    {
+      title: "GENERÁ CONFIANZA",
+      text: "Que sepan que, pase lo que pase, siempre pueden contarte todo sin miedo a ser castigados o que les quiten el celular.",
+      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>,
+      highlight: false
+    }
+  ];
+
   const bestPractices = [
     {
       title: "Hablá antes de que pase algo",
-      text: "Preguntá con quién habla, qué juega, qué ve. El diálogo diario normaliza la conversación y abre canales de confianza para cuando tu hijo o hija lo necesite de verdad."
+      text: "Preguntá con quién habla, qué juega, qué ve. El diálogo normaliza la conversación y abre canales de confianza."
     },
     {
-      title: "Revisá la configuración de privacidad",
-      text: "Asegurate de que los perfiles sociales y de juegos estén en modo privado. Revisá quiénes pueden ver sus fotos, su ubicación y sus datos de contacto."
+      title: "Revisá la privacidad",
+      text: "Asegurate de que los perfiles sociales y juegos estén en modo privado. Revisá quiénes pueden ver su ubicación."
     },
     {
-      title: "Establecé acuerdos, no prohibiciones",
-      text: "Horarios de uso, espacios sin dispositivos y reglas claras sobre contactos online. Los acuerdos construyen confianza. Las prohibiciones generan secretos."
+      title: "Acuerdos, no prohibiciones",
+      text: "Horarios de uso y reglas claras. Los acuerdos construyen confianza; las prohibiciones generan secretos."
     },
     {
-      title: "Enseñá la regla de los desconocidos online",
-      text: "Dejar claro que un desconocido en internet sigue siendo un desconocido, aunque lleve semanas hablando con ellos. La confianza no reemplaza la verificación."
-    },
-  ];
-
-  // NUEVO BLOQUE EDUCATIVO: TIPS DE PREVENCIÓN VISUAL
-  const preventionTips = [
-    {
-      title: "Averiguá qué redes sociales usa",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-    },
-    {
-      title: "Revisá con quién interactúa",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    },
-    {
-      title: "Explicá que no todo en internet es real",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    },
-    {
-      title: "No aceptar solicitudes de desconocidos",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="12"/><line x1="23" y1="8" x2="19" y2="12"/></svg>
-    },
-    {
-      title: "Configurar la privacidad de las cuentas",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    },
-    {
-      title: "Supervisar el uso de dispositivos",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-    },
-    {
-      title: "Evitar uso de cámara con desconocidos",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-    },
-    {
-      title: "Hablar abiertamente sobre lo que pasa online",
-      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      title: "La regla del desconocido",
+      text: "Dejar claro que un contacto en internet sigue siendo desconocido aunque lleven semanas hablando. La confianza no reemplaza la verificación."
     }
   ];
 
-  // CÓMO ACTUAR — protocolo revisado y más directo
+  const preventionTips = [
+    "Averiguá y comprendé qué redes sociales o juegos usa.",
+    "Revisá periódicamente con quién interactúa online.",
+    "Explicá que no todo en internet es real (identidad, edad, fotos).",
+    "Establecé como regla no aceptar solicitudes de desconocidos.",
+    "Configurá la privacidad de las cuentas juntos.",
+    "Supervisá el uso de dispositivos ubicándolos en áreas comunes.",
+    "Evitá el uso de cámaras web con personas no conocidas físicamente.",
+    "Mantené una actitud receptiva si te cuentan algo que les incomodó."
+  ];
+
   const actionSteps = [
     {
-      title: "Escuchar sin reaccionar",
-      text: "Mantener la calma es lo más importante. Tu hijo o hija es una víctima de manipulación. No culpes, no retes, no les quites el dispositivo. Necesitan sentir que acudir a vos fue la decisión correcta."
+      step: "01",
+      title: "Escuchar sin reaccionar negativamente",
+      text: "Mantener la calma es lo principal. Tu hijo/a es víctima. No culpes, no retes, no quites el dispositivo. Necesitan sentir contención.",
+      highlight: false
     },
     {
-      title: "NO BORRAR NADA",
-      text: "Es el error más común y el más dañino para la investigación. Chats, fotos, audios, nombres de usuario y URLs son evidencia legal. Borrarlos puede anular una denuncia.",
+      step: "02",
+      title: "NO BORRAR NINGUNA EVIDENCIA",
+      text: "Es el error más común. Chats, fotos, audios, perfiles y URLs son evidencia legal. Borrarlos anula la posibilidad de investigar.",
       highlight: true
     },
     {
-      title: "CAPTURÁ LAS PRUEBAS",
-      text: "Hacé capturas de pantalla de toda la conversación. Guardá los nombres de usuario, perfiles, fotos enviadas y cualquier URL. Hacelo antes de bloquear al acosador.",
+      step: "03",
+      title: "CAPTURAR Y DOCUMENTAR TODO",
+      text: "Hacé capturas de pantalla, guardá nombres de usuario y URLs. Hacelo antes de bloquear al acosador para no perder el rastro.",
       highlight: true
     },
     {
-      title: "DENUNCIÁ DE INMEDIATO",
-      text: "Comunicarte con las autoridades es el paso siguiente. No intentes confrontar al acosador ni borrarlo sin antes haber registrado todo. El tiempo importa.",
+      step: "04",
+      title: "DENUNCIAR DE INMEDIATO",
+      text: "Comunicarte con las autoridades. No confrontes al acosador ni interactúes desde la cuenta del menor. El tiempo es clave.",
       highlight: true
     }
   ];
 
-  const navItems = [
-    { label: "Inicio", href: "/" },
-  ];
+  // Variables de Color (Adaptadas a Familias pero en estructura técnica Docentes)
+  const colors = {
+    bg: "#F8FAFC",              // Fondo principal claro
+    bgAlt: "#EEF6FB",           // Fondo alternativo
+    textMain: "#0A2540",        // Azul muy oscuro (Textos fuertes y títulos)
+    textSec: "#4A6278",         // Gris azulado
+    brandBlue: "#74B3CE",       // Celeste Familias (Acentos y header)
+    brandDark: "#5A99B4",       // Azul intermedio
+    accentLight: "#EAF4F8",     // Celeste muy suave
+    line: "#D8E3EC",            // Líneas divisorias (Grilla)
+    alert: "#E63946",           // Rojo alerta
+    protocolBg: "#0B192C",      // Fondo oscuro para bloque de protocolo
+  };
 
-  // Design Tokens
-  const mainBlue = "#74B3CE";
-  const darkBlueAlt = "#5A99B4";
-  const alertRed = "#FF3C50";
-  const brandGradient = `linear-gradient(90deg, #FFFFFF 0%, ${mainBlue} 55%, #FFFFFF 100%)`;
+  // Observador de Scroll para animaciones "Reveal"
+  useEffect(() => {
+    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, observerOptions);
 
-  // Background & Interaction logic
+    const elements = document.querySelectorAll('.reveal');
+    elements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Efecto del Mouse y Canvas (Adaptado a paleta más limpia)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
     window.addEventListener("mousemove", handleMouseMove);
@@ -162,18 +189,18 @@ export default function FamiliasPage() {
     canvas.height = height;
 
     const particles: any[] = [];
-    const particleCount = 60;
-    const maxDistance = 150;
+    const particleCount = 40; 
+    const maxDistance = 140;
 
     class Particle {
       x: number; y: number; vx: number; vy: number; radius: number; isThreat: boolean;
       constructor() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.isThreat = Math.random() > 0.96;
-        this.radius = this.isThreat ? 3 : 1.2;
+        this.vx = (Math.random() - 0.5) * 0.2;
+        this.vy = (Math.random() - 0.5) * 0.2;
+        this.isThreat = Math.random() > 0.95;
+        this.radius = this.isThreat ? 2 : 1.5;
       }
       update() {
         this.x += this.vx; this.y += this.vy;
@@ -184,7 +211,7 @@ export default function FamiliasPage() {
         if(!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.isThreat ? "rgba(255, 60, 80, 0.7)" : "rgba(116, 179, 206, 0.5)";
+        ctx.fillStyle = this.isThreat ? "rgba(230, 57, 70, 0.4)" : "rgba(116, 179, 206, 0.4)"; 
         ctx.fill();
       }
     }
@@ -193,10 +220,7 @@ export default function FamiliasPage() {
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
+      particles.forEach(p => { p.update(); p.draw(); });
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -216,373 +240,542 @@ export default function FamiliasPage() {
     animate();
 
     const handleResize = () => {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
-    <main style={{ background: "radial-gradient(circle at top, #0E2A4D 0%, #0A1F3A 40%, #06152B 100%)", color: "#FFFFFF", fontFamily: "'Altone', sans-serif", minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
+    <main style={{ 
+      backgroundColor: colors.bg, 
+      color: colors.textMain, 
+      fontFamily: "'Altone', sans-serif", 
+      minHeight: "100vh", 
+      position: "relative",
+      overflowX: "hidden"
+    }}>
       <style>
         {`
           @import url('https://fonts.cdnfonts.com/css/lemon-milk');
           @import url('https://fonts.cdnfonts.com/css/altone');
+          
           html { scroll-behavior: smooth; }
-          .spotlight-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 10;
-            background: radial-gradient(circle 600px at var(--x) var(--y), rgba(116, 179, 206, 0.08), transparent 80%);
-          }
-          .btn-primary {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          }
-          .btn-primary:hover {
-            background: ${darkBlueAlt} !important;
-            transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 15px 30px rgba(116, 179, 206, 0.4) !important;
-          }
-          .highlight-white-glow {
-            color: #FFFFFF;
-            text-shadow: 0 0 6px rgba(255,255,255,0.4);
-          }
-          .card-glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(116, 179, 206, 0.15);
-            transition: all 0.4s ease;
-          }
-          .card-glass:hover {
-            border-color: ${mainBlue};
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(116, 179, 206, 0.1);
-            transform: translateY(-5px);
-          }
-          /* ANIMACIONES SCROLL REVEAL */
-          .reveal-on-scroll {
+          
+          /* Tipografía */
+          .font-display { font-family: 'LEMON MILK', sans-serif; text-transform: uppercase; }
+          .font-body { font-family: 'Altone', sans-serif; }
+          
+          /* Animaciones Reveal */
+          .reveal {
             opacity: 0;
             transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
           }
-          .reveal-on-scroll.is-visible {
+          .reveal.active {
             opacity: 1;
             transform: translateY(0);
           }
           .delay-100 { transition-delay: 100ms; }
           .delay-200 { transition-delay: 200ms; }
           .delay-300 { transition-delay: 300ms; }
-          .delay-400 { transition-delay: 400ms; }
 
-          /* BURBUJAS CHAT CASO REAL */
-          .chat-bubble {
-            padding: 12px 18px;
-            border-radius: 18px;
-            font-size: 14px;
-            max-width: 85%;
-            margin-bottom: 12px;
+          /* Grilla Técnica Blueprint (Heredada de Docentes) */
+          .grid-frame {
+            border-left: 1px solid ${colors.line};
+            border-right: 1px solid ${colors.line};
+            max-width: 1200px;
+            margin: 0 auto;
             position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
           }
-          .chat-groomer {
-            background: rgba(255, 60, 80, 0.15);
-            border: 1px solid rgba(255, 60, 80, 0.3);
-            border-bottom-left-radius: 4px;
+          
+          .border-b-grid { border-bottom: 1px solid ${colors.line}; }
+          .border-t-grid { border-top: 1px solid ${colors.line}; }
+          
+          /* Botones y CTAs */
+          .btn-solid {
+            background: ${colors.textMain};
+            color: #FFFFFF;
+            padding: 16px 32px;
+            text-transform: uppercase;
+            font-family: 'LEMON MILK', sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 4px;
+            text-decoration: none;
+          }
+          .btn-solid:hover {
+            background: ${colors.brandDark};
+            transform: translateY(-2px);
+          }
+
+          .btn-outline {
+            border: 1px solid ${colors.textMain};
+            color: ${colors.textMain};
+            background: transparent;
+            padding: 16px 32px;
+            text-transform: uppercase;
+            font-family: 'LEMON MILK', sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 4px;
+            text-decoration: none;
+          }
+          .btn-outline:hover {
+            background: ${colors.textMain};
+            color: #FFFFFF;
+          }
+
+          /* Módulos de contenido */
+          .module-card {
+            padding: 40px;
+            transition: all 0.3s ease;
+            background: transparent;
+            position: relative;
+          }
+          .module-card:hover {
+            background: #FFFFFF;
+            z-index: 2;
+          }
+
+          /* Etiquetas Técnicas */
+          .tech-label {
+            font-family: monospace;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: ${colors.textSec};
+            display: block;
+            margin-bottom: 16px;
+            opacity: 0.9;
+          }
+
+          /* Spotlight */
+          .spotlight-light {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 10;
+            background: radial-gradient(circle 600px at var(--x) var(--y), rgba(116, 179, 206, 0.08), transparent 80%);
+          }
+
+          /* Header Nav Links */
+          .header-link {
+            text-decoration: none;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: bold;
+            transition: opacity 0.3s;
+            text-transform: uppercase;
+          }
+          .header-link:hover { opacity: 0.8; }
+
+          .header-btn {
+            text-decoration: none;
+            color: ${colors.brandBlue};
+            background: #FFFFFF;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: transform 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .header-btn:hover { transform: translateY(-2px); }
+
+          /* Layout Utilities */
+          .grid-2 { display: grid; grid-template-columns: 1fr; }
+          .grid-4 { display: grid; grid-template-columns: 1fr; }
+          @media (min-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr 1fr; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .border-r-md { border-right: 1px solid ${colors.line}; }
+          }
+          @media (min-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(4, 1fr); }
+          }
+
+          /* Chat UI Técnico */
+          .chat-box {
+            border: 1px solid ${colors.line};
+            background: #FFFFFF;
+            border-radius: 4px;
+            font-family: monospace;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          .chat-msg {
+            padding: 12px 16px;
+            border-radius: 4px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.5;
+            font-family: 'Altone', sans-serif;
+          }
+          .msg-alert {
+            background: #FFF5F6;
+            border-left: 3px solid ${colors.alert};
             align-self: flex-start;
           }
-          .chat-victim {
-            background: rgba(116, 179, 206, 0.15);
-            border: 1px solid rgba(116, 179, 206, 0.3);
-            border-bottom-right-radius: 4px;
+          .msg-neutral {
+            background: ${colors.bgAlt};
+            border-right: 3px solid ${colors.brandBlue};
             align-self: flex-end;
           }
         `}
       </style>
 
-      {/* DECORATIVE ELEMENTS */}
-      <div className="spotlight-overlay" style={{ '--x': `${mousePos.x}px`, '--y': `${mousePos.y}px` } as React.CSSProperties} />
-      <canvas ref={canvasRef} style={{ position: "fixed", top: 0, left: 0, zIndex: 0, pointerEvents: "none", opacity: 0.6 }} />
-      <div style={{ height: "6px", background: brandGradient, position: "relative", zIndex: 51 }} />
+      {/* BACKGROUND ELEMENTS */}
+      <div className="spotlight-light" style={{ '--x': `${mousePos.x}px`, '--y': `${mousePos.y}px` } as React.CSSProperties} />
+      <canvas ref={canvasRef} style={{ position: "fixed", top: 0, left: 0, zIndex: 0, pointerEvents: "none", opacity: 0.8 }} />
 
-      {/* HEADER */}
-      <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(5, 18, 43, 0.7)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(116, 179, 206, 0.1)" }}>
-        <nav style={{ maxWidth: "1200px", margin: "0 auto", minHeight: "86px", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <a href="/" style={{ fontFamily: "'LEMON MILK', sans-serif", textDecoration: "none", color: "#FFFFFF", fontSize: "24px", fontWeight: "bold" }}>SAFENET</a>
-          <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-            {navItems.map(item => (
-              <a key={item.label} href={item.href} style={{ fontFamily: "'LEMON MILK', sans-serif", textDecoration: "none", color: "#FFFFFF", fontSize: "12px", letterSpacing: "0.5px" }}>{item.label}</a>
-            ))}
-            <a href="#ayuda" className="btn-primary" style={{ fontFamily: "'LEMON MILK', sans-serif", padding: "13px 22px", borderRadius: "14px", textDecoration: "none", background: mainBlue, color: "#FFFFFF", fontSize: "12px", fontWeight: "bold", textTransform: "uppercase" }}>Explorar espacios</a>
+      {/* HEADER / NAVBAR */}
+      <header style={{ position: "sticky", top: 0, zIndex: 50, background: colors.brandBlue, boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
+        <nav className="grid-frame" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "80px", padding: "0 24px", borderLeft: "none", borderRight: "none" }}>
+          <a href="/" className="font-display" style={{ textDecoration: "none", color: "#FFFFFF", fontSize: "22px", fontWeight: "bold", letterSpacing: "1.5px" }}>
+            SAFENET
+          </a>
+          <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+            <a href="#riesgo" className="font-display header-link">Riesgos</a>
+            <a href="#prevencion" className="font-display header-link">Prevención</a>
+            <a href="#protocolo" className="font-display header-link">Denunciar</a>
+            <a href="#protocolo" className="font-display header-btn">Ayuda 137</a>
           </div>
         </nav>
       </header>
 
-      {/* HERO SECTION */}
-      <section style={{ padding: "80px 20px 40px", position: "relative", zIndex: 1 }}>
-        <div className="reveal-on-scroll" style={{ maxWidth: "1200px", margin: "0 auto", background: "rgba(10, 20, 40, 0.4)", border: "1px solid rgba(116, 179, 206, 0.2)", borderRadius: "30px", backdropFilter: "blur(12px)", padding: "100px 32px", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Altone', sans-serif", display: "inline-flex", padding: "8px 20px", borderRadius: "999px", background: "rgba(116, 179, 206, 0.1)", border: `1px solid rgba(116, 179, 206, 0.3)`, color: mainBlue, fontSize: "12px", fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: "28px" }}>
-            Orientación para Familias
-          </div>
-          <h1 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(36px, 4.5vw, 64px)", lineHeight: 1.15, color: "#FFFFFF", margin: "0 auto 32px", maxWidth: "1000px" }}>
-            ACOMPAÑAR ES EL PRIMER PASO PARA <span style={{ color: mainBlue }}>PROTEGER</span>
-          </h1>
-          <p style={{ fontSize: "18px", lineHeight: 1.8, color: "#FFFFFF", maxWidth: "760px", margin: "0 auto 42px" }}>
-            El grooming comienza con conversaciones que parecen normales.<br />
-            Aprendé a reconocer las señales, establecer confianza y actuar si ocurre.
-          </p>
-          <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-            <a href="#alertas" className="btn-primary" style={{ fontFamily: "'LEMON MILK', sans-serif", padding: "18px 32px", borderRadius: "14px", textDecoration: "none", background: mainBlue, color: "#FFFFFF", fontSize: "14px", fontWeight: "bold", textTransform: "uppercase", boxShadow: `0 8px 20px rgba(116, 179, 206, 0.3)` }}>
-              Ver Señales
-            </a>
-            <a href="#pasos" style={{ fontFamily: "'LEMON MILK', sans-serif", padding: "18px 32px", borderRadius: "14px", textDecoration: "none", background: "rgba(255,255,255,0.05)", color: "#FFFFFF", fontSize: "14px", border: "1px solid rgba(255,255,255,0.2)", backdropFilter: "blur(5px)" }}>
-              Protocolo de acción
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* CONTENEDOR PRINCIPAL GRILLA */}
+      <div className="grid-frame">
 
-      {/* BLOQUE DE CONCIENCIA INICIAL (Imagen + Texto) */}
-      <section style={{ padding: "40px 20px 20px", position: "relative", zIndex: 1 }}>
-        <div className="reveal-on-scroll delay-100" style={{ maxWidth: "1200px", margin: "0 auto", background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: "30px", padding: "40px", backdropFilter: "blur(10px)" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "50px" }}>
+        {/* 1. HERO SECTION CON VIDEO */}
+        <section className="border-b-grid reveal" style={{ position: "relative", zIndex: 1, padding: "80px 24px" }}>
+          <div className="grid-2" style={{ gap: "60px", alignItems: "center" }}>
             
-            {/* Columna Imagen */}
-            <div style={{ flex: "1 1 400px", position: "relative" }}>
-              <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "90%", height: "90%", background: `radial-gradient(circle, ${mainBlue}33 0%, transparent 60%)`, filter: "blur(40px)", zIndex: 0 }} />
-              <img 
-                src="/illustrations/PADRES1.png" 
-                alt="Comunicación familiar y protección" 
-                style={{ width: "100%", height: "auto", borderRadius: "24px", position: "relative", zIndex: 1, boxShadow: "0 15px 35px rgba(0,0,0,0.3)" }} 
-              />
-            </div>
-
             {/* Columna Texto */}
-            <div style={{ flex: "1 1 450px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(24px, 3vw, 36px)", color: "#FFFFFF", lineHeight: 1.3, marginBottom: "20px" }}>
-                Para acercarse a tus hijos, los acosadores usan las formas más naturales.
-              </h2>
-              <p style={{ fontSize: "18px", color: "#FFFFFF", lineHeight: 1.7, marginBottom: "32px" }}>
-                Hablá con ellos antes de que otros lo hagan.
+            <div>
+              <span className="tech-label" style={{ marginBottom: "24px" }}>[ SEC. 01 ] — GUÍA PARA FAMILIAS</span>
+              <h1 className="font-display" style={{ fontSize: "clamp(32px, 4vw, 56px)", lineHeight: 1.15, color: colors.textMain, margin: "0 0 32px" }}>
+                Acompañar es el primer paso para <span style={{ color: colors.brandBlue }}>proteger</span>
+              </h1>
+              <p className="font-body" style={{ fontSize: "16px", lineHeight: 1.6, color: colors.textSec, margin: "0 0 40px", maxWidth: "500px" }}>
+                El grooming comienza con conversaciones que parecen normales. Entender la dinámica del engaño, reconocer las señales tempranas y establecer canales de confianza son las herramientas más efectivas del entorno familiar.
               </p>
+              <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-start" }}>
+                <a href="#infografia" className="btn-solid">Ver Reglas de Oro</a>
+                <a href="#protocolo" className="btn-outline">Protocolo de Acción</a>
+              </div>
+            </div>
+
+            {/* Columna Video (Instagram Reel) */}
+            <div style={{ display: "flex", justifyContent: "center", position: "relative" }}>
+              {/* Elementos decorativos técnicos para enmarcar el video */}
+              <div style={{ position: "absolute", top: "-15px", left: "calc(50% - 175px)", width: "30px", height: "30px", borderTop: `2px solid ${colors.brandBlue}`, borderLeft: `2px solid ${colors.brandBlue}`, zIndex: 0 }}></div>
+              <div style={{ position: "absolute", bottom: "-15px", right: "calc(50% - 175px)", width: "30px", height: "30px", borderBottom: `2px solid ${colors.brandBlue}`, borderRight: `2px solid ${colors.brandBlue}`, zIndex: 0 }}></div>
               
-              <div style={{ padding: "16px 24px", background: "rgba(116, 179, 206, 0.08)", borderLeft: `4px solid ${mainBlue}`, borderRadius: "0 12px 12px 0" }}>
-                <p style={{ fontSize: "18px", fontWeight: "bold", color: "#FFFFFF", margin: 0, lineHeight: 1.5 }}>
-                  El peligro está ahí aunque no lo veas.<br />
-                  <span style={{ color: mainBlue, display: "inline-block", marginTop: "6px" }}>#ConectateSeguro</span>
-                </p>
+              {/* Contenedor del Iframe */}
+              <div style={{ 
+                width: "100%", 
+                maxWidth: "340px", 
+                height: "600px", 
+                background: "#FFFFFF", 
+                borderRadius: "16px", 
+                overflow: "hidden", 
+                border: `1px solid ${colors.line}`,
+                boxShadow: "0 25px 50px rgba(10, 37, 64, 0.15)",
+                position: "relative",
+                zIndex: 2
+              }}>
+                <iframe 
+                  src="https://www.instagram.com/reel/DX2d0c1DuZv/embed/" 
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0" 
+                  scrolling="no" 
+                  allowTransparency={true}
+                  allow="encrypted-media"
+                  style={{ border: "none", background: "white", display: "block" }}
+                  title="Video sobre prevención del Grooming"
+                ></iframe>
               </div>
             </div>
 
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FRASE DE IMPACTO 1 */}
-      <section className="reveal-on-scroll delay-100" style={{ padding: "40px 20px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(24px, 3vw, 36px)", color: "#FFFFFF", textShadow: `0 0 20px rgba(255,255,255,0.3)`, lineHeight: 1.4 }}>
-            EL GROOMING NO EMPIEZA CON AMENAZAS. <br />
-            <span style={{ color: mainBlue }}>EMPIEZA CON CONFIANZA.</span>
-          </h2>
-        </div>
-      </section>
-
-      {/* CASO REAL */}
-      <section style={{ padding: "60px 20px", position: "relative", zIndex: 1 }}>
-        <div className="reveal-on-scroll delay-200" style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "40px", alignItems: "center", background: "rgba(15, 25, 45, 0.6)", borderRadius: "24px", padding: "40px", border: "1px solid rgba(116, 179, 206, 0.2)" }}>
-          <div>
-            <div style={{ fontSize: "12px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "8px", color: alertRed }}>Caso de estudio</div>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "32px", color: "#FFFFFF", marginBottom: "20px" }}>Así empieza en la realidad</h2>
-            <p style={{ fontSize: "16px", lineHeight: 1.7, color: "#FFFFFF", marginBottom: "16px" }}>
-              El acosador estudia el perfil público de la víctima, identifica sus gustos y crea una cuenta falsa diseñada para generar empatía. El proceso es gradual, calculado y difícil de detectar desde afuera.
+        {/* 2 & 3. CONTEXTO Y ROL FAMILIAR */}
+        <section className="border-b-grid grid-2 reveal" style={{ position: "relative", zIndex: 1 }}>
+          {/* Columna Izquierda: Dinámica */}
+          <div className="border-r-md" style={{ padding: "60px 24px", background: colors.bgAlt }}>
+            <span className="tech-label">[ SEC. 02 ] — DINÁMICA DEL ENGAÑO</span>
+            <h2 className="font-display" style={{ fontSize: "24px", margin: "0 0 24px", letterSpacing: "1px" }}>El Problema</h2>
+            <p className="font-body" style={{ fontSize: "16px", lineHeight: 1.7, color: colors.textSec, margin: "0 0 24px" }}>
+              Para acercarse a chicos y chicas, los acosadores utilizan tácticas que simulan naturalidad. Estudian perfiles, identifican gustos y crean cuentas diseñadas para generar una falsa empatía.
             </p>
-            <p style={{ fontSize: "15px", lineHeight: 1.7, color: "#FFFFFF", borderLeft: `3px solid ${alertRed}`, paddingLeft: "16px" }}>
-              La solicitud de "guardar el secreto" es una de las primeras señales concretas. Aparece temprano, antes de que la situación escale.
+            <p className="font-body" style={{ fontSize: "16px", lineHeight: 1.7, color: colors.textMain, fontWeight: 600, margin: 0 }}>
+              Nunca empieza con una amenaza. Empieza con la construcción meticulosa de una relación de confianza para lograr el aislamiento.
             </p>
           </div>
 
-          <div style={{ background: "#0B1528", borderRadius: "20px", padding: "24px", border: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column" }}>
-            {/* Chat header */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,60,80,0.2)", border: "1px solid rgba(255,60,80,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={alertRed} strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <div>
-                <div style={{ fontSize: "13px", fontWeight: "bold", color: "#FFFFFF" }}>Gamer_Pro_14</div>
-                <div style={{ fontSize: "11px", color: "#FFFFFF" }}>Activo hace 2 minutos</div>
-              </div>
-            </div>
-            <div className="chat-bubble chat-groomer">
-              <span style={{ fontWeight: "bold", color: alertRed, fontSize: "12px", display: "block", marginBottom: "4px" }}>Gamer_Pro_14</span>
-              Hola, vi que jugás muy bien. Podemos hacer equipo, te paso todos los trucos que sé.
-            </div>
-            <div className="chat-bubble chat-victim">
-              <span style={{ fontWeight: "bold", color: mainBlue, fontSize: "12px", display: "block", marginBottom: "4px" }}>Usuario (11 años)</span>
-              Dale, me cuesta mucho pasar este nivel.
-            </div>
-            <div className="chat-bubble chat-groomer" style={{ marginTop: "10px" }}>
-              <span style={{ fontWeight: "bold", color: alertRed, fontSize: "12px", display: "block", marginBottom: "4px" }}>Gamer_Pro_14</span>
-              Sos la única persona con la que me divierto jugando. Mandame una foto tuya para saber con quién hablo, pero no le cuentes a nadie. Es nuestro secreto.
-            </div>
-            {/* Alerta inline */}
-            <div style={{ marginTop: "14px", padding: "10px 14px", borderRadius: "10px", background: "rgba(255,60,80,0.08)", border: "1px solid rgba(255,60,80,0.2)", display: "flex", gap: "10px", alignItems: "flex-start" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={alertRed} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: "1px", flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <span style={{ fontSize: "12px", color: "rgba(255,140,140,0.9)", lineHeight: 1.5 }}>Pedir fotos y solicitar secreto en el mismo mensaje es una señal de alarma directa.</span>
+          {/* Columna Derecha: Rol Familiar */}
+          <div style={{ padding: "60px 24px" }}>
+            <span className="tech-label">[ SEC. 03 ] — EL ROL DEL ADULTO</span>
+            <h2 className="font-display" style={{ fontSize: "24px", margin: "0 0 32px", letterSpacing: "1px" }}>Presencia Activa</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+              {contextoFamilia.map((item, idx) => (
+                <div key={idx} className={`reveal delay-${(idx + 1) * 100}`} style={{ display: "flex", gap: "20px" }}>
+                  <div className="font-display" style={{ fontSize: "16px", color: colors.brandBlue, marginTop: "2px" }}>{item.num}</div>
+                  <div>
+                    <h3 className="font-display" style={{ fontSize: "14px", margin: "0 0 8px", letterSpacing: "0.5px" }}>{item.title}</h3>
+                    <p className="font-body" style={{ fontSize: "15px", lineHeight: 1.6, color: colors.textSec, margin: 0 }}>{item.text}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* SEÑALES CLAVE */}
-      <section id="alertas" style={{ padding: "80px 20px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div className="reveal-on-scroll" style={{ textAlign: "center", marginBottom: "50px" }}>
-            <div style={{ fontFamily: "'LEMON MILK', sans-serif", display: "inline-flex", padding: "12px 24px", borderRadius: "14px", background: alertRed, color: "#FFFFFF", fontSize: "14px", fontWeight: "bold", textTransform: "uppercase", marginBottom: "20px", boxShadow: `0 8px 20px rgba(255, 60, 80, 0.3)` }}>
-              Detectar a tiempo
+        {/* 4. CASO DE ESTUDIO / CHAT */}
+        <section className="border-b-grid grid-2 reveal" style={{ position: "relative", zIndex: 1 }}>
+          <div className="border-r-md" style={{ padding: "80px 24px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <span className="tech-label" style={{ color: colors.alert }}>[ SEC. 04 ] — REGISTRO DE CASO</span>
+            <h2 className="font-display" style={{ fontSize: "28px", margin: "0 0 24px", letterSpacing: "1px" }}>Así empieza en la realidad</h2>
+            <p className="font-body" style={{ fontSize: "16px", lineHeight: 1.7, color: colors.textSec, margin: "0 0 24px" }}>
+              El acosador ("Groomer") ingresa a través de juegos online o redes sociales. El proceso es gradual y está calculado para no levantar sospechas iniciales.
+            </p>
+            <div style={{ borderLeft: `3px solid ${colors.alert}`, paddingLeft: "16px" }}>
+              <p className="font-body" style={{ fontSize: "15px", lineHeight: 1.6, color: colors.textMain, fontWeight: "bold", margin: 0 }}>
+                La solicitud de "guardar el secreto" es una de las primeras banderas rojas comprobables. Aparece temprano, antes de que la situación escale a extorsión.
+              </p>
             </div>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(32px, 4vw, 48px)", color: "#FFFFFF" }}>Señales Clave de Alerta</h2>
-            <p style={{ color: "#FFFFFF", fontSize: "17px", marginTop: "12px", maxWidth: "600px", margin: "12px auto 0" }}>Cambios sutiles que requieren tu atención. Ninguna señal sola define una situación, pero la combinación de varias sí.</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "24px" }}>
+          {/* UI CHAT TÉCNICO */}
+          <div style={{ padding: "60px 24px", background: "#FFFFFF" }}>
+            <div className="chat-box">
+              <div style={{ fontSize: "12px", color: colors.textSec, borderBottom: `1px solid ${colors.line}`, paddingBottom: "12px", marginBottom: "8px", display: "flex", justifyContent: "space-between" }}>
+                <span>ID_ENTIDAD: Gamer_Pro_14</span>
+                <span style={{ color: colors.alert }}>ESTADO: RIESGO DETECTADO</span>
+              </div>
+              
+              <div className="chat-msg msg-alert">
+                <span style={{ fontSize: "11px", fontWeight: "bold", color: colors.alert, display: "block", marginBottom: "4px", fontFamily: "monospace" }}>&gt; Gamer_Pro_14</span>
+                Hola, vi que jugás muy bien. Podemos hacer equipo, te paso todos los trucos que sé.
+              </div>
+              
+              <div className="chat-msg msg-neutral">
+                <span style={{ fontSize: "11px", fontWeight: "bold", color: colors.brandBlue, display: "block", marginBottom: "4px", fontFamily: "monospace" }}>&gt; Usuario_Menor</span>
+                Dale, me cuesta mucho pasar este nivel.
+              </div>
+              
+              <div className="chat-msg msg-alert">
+                <span style={{ fontSize: "11px", fontWeight: "bold", color: colors.alert, display: "block", marginBottom: "4px", fontFamily: "monospace" }}>&gt; Gamer_Pro_14</span>
+                Sos la única persona con la que me divierto jugando. Mandame una foto tuya para saber con quién hablo, pero no le cuentes a nadie. Es nuestro secreto.
+              </div>
+
+              <div style={{ marginTop: "16px", padding: "12px", background: "rgba(230,57,70,0.05)", border: `1px dashed ${colors.alert}`, fontSize: "12px", color: colors.alert, display: "flex", gap: "12px", alignItems: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span><strong>ANÁLISIS:</strong> Pedir fotos + solicitud de secreto = Señal directa de Grooming.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. INDICADORES DE RIESGO */}
+        <section id="riesgo" className="border-b-grid reveal" style={{ position: "relative", zIndex: 1, backgroundColor: colors.bgAlt }}>
+          <div style={{ padding: "80px 24px", borderBottom: `1px solid ${colors.line}` }}>
+            <span className="tech-label">[ SEC. 05 ] — INDICADORES DE RIESGO</span>
+            <h2 className="font-display" style={{ fontSize: "36px", margin: "0", letterSpacing: "1px" }}>Señales de Alerta</h2>
+            <p className="font-body" style={{ fontSize: "16px", color: colors.textSec, marginTop: "16px", maxWidth: "700px", lineHeight: 1.6 }}>
+              Cambios sutiles en la conducta que requieren atención. Ninguna señal aislada define una situación por sí misma, pero la combinación de varias exige intervención.
+            </p>
+          </div>
+          <div className="grid-4">
             {keySignals.map((signal, idx) => (
-              <article key={signal.title} className={`card-glass reveal-on-scroll delay-${(idx + 1) * 100}`} style={{ padding: "32px 24px", borderRadius: "24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ background: "rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "50%", marginBottom: "20px", color: mainBlue }}>
+              <div key={idx} className={`module-card reveal delay-${idx * 100}`} style={{ borderRight: idx !== 3 ? `1px solid ${colors.line}` : 'none', borderBottom: `1px solid ${colors.line}`, display: "flex", flexDirection: "column" }}>
+                <div style={{ marginBottom: "20px", color: colors.textMain }}>
                   {signal.icon}
                 </div>
-                <h3 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "18px", color: "#FFFFFF", marginBottom: "12px" }}>{signal.title}</h3>
-                <p style={{ fontSize: "15px", lineHeight: 1.6, color: "#FFFFFF", margin: 0 }}>{signal.description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FRASE DE IMPACTO 2 */}
-      <section className="reveal-on-scroll" style={{ padding: "40px 20px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto", padding: "40px", borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(18px, 2.2vw, 26px)", color: "#FFFFFF", fontWeight: "normal", letterSpacing: "0.5px", lineHeight: 1.5 }}>
-            PUEDE ESTAR PASANDO AHORA MISMO CERCA TUYO.<br />
-            <span style={{ color: mainBlue }}>TU DISPONIBILIDAD ES MÁS IMPORTANTE QUE CUALQUIER CONTROL PARENTAL.</span>
-          </h2>
-        </div>
-      </section>
-
-      {/* BUENAS PRÁCTICAS */}
-      <section style={{ padding: "80px 20px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div className="reveal-on-scroll" style={{ marginBottom: "40px" }}>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "36px", color: "#FFFFFF", marginBottom: "10px" }}>Buenas Prácticas en el Hogar</h2>
-            <p style={{ fontSize: "16px", color: "#FFFFFF", margin: 0 }}>Acciones concretas para construir un entorno digital más seguro.</p>
-          </div>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
-            {bestPractices.map((practice, idx) => (
-              <div key={practice.title} className={`reveal-on-scroll delay-${idx * 100}`} style={{ padding: "24px", borderRadius: "16px", background: "rgba(116, 179, 206, 0.08)", borderLeft: `4px solid ${mainBlue}` }}>
-                <h3 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "16px", color: "#FFFFFF", marginBottom: "10px" }}>{practice.title}</h3>
-                <p style={{ fontSize: "15px", lineHeight: 1.6, color: "#FFFFFF", margin: 0 }}>{practice.text}</p>
+                <h3 className="font-display" style={{ fontSize: "15px", margin: "0 0 12px", color: colors.textMain }}>{signal.title}</h3>
+                <p className="font-body" style={{ fontSize: "14px", lineHeight: 1.6, color: colors.textSec, margin: 0 }}>
+                  {signal.description}
+                </p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* NUEVO BLOQUE: TIPS VISUALES DE PREVENCIÓN (De la infografía) */}
-      <section style={{ padding: "80px 20px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div className="reveal-on-scroll" style={{ textAlign: "center", marginBottom: "50px" }}>
-            <div style={{ fontFamily: "'LEMON MILK', sans-serif", display: "inline-flex", padding: "12px 24px", borderRadius: "14px", background: "rgba(116, 179, 206, 0.15)", color: mainBlue, fontSize: "14px", fontWeight: "bold", textTransform: "uppercase", marginBottom: "20px", border: `1px solid ${mainBlue}` }}>
-              Prevención Activa
+        {/* 6. NUEVA SECCIÓN: INFOGRAFÍA / REGLAS DE ORO */}
+        <section id="infografia" className="border-b-grid reveal" style={{ position: "relative", zIndex: 1, backgroundColor: "#FFFFFF" }}>
+          <div className="grid-2">
+            
+            {/* Izquierda: Título tipo Póster */}
+            <div className="border-r-md" style={{ background: colors.brandBlue, color: "#FFFFFF", padding: "80px 40px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <span className="font-display" style={{ background: colors.alert, color: "#FFF", padding: "8px 16px", fontSize: "12px", fontWeight: "bold", borderRadius: "100px", alignSelf: "flex-start", marginBottom: "32px", letterSpacing: "0.5px" }}>
+                La Seguridad Somos Todos
+              </span>
+              <h2 className="font-display" style={{ fontSize: "clamp(32px, 4vw, 48px)", lineHeight: 1.1, marginBottom: "24px" }}>
+                Cuidá a tus hijos del grooming
+              </h2>
+              <p className="font-body" style={{ fontSize: "18px", opacity: 0.9, lineHeight: 1.6, maxWidth: "400px" }}>
+                El grooming es real y puede empezar silenciosamente en videojuegos online, chats o redes sociales.
+              </p>
+
+              {/* Ilustración abstracta representativa (Reemplazo conceptual del niño con auriculares) */}
+              <div style={{ marginTop: "40px", opacity: 0.8 }}>
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="6" width="20" height="12" rx="2" ry="2"/>
+                  <path d="M12 12h.01"/>
+                  <path d="M17 12h.01"/>
+                  <path d="M7 12h.01"/>
+                  <path d="M12 18v3"/>
+                  <path d="M8 21h8"/>
+                </svg>
+              </div>
             </div>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(32px, 4vw, 48px)", color: "#FFFFFF" }}>Guía Rápida de Protección</h2>
-            <p style={{ color: "#FFFFFF", fontSize: "17px", marginTop: "12px", maxWidth: "600px", margin: "12px auto 0" }}>Ocho acciones indispensables para reducir los riesgos en el mundo digital de los menores.</p>
-          </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px" }}>
-            {preventionTips.map((tip, idx) => (
-              <div key={idx} className={`card-glass reveal-on-scroll delay-${(idx % 4) * 100}`} style={{ padding: "26px 24px", borderRadius: "20px", display: "flex", alignItems: "flex-start", gap: "20px" }}>
-                <div style={{ background: "rgba(116, 179, 206, 0.1)", padding: "12px", borderRadius: "14px", color: mainBlue, flexShrink: 0, border: "1px solid rgba(116, 179, 206, 0.2)" }}>
-                  {tip.icon}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", minHeight: "52px" }}>
-                  <h3 style={{ fontFamily: "'Altone', sans-serif", fontSize: "16px", color: "#FFFFFF", margin: 0, lineHeight: 1.4, fontWeight: "bold" }}>
-                    {tip.title}
-                  </h3>
-                </div>
+            {/* Derecha: Puntos de Acción tipo Checklist visual */}
+            <div style={{ padding: "40px 24px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <span className="tech-label" style={{ marginBottom: "32px" }}>[ SEC. 06 ] — GUÍA VISUAL DE REGLAS DE ORO</span>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {infografiaReglas.map((regla, idx) => (
+                  <div key={idx} className={`reveal delay-${idx * 100}`} style={{ display: "flex", alignItems: "center", gap: "20px", padding: "20px", border: regla.highlight ? `2px solid ${colors.alert}` : `1px solid ${colors.line}`, borderRadius: "8px", background: regla.highlight ? "rgba(230, 57, 70, 0.04)" : "#FFFFFF" }}>
+                    <div style={{ flexShrink: 0, width: "56px", height: "56px", borderRadius: "50%", background: regla.highlight ? colors.alert : "rgba(116, 179, 206, 0.15)", color: regla.highlight ? "#FFFFFF" : colors.brandBlue, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {regla.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-display" style={{ fontSize: "14px", color: regla.highlight ? colors.alert : colors.textMain, margin: "0 0 6px", letterSpacing: "0.5px" }}>
+                        {regla.title}
+                      </h3>
+                      <p className="font-body" style={{ fontSize: "14px", color: colors.textSec, margin: 0, lineHeight: 1.5 }}>
+                        {regla.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* CÓMO ACTUAR (Protocolo Visual) */}
-      <section id="pasos" style={{ padding: "80px 20px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", background: "linear-gradient(180deg, rgba(20, 30, 50, 0.8) 0%, rgba(10, 15, 30, 0.9) 100%)", borderRadius: "32px", padding: "60px 40px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-          <div className="reveal-on-scroll" style={{ textAlign: "center", marginBottom: "60px" }}>
-            <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(32px, 4vw, 42px)", color: "#FFFFFF" }}>Protocolo de Acción</h2>
-            <p style={{ color: "#FFFFFF", marginTop: "10px", fontSize: "17px" }}>Si descubrís o sospechás una situación de grooming, seguí estos pasos en orden.</p>
           </div>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "30px" }}>
+        </section>
+
+        {/* 7. PREVENCIÓN ACTIVA */}
+        <section id="prevencion" className="border-b-grid reveal" style={{ position: "relative", zIndex: 1, padding: "80px 24px" }}>
+          <span className="tech-label">[ SEC. 07 ] — PREVENCIÓN ACTIVA</span>
+          <div className="grid-2" style={{ gap: "60px" }}>
+            
+            {/* Hábitos */}
+            <div>
+              <h2 className="font-display" style={{ fontSize: "28px", margin: "0 0 32px", letterSpacing: "1px" }}>Buenas Prácticas en el Hogar</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {bestPractices.map((practice, idx) => (
+                  <div key={idx} style={{ paddingLeft: "20px", borderLeft: `2px solid ${colors.brandBlue}` }}>
+                    <h3 className="font-body" style={{ fontSize: "16px", fontWeight: "bold", color: colors.textMain, margin: "0 0 8px" }}>{practice.title}</h3>
+                    <p className="font-body" style={{ fontSize: "15px", lineHeight: 1.6, color: colors.textSec, margin: 0 }}>{practice.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Configuración */}
+            <div>
+              <h2 className="font-display" style={{ fontSize: "28px", margin: "0 0 32px", letterSpacing: "1px", color: "transparent" }}>::</h2> {/* Espaciador visual */}
+              <div style={{ background: "#FFFFFF", border: `1px solid ${colors.line}`, padding: "32px", borderRadius: "4px" }}>
+                <div className="tech-label" style={{ marginBottom: "20px" }}>Checklist de Supervisión Extendida</div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {preventionTips.map((tip, idx) => (
+                    <li key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.brandBlue} strokeWidth="2" style={{ flexShrink: 0, marginTop: "2px" }}><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span className="font-body" style={{ fontSize: "14px", color: colors.textSec, lineHeight: 1.5 }}>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* 8. PROTOCOLO DE ACCIÓN */}
+        <section id="protocolo" className="border-b-grid reveal" style={{ position: "relative", zIndex: 1, backgroundColor: colors.protocolBg, color: "#FFFFFF" }}>
+          <div style={{ padding: "80px 24px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+            <span className="tech-label" style={{ color: colors.accentLight, opacity: 0.7 }}>[ SEC. 08 ] — PROTOCOLO DE RESPUESTA</span>
+            <h2 className="font-display" style={{ fontSize: "36px", margin: "0", letterSpacing: "1px", color: "#FFFFFF" }}>Qué hacer ante un caso real</h2>
+            <p className="font-body" style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", marginTop: "16px", maxWidth: "700px", lineHeight: 1.6 }}>
+              Si descubrís o sospechás una situación de grooming, el orden de los pasos es crítico para proteger al menor y preservar la evidencia legal.
+            </p>
+          </div>
+
+          <div className="grid-4">
             {actionSteps.map((step, idx) => (
-              <div key={idx} className={`reveal-on-scroll delay-${idx * 100}`} style={{ position: "relative", padding: "30px 24px", borderRadius: "20px", background: "rgba(0,0,0,0.3)", border: step.highlight ? `1px solid ${alertRed}` : "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
-                <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: step.highlight ? alertRed : mainBlue, color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'LEMON MILK', sans-serif", fontSize: "20px", fontWeight: "bold", margin: "0 auto 20px", boxShadow: step.highlight ? `0 0 20px rgba(255,60,80,0.4)` : 'none' }}>
-                  {idx + 1}
-                </div>
-                <h3 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "17px", color: step.highlight ? alertRed : "#FFFFFF", marginBottom: "16px", letterSpacing: "0.5px" }}>
-                  {step.title}
-                </h3>
-                <p style={{ fontSize: "15px", lineHeight: 1.6, color: "#FFFFFF", margin: 0 }}>
+              <div key={idx} className={`module-card reveal delay-${idx * 100}`} style={{ borderRight: idx !== 3 ? '1px solid rgba(255,255,255,0.1)' : 'none', borderBottom: '1px solid rgba(255,255,255,0.1)', background: step.highlight ? 'rgba(230, 57, 70, 0.05)' : 'transparent' }}>
+                <div className="font-display" style={{ fontSize: "24px", color: step.highlight ? colors.alert : colors.brandBlue, marginBottom: "16px" }}>{step.step}</div>
+                <h3 className="font-display" style={{ fontSize: "15px", margin: "0 0 12px", color: step.highlight ? colors.alert : "#FFFFFF" }}>{step.title}</h3>
+                <p className="font-body" style={{ fontSize: "14px", lineHeight: 1.6, color: "rgba(255,255,255,0.7)", margin: 0 }}>
                   {step.text}
                 </p>
               </div>
             ))}
           </div>
+        </section>
 
-          {/* Nota legal al pie del protocolo */}
-          <div className="reveal-on-scroll" style={{ marginTop: "48px", padding: "24px 28px", borderRadius: "16px", background: "rgba(255,60,80,0.07)", border: "1px solid rgba(255,60,80,0.2)", display: "flex", gap: "16px", alignItems: "flex-start" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={alertRed} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: "2px" }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {/* 9. DENUNCIA Y AYUDA */}
+        <section className="reveal" style={{ padding: "80px 24px", position: "relative", zIndex: 1, backgroundColor: "#FFFFFF" }}>
+          <div style={{ border: `1px solid ${colors.alert}`, borderRadius: "4px", padding: "40px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "32px", background: "rgba(230, 57, 70, 0.02)" }}>
             <div>
-              <div style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "13px", color: alertRed, marginBottom: "8px" }}>Marco legal</div>
-              <p style={{ fontSize: "14px", lineHeight: 1.7, color: "#FFFFFF", margin: 0 }}>
-                En Argentina, el grooming está tipificado en el <strong style={{ color: "#FFFFFF" }}>artículo 131 del Código Penal</strong>. La denuncia puede realizarse en cualquier comisaría o fiscalía del país. No es necesario contar con pruebas definitivas para iniciar el proceso: la sola sospecha habilita la denuncia.
+              <span className="tech-label" style={{ color: colors.alert, marginBottom: "8px" }}>[ SEC. 09 ] — CANALES OFICIALES</span>
+              <h2 className="font-display" style={{ fontSize: "28px", color: colors.textMain, margin: "0 0 12px" }}>Asistencia y Denuncia</h2>
+              <p className="font-body" style={{ fontSize: "15px", color: colors.textSec, margin: 0, maxWidth: "600px", lineHeight: 1.6 }}>
+                Línea 137 — gratuita, confidencial, disponible las 24 horas en todo el país.<br/>
+                También podés llamar al <strong>0800-222-1717</strong> (Brigada de Delitos contra Niños, Niñas y Adolescentes).
               </p>
             </div>
+            <a href="tel:137" className="font-display" style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: colors.alert, color: "#FFFFFF", padding: "16px 32px", textDecoration: "none", fontWeight: "bold", letterSpacing: "1px", borderRadius: "4px" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              Llamar al 137
+            </a>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* HELP SECTION */}
-      <section id="ayuda" style={{ padding: "80px 20px 120px", position: "relative", zIndex: 1 }}>
-        <div className="reveal-on-scroll" style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ background: "rgba(10, 20, 45, 0.8)", borderRadius: "32px", padding: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "30px", flexWrap: "wrap", border: "1px solid rgba(255, 60, 80, 0.3)", position: "relative", overflow: "hidden", backdropFilter: "blur(20px)" }}>
-            <div style={{ position: "absolute", bottom: "-50px", right: "10%", width: "400px", height: "400px", background: `radial-gradient(circle, rgba(255, 60, 80, 0.1) 0%, transparent 70%)`, filter: "blur(40px)", pointerEvents: "none" }} />
-            
-            <div style={{ maxWidth: "760px", position: "relative", zIndex: 1 }}>
-              <div style={{ fontFamily: "'Altone', sans-serif", fontSize: "13px", fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: alertRed, marginBottom: "16px" }}>Denuncia y Ayuda Profesional</div>
-              <h2 style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "clamp(28px, 3.5vw, 42px)", color: "#FFFFFF", margin: "0 0 12px" }}>¿Necesitás denunciar un caso?</h2>
-              <p style={{ fontSize: "17px", color: "#FFFFFF", margin: "0 0 16px", lineHeight: 1.7 }}>Línea 137 — gratuita, confidencial, disponible las 24 horas en todo el país. También podés escribir a <strong style={{ color: "#FFFFFF" }}>brigadaninas@jus.gov.ar</strong> o llamar al <strong style={{ color: "#FFFFFF" }}>0800-222-1717</strong> (Brigada de Delitos contra Niños, Niñas y Adolescentes).</p>
-              <p style={{ fontSize: "14px", color: "#FFFFFF", margin: 0 }}>No confrontes al acosador. No borres los mensajes. Llamá primero.</p>
-            </div>
-
-            <a href="tel:137" className="btn-primary" style={{ fontFamily: "'LEMON MILK', sans-serif", display: "inline-flex", padding: "20px 40px", borderRadius: "16px", background: alertRed, color: "#FFFFFF", textDecoration: "none", fontSize: "16px", fontWeight: "bold", boxShadow: `0 15px 30px rgba(255, 60, 80, 0.3)`, position: "relative", zIndex: 1 }}>Llamar al 137</a>
-          </div>
-        </div>
-      </section>
+      </div> {/* Fin Grid Frame */}
 
       {/* FOOTER */}
-      <footer style={{ background: "rgba(5, 12, 25, 0.9)", borderTop: "1px solid rgba(116, 179, 206, 0.1)", padding: "40px 20px" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "20px" }}>
-          <div style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "22px", fontWeight: "bold", color: "#FFFFFF", letterSpacing: "1.5px" }}>SAFENET</div>
-          <div style={{ display: "flex", gap: "26px" }}>
-            <a href="/" style={{ textDecoration: "none", color: "#FFFFFF", fontSize: "15px" }}>Inicio</a>
-            <a href="#alertas" style={{ textDecoration: "none", color: "#FFFFFF", fontSize: "15px" }}>Señales</a>
-            <a href="#pasos" style={{ textDecoration: "none", color: "#FFFFFF", fontSize: "15px" }}>Protocolo</a>
+      <footer className="reveal" style={{ background: colors.bg, padding: "60px 24px", position: "relative", zIndex: 1, borderTop: `1px solid ${colors.line}` }}>
+        <div className="grid-frame" style={{ border: "none", display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "40px" }}>
+          <div>
+            <div className="font-display" style={{ fontSize: "28px", fontWeight: "bold", color: colors.textMain, letterSpacing: "1.5px", marginBottom: "8px" }}>SAFENET</div>
+            <div className="font-body" style={{ fontSize: "13px", color: colors.textSec, letterSpacing: "0.5px" }}>PLATAFORMA EDUCATIVA DE PREVENCIÓN DIGITAL</div>
           </div>
-          <div style={{ fontSize: "14px", color: "#FFFFFF" }}>TFG · Licenciatura en Ciberseguridad · 2026</div>
+          
+          <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+            <a href="/" className="font-body" style={{ textDecoration: "none", color: colors.textMain, fontSize: "14px", transition: "color 0.3s", fontWeight: "bold" }}
+              onMouseOver={(e) => e.currentTarget.style.color = colors.brandBlue}
+              onMouseOut={(e) => e.currentTarget.style.color = colors.textMain}
+            >
+              ← Volver al Inicio
+            </a>
+          </div>
+
+          <div style={{ width: "100%", height: "1px", background: colors.line, margin: "20px 0" }}></div>
+
+          <div className="font-body" style={{ width: "100%", display: "flex", justifyContent: "space-between", fontSize: "13px", color: colors.textSec }}>
+            <span>© 2026 SAFENET</span>
+            <span>TFG · Licenciatura en Ciberseguridad</span>
+          </div>
         </div>
       </footer>
+
     </main>
   );
 }
