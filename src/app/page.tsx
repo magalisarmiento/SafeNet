@@ -1,753 +1,938 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from "react";
 
-// ============================================================
-// PALETA DE COLORES
-// ============================================================
-const colors = {
-  bgViewport: "#8AB8D0",      // Fondo interactivo exterior (Ahora Celeste)
-  bgContent: "#FFFFFF",       // Fondo interior de la cuadrícula (Blanco)
-  bgAlt: "#F8FAFC",           // Blanco/azulado suave para resaltar secciones en la grilla
-  textMain: "#102A43",        // Azul oscuro para textos principales
-  textSec: "#5B6B7A",         // Gris azulado para textos secundarios
-  celeste: "#8AB8D0",         // Color de acento (Celeste)
-  brandBlue: "#163A63",       // Hover de botones y acentos oscuros
-  alert: "#FF3C50",           // Rojo alerta
-  warning: "#F5C94A",         // Amarillo suave
-  line: "#D8E3EC",            // Líneas sutiles de la cuadrícula
-  white: "#FFFFFF"            // Blanco puro
+/* ============================================================
+   PALETA — SAFENET
+   ============================================================ */
+const C = {
+  white:        "#FFFFFF",
+  bgSoft:       "#F8FAFC",
+  celeste:      "#e5ebfa",
+  celesteMid:   "#0B5CFF",
+  blue:         "#0B5CFF",
+  blueDark:     "#061538",
+  blueDeep:     "#102A43",
+  textMute:     "#5B6B7A",
+  line:         "#D8E3EC",
 };
 
-// ============================================================
-// COMPONENTE: GroomingCircle (Adaptado al fondo blanco)
-// ============================================================
+/* ============================================================
+   ICONOS SVG
+   ============================================================ */
+const IconShield = ({ size = 16, color = C.blue }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></svg>
+);
+const IconHeart = ({ size = 16, color = C.blue }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" /></svg>
+);
+const IconLock = ({ size = 16, color = C.blue }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+);
+const IconQuestion = ({ size = 16, color = C.blue }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+);
+const IconArrowSwitch = ({ size = 16, color = C.blue }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" /><polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" /></svg>
+);
+const IconArrowRight = ({ size = 14, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+);
 
-const GROOMING_STEPS = [
-  { img: "/image1.png", label: "Elige víctima",    desc: "Estudia posibles víctimas online y elige a quien considera más vulnerable.", danger: false },
-  { img: "/image2.png", label: "Agrega",           desc: "Comienza a seguir a la víctima en redes con un perfil falso adaptado a sus gustos.", danger: false },
-  { img: "/image3.png", label: "Contacta",         desc: "Escribe un mensaje agradable para llamar la atención y comenzar a hablar.", danger: false },
-  { img: "/image4.png", label: "Profundiza",       desc: "Busca acercamiento y comparte cosas privadas para afianzar la confianza mutua.", danger: false },
-  { img: "/image5.png", label: "Intercambio",      desc: "A medida que la relación avanza comienza el intercambio de fotos e información íntima.", danger: false },
-  { img: "/image6.png", label: "Mayor compromiso", desc: "Aparece el chantaje emocional para exigir contenido más íntimo.", danger: false },
-  { img: "/image7.png", label: "Se descubre",      desc: "Si la víctima quiere salir, el groomer se descubre y comienza el chantaje.", danger: true },
-  { img: "/image8.png", label: "Chantajea",        desc: "Amenaza con publicar conversaciones e imágenes si la víctima no obedece.", danger: true },
-  { img: "/image9.png", label: "Abusa",            desc: "Ante el miedo, la víctima cede: envía material, acepta encuentros y sufre abuso.", danger: true },
-];
+const PlusMark = ({ top, left, right, bottom, size = 14, opacity = 0.5 }: any) => (
+  <span aria-hidden style={{ position: "absolute", top, left, right, bottom, width: size, height: size, opacity, color: C.celesteMid, pointerEvents: "none" }}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+  </span>
+);
 
-function GroomingCircle() {
-  const [activeStep, setActiveStep] = useState<number | null>(null);
-  const [visible, setVisible]       = useState(false);
-  const [isMounted, setIsMounted]   = useState(false);
-  const wrapRef = useRef(null);
-
-  useEffect(() => { setIsMounted(true); }, []);
+/* ============================================================
+   COUNT UP — animación
+   ============================================================ */
+function CountUp({ to, prefix = "", suffix = "", duration = 1400 }: any) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const triggered = useRef(false);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !ref.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setValue(to);
+      return;
+    }
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !triggered.current) {
+            triggered.current = true;
+            const start = performance.now();
+            const tick = (now: number) => {
+              const t = Math.min((now - start) / duration, 1);
+              const eased = 1 - Math.pow(1 - t, 3);
+              setValue(Math.round(to * eased));
+              if (t < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          }
+        });
+      },
+      { threshold: 0.4 }
     );
-    if (wrapRef.current) obs.observe(wrapRef.current);
+    obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [to, duration]);
 
+  return <span ref={ref}>{prefix}{value}{suffix}</span>;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
   useEffect(() => {
-    if (activeStep !== null) return;
-    const id = setInterval(() => {
-      setActiveStep((prev) => {
-        if (prev === null) return 0;
-        return (prev + 1) % GROOMING_STEPS.length;
-      });
-    }, 2500);
-    const init = setTimeout(() => setActiveStep(0), 500);
-    return () => { clearInterval(id); clearTimeout(init); };
-  }, [activeStep]);
-
-  const size       = 680;
-  const cx         = size / 2;
-  const cy         = size / 2;
-  const r          = size * 0.38;
-  const n          = GROOMING_STEPS.length;
-  const startAngle = -Math.PI / 2;
-
-  const active = activeStep !== null ? GROOMING_STEPS[activeStep] : null;
-
+    const onScroll = () => {
+      const sy = window.scrollY;
+      setScrolled(sy > 20);
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(h > 0 ? Math.min(sy / h, 1) : 0);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
-    <div ref={wrapRef} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "40px", width: "100%" }}>
-
-      {/* ── DIAGRAMA ── */}
-      <div style={{ position: "relative", width: "min(680px, 100%)", aspectRatio: "1", flexShrink: 0 }}>
-        
-        <div style={{
-          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-          width: "60%", height: "60%", borderRadius: "50%",
-          background: `radial-gradient(circle, rgba(138, 184, 208, 0.3) 0%, transparent 70%)`,
-          filter: "blur(30px)", pointerEvents: "none", zIndex: 0,
-        }} />
-
-        <svg viewBox={`0 0 ${size} ${size}`} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
-          <defs>
-            <marker id="gArrowLight" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 1L9 5L1 9" fill="none" stroke={colors.brandBlue} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </marker>
-            <marker id="gArrowRedLight" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 1L9 5L1 9" fill="none" stroke={colors.alert} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </marker>
-          </defs>
-
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke={colors.line} strokeWidth="80" opacity="0.5" />
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(16,42,67,0.15)" strokeWidth="1" strokeDasharray="16 10" style={{ animation: "spin-orbit 28s linear infinite" }} />
-
-          {isMounted && GROOMING_STEPS.map((_, i) => {
-            const a1     = startAngle + (2 * Math.PI * i) / n;
-            const a2     = startAngle + (2 * Math.PI * ((i + 1) % n)) / n;
-            const pad    = 0.09;
-            const x1     = cx + r * Math.cos(a1 + pad);
-            const y1     = cy + r * Math.sin(a1 + pad);
-            const x2     = cx + r * Math.cos(a2 - pad);
-            const y2     = cy + r * Math.sin(a2 - pad);
-            const isDanger = GROOMING_STEPS[i].danger;
-            return (
-              <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke={isDanger ? colors.alert : colors.brandBlue}
-                strokeWidth="1.5" strokeDasharray={isDanger ? "none" : "5 4"}
-                opacity="0.6"
-                markerEnd={isDanger ? "url(#gArrowRedLight)" : "url(#gArrowLight)"}
-              />
-            );
-          })}
-        </svg>
-
-        <div style={{
-          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-          width: "clamp(130px, 28%, 180px)", aspectRatio: "1", borderRadius: "50%",
-          background: "#FFFFFF",
-          border: `2px solid ${colors.line}`,
-          boxShadow: "0 10px 30px rgba(16,42,67,0.05), inset 0 0 20px rgba(138, 184, 208, 0.05)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          zIndex: 2, animation: "pulse-center-node-light 4s ease-in-out infinite",
-        }}>
-          <img src="/image-central.png" alt="Figura central" style={{ width: "85%", height: "85%", objectFit: "contain" }}
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
-          />
+    <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
+      <div className="nav-inner">
+        <a href="/" className="nav-logo">SAFENET</a>
+        <div className="nav-links">
+          <a href="#mundos" className="nav-link">Mundos</a>
+          <a href="#senales" className="nav-link">Señales</a>
+          <a href="#proyecto" className="nav-link">Proyecto</a>
         </div>
-
-        {GROOMING_STEPS.map((step, i) => {
-          const angle  = startAngle + (2 * Math.PI * i) / n;
-          const xPct   = 50 + 38 * Math.cos(angle);
-          const yPct   = 50 + 38 * Math.sin(angle);
-          const isActive = activeStep === i;
-
-          return (
-            <div key={i} className="grooming-step-node"
-              style={{
-                left: `${xPct}%`, top: `${yPct}%`,
-                opacity: visible ? 1 : 0,
-                transform: visible ? `translate(-50%,-50%) scale(${isActive ? 1.15 : 1})` : "translate(-50%,-50%) scale(0.5)",
-                transition: `opacity 0.5s ease ${i * 0.06}s, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)`,
-                zIndex: isActive ? 10 : 3,
-                position: "absolute"
-              }}
-              onMouseEnter={() => setActiveStep(i)}
-            >
-              {isActive && (
-                <div style={{
-                  position: "absolute", width: "calc(100% + 20px)", height: "calc(100% + 20px)",
-                  top: "-10px", left: "-10px", borderRadius: "50%",
-                  background: step.danger ? "radial-gradient(circle, rgba(255,60,80,0.15) 0%, transparent 70%)" : "radial-gradient(circle, rgba(138, 184, 208, 0.2) 0%, transparent 70%)",
-                  animation: "halo-pulse 1.2s ease-in-out infinite", pointerEvents: "none",
-                }} />
-              )}
-
-              <div className={`grooming-step-circle-light ${step.danger ? "danger" : ""} ${isActive ? "active" : ""}`}>
-                <img src={step.img} alt={step.label} style={{ width: "70%", height: "70%", objectFit: "contain" }}
-                  onError={(e) => { e.currentTarget.style.display = "none"; }}
-                />
-                <div className={`grooming-step-badge-light ${step.danger ? "danger" : ""}`}>{i + 1}</div>
-              </div>
-
-              <div className={`grooming-step-label-light ${step.danger ? "danger" : ""} ${isActive ? "active-label" : ""}`}>
-                {step.label}
-              </div>
-            </div>
-          );
-        })}
+        <a href="#mundos" className="nav-cta">
+          Explorar la plataforma
+        </a>
+        <button
+          className="nav-burger"
+          aria-label="Abrir menú"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span /><span /><span />
+        </button>
       </div>
-
-      {/* ── PANEL LATERAL ── */}
-      <div style={{
-        width: "clamp(260px, 32%, 320px)", minHeight: "240px",
-        background: "#FFFFFF",
-        border: `1px solid ${active?.danger ? colors.alert : colors.line}`,
-        borderRadius: "20px", padding: "28px 24px",
-        transition: "border-color 0.4s ease", display: "flex", flexDirection: "column", gap: "16px",
-        boxShadow: active?.danger ? "0 10px 30px rgba(255,60,80,0.1)" : "0 10px 30px rgba(16,42,67,0.06)",
-        position: "relative", zIndex: 10
-      }}>
-        {active ? (
-          <div className="reveal active">
-            <div style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "11px", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: active.danger ? colors.alert : colors.celeste }}>
-              Paso {(activeStep ?? 0) + 1} de {GROOMING_STEPS.length}
-            </div>
-
-            <div style={{ height: "4px", background: colors.line, borderRadius: "2px", overflow: "hidden", margin: "12px 0 20px" }}>
-              <div style={{
-                height: "100%", width: `${(((activeStep ?? 0) + 1) / GROOMING_STEPS.length) * 100}%`,
-                background: active.danger ? colors.alert : colors.celeste,
-                borderRadius: "2px", transition: "width 0.4s ease",
-              }} />
-            </div>
-
-            <div style={{ fontFamily: "'LEMON MILK', sans-serif", fontSize: "20px", fontWeight: 700, color: active.danger ? colors.alert : colors.textMain, lineHeight: 1.2, marginBottom: "12px" }}>
-              {active.label}
-            </div>
-
-            <p style={{ fontFamily: "'Altone', sans-serif", fontSize: "15px", lineHeight: 1.65, color: colors.textSec, margin: 0 }}>
-              {active.desc}
-            </p>
-
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "24px" }}>
-              {GROOMING_STEPS.map((s, i) => (
-                <button key={i} onClick={() => setActiveStep(i)}
-                  style={{
-                    width: "8px", height: "8px", borderRadius: "50%", border: "none", cursor: "pointer",
-                    background: activeStep === i ? (s.danger ? colors.alert : colors.celeste) : colors.line,
-                    transition: "background 0.3s, transform 0.2s", transform: activeStep === i ? "scale(1.4)" : "scale(1)",
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div style={{ fontFamily: "'Altone', sans-serif", fontSize: "14px", color: colors.textSec, opacity: 0.8, margin: "auto", textAlign: "center" }}>
-            Pasá el mouse sobre un paso para ver su descripción detallada.
-          </div>
-        )}
+      {open && (
+        <div className="nav-mobile">
+          <a href="#mundos" onClick={() => setOpen(false)}>Mundos</a>
+          <a href="#senales" onClick={() => setOpen(false)}>Señales</a>
+          <a href="#proyecto" onClick={() => setOpen(false)}>Proyecto</a>
+          <a href="#mundos" className="nav-cta-mobile" onClick={() => setOpen(false)}>
+            Explorar la plataforma
+          </a>
+        </div>
+      )}
+      <div className="nav-progress" aria-hidden>
+        <div className="nav-progress-bar" style={{ transform: `scaleX(${progress})` }} />
       </div>
-
-    </div>
+    </nav>
   );
 }
 
-// ============================================================
-// PÁGINA PRINCIPAL
-// ============================================================
+/* ============================================================
+   SECUENCIA DE CHAT Y ALERTAS
+   ============================================================ */
+type AlertType = { title: string; text: string; icon: React.ReactNode; side: "left" | "right"; isRisk?: boolean };
+type MessageType = { id: string; text: string | null; sender: "left" | "right" | null; delay: number; alert?: AlertType };
 
-export default function App() {
-  const [mousePos, setMousePos]   = useState({ x: 0, y: 0 });
-  const [chatState, setChatState] = useState({ visible: false, text: "", isTyping: false });
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const storyRef   = useRef(null);
-  const [visibleBubbles, setVisibleBubbles] = useState<number[]>([]);
+const CHAT_SEQUENCE: MessageType[] = [
+  { id: "s0", text: null, sender: null, delay: 500 },
+  { id: "s1", text: "Holaa, vi tu partida. ¡Jugás re bien! jaja", sender: "left", delay: 1800 },
+  { id: "s2", text: "sii, me costó un montón pasar ese nivel 😅", sender: "right", delay: 2400 },
+  { 
+    id: "s3", text: "Yo me trabé ahí. Sos re pro posta, ojalá jugara como vos", sender: "left", delay: 3000,
+    alert: { title: "Halago excesivo", text: "Busca generar una conexión de confianza rápida y desmedida.", icon: <IconHeart size={12} color={C.blue} />, side: "left" } 
+  },
+  { id: "s4", text: "jaja gracias! es práctica nomás", sender: "right", delay: 2000 },
+  { 
+    id: "s5", text: "¿A qué hora te conectás a jugar? ¿Tus viejos te dejan estar hasta tarde?", sender: "left", delay: 3200,
+    alert: { title: "Pregunta personal temprana", text: "Indaga sobre límites familiares para buscar momentos sin supervisión.", icon: <IconQuestion size={12} color={C.blue} />, side: "right" } 
+  },
+  { id: "s6", text: "depende, a la noche un rato a veces", sender: "right", delay: 2600 },
+  { 
+    id: "s7", text: "Qué bueno. Che, pasame tu WhatsApp, por acá el chat anda re mal", sender: "left", delay: 3200,
+    alert: { title: "Cambio a canal privado", text: "Quiere llevar la charla a un entorno privado y más difícil de rastrear.", icon: <IconArrowSwitch size={12} color={C.blue} />, side: "right" } 
+  },
+  { id: "s8", text: "mm no sé, no le paso mi nro a gente que no conozco", sender: "right", delay: 2800 },
+  { 
+    id: "s9", text: "Dale no pasa nada. Queda entre nosotros, es nuestro secreto 😉", sender: "left", delay: 3200,
+    alert: { title: "Pedido de secreto", text: "Intenta aislarte y evitar que pidas consejo a un adulto de confianza.", icon: <IconLock size={12} color={C.blue} />, side: "left" } 
+  },
+  { 
+    id: "s10", text: null, sender: null, delay: 2000,
+    alert: { isRisk: true, title: "Nivel de riesgo", text: "Detectamos 4 señales de alerta consecutivas en esta conversación.", icon: <IconShield size={12} color={C.white} />, side: "left" } 
+  }
+];
 
-  // Eliminamos los "rows" fijos ya que utilizaremos flex-wrap para igualar el acomodo de la imagen
-  const groomingBubbles = [
-    { text: "Sos hermosa, ¿cómo estás?",                             cat: "contact" },
-    { text: "Sos diferente a los demás, te lo juro.",                cat: "trust"   },
-    { text: "¿Cuántos años tenés?",                                  cat: "contact" },
-    { text: "No le cuentes a nadie, es nuestro secreto.",            cat: "secret"  },
-    { text: "Te entiendo más que tu familia.",                       cat: "trust"   },
-    { text: "Mandamé una foto, solo para mí.",                       cat: "contact" },
-    { text: "Si me quisieras de verdad lo harías.",                  cat: "threat"  },
-    { text: "¿Estás sola en casa?",                                  cat: "contact" },
-    { text: "Sos la única persona que me entiende.",                 cat: "trust"   },
-    { text: "Si se lo contás a alguien, publico todo.",              cat: "threat"  },
-    { text: "¿Por qué no contestás? ¿Me estás ignorando?",           cat: "secret"  },
-    { text: "Prométeme que esto queda entre nosotros.",              cat: "trust"   },
-    { text: "Me caés muy bien, sos especial.",                       cat: "contact" },
-    { text: "Bloqueame y lo paso al grupo del colegio.",             cat: "threat"  },
-    { text: "Yo nunca te haría daño, confiá en mí.",                 cat: "trust"   },
-    { text: "Hagamos videollamada, nadie se va a enterar.",          cat: "contact" },
-  ];
+/* ============================================================
+   MOTOR DOUBLE CHECK (Lógico + Visual)
+   ============================================================ */
+type ActiveAlert = {
+  id: string;
+  msgId: string;
+  alert: AlertType;
+  top: number;       // Card Y
+  msgY: number;      // Message Y (para el conector)
+  opacity: number;
+};
 
-  const worlds = [
-    { title: "Niños (Primaria)",       desc: "Actividades guiadas para aprender a reconocer señales de riesgo y pedir ayuda a tiempo.",                 href: "/ninos"        },
-    { title: "Adolescentes (Secundaria)", desc: "Simulaciones, decisiones y contenidos pensados para redes sociales y situaciones reales.",         href: "/adolescentes" },
-    { title: "Familias",               desc: "Guías claras para acompañar, detectar señales de alerta y actuar frente a una situación concreta.",   href: "/familias"     },
-    { title: "Docentes",               desc: "Recursos para trabajar la prevención desde el aula y fortalecer la intervención institucional.",      href: "/docentes"     },
-  ];
+function useSimulationEngine() {
+  const [step, setStep] = useState(0);
+  const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Constantes de Layout
+  const ALERT_HEIGHT = 90; 
+  const GAP_Y = 16;
+  const MSG_ANIMATION_TIME = 450; // Ms antes de disparar el check visual
+
+  // 1. Avance Automático
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("active"); }),
-      { threshold: 0.15 }
-    );
-    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          groomingBubbles.forEach((_, i) => {
-            setTimeout(() => setVisibleBubbles((prev) => [...prev, i]), i * 120);
-          });
-        }
-      },
-      { threshold: 0.25 }
-    );
-    if (storyRef.current) observer.observe(storyRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e: any) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let width  = window.innerWidth;
-    let height = window.innerHeight;
-    canvas.width  = width;
-    canvas.height = height;
-
-    const particles: any[] = [];
-    const particleCount = Math.min(width / 20, 70); 
-    const maxDistance   = 160;
-
-    class Particle {
-      x: number; y: number; vx: number; vy: number; isThreat: boolean; radius: number;
-      constructor() {
-        this.x        = Math.random() * width;
-        this.y        = Math.random() * height;
-        this.vx       = (Math.random() - 0.5) * 0.8;
-        this.vy       = (Math.random() - 0.5) * 0.8;
-        this.isThreat = Math.random() > 0.90; 
-        this.radius   = this.isThreat ? 3 : 1.5;
-      }
-      update() {
-        this.x += this.vx; this.y += this.vy;
-        if (this.x < 0 || this.x > width)  this.vx *= -1;
-        if (this.y < 0 || this.y > height) this.vy *= -1;
-        
-        const dx = mousePos.x - this.x, dy = mousePos.y - this.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) { this.x -= dx * 0.02; this.y -= dy * 0.02; }
-      }
-      draw() {
-        if (!ctx) return;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.isThreat ? "rgba(255, 60, 80, 0.8)" : "rgba(16, 42, 67, 0.4)";
-        ctx.shadowBlur  = this.isThreat ? 15 : 0;
-        ctx.shadowColor = "rgba(255, 60, 80, 1)";
-        ctx.fill();
-      }
+    if (step >= CHAT_SEQUENCE.length - 1) {
+      const timer = setTimeout(() => {
+        setStep(0);
+        setActiveAlerts([]);
+      }, 10000);
+      return () => clearTimeout(timer);
     }
+    const nextDelay = CHAT_SEQUENCE[step + 1]?.delay || 2000;
+    const timer = setTimeout(() => setStep((s) => s + 1), nextDelay);
+    return () => clearTimeout(timer);
+  }, [step]);
 
-    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+  // 2. Double Check Engine: Evalúa colisiones en el DOM real
+  const evaluateAlertLayout = useCallback(() => {
+    const msgData = CHAT_SEQUENCE[step];
+    if (!msgData || !msgData.alert) return;
 
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].update();
-        particles[i].draw();
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx   = particles[i].x - particles[j].x;
-          const dy   = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < maxDistance) {
-            ctx.beginPath();
-            const opacity = 1 - dist / maxDistance;
-            const isThreatConn = particles[i].isThreat || particles[j].isThreat;
-            ctx.strokeStyle = isThreatConn ? `rgba(255, 60, 80, ${opacity * 0.5})` : `rgba(16, 42, 67, ${opacity * 0.15})`;
-            ctx.lineWidth = isThreatConn ? 1.5 : 1;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
+    // CHECK LÓGICO: ¿Ya existe?
+    if (activeAlerts.some(a => a.msgId === msgData.id)) return;
+
+    const msgEl = messagesRef.current[step];
+    const containerEl = containerRef.current;
+    if (!msgEl || !containerEl) return;
+
+    // CHECK VISUAL: Mediciones DOM
+    const msgRect = msgEl.getBoundingClientRect();
+    const containerRect = containerEl.getBoundingClientRect();
+    
+    // Coordenada Y central del mensaje (relativo al hero container)
+    const exactMsgY = (msgRect.top - containerRect.top) + (msgRect.height / 2);
+    
+    // Posición ideal inicial para la tarjeta (centrada con el mensaje)
+    let idealCardTop = exactMsgY - (ALERT_HEIGHT / 2);
+
+    // Detección de Colisiones (Double Check Layout)
+    setActiveAlerts(prev => {
+      const sameSide = prev.filter(a => a.alert.side === msgData.alert!.side);
+      const lastPlaced = sameSide[sameSide.length - 1];
+
+      if (lastPlaced) {
+        const lastBottomEdge = lastPlaced.top + ALERT_HEIGHT + GAP_Y;
+        if (idealCardTop < lastBottomEdge) {
+          idealCardTop = lastBottomEdge; // Empujar hacia abajo si hay colisión
         }
       }
-      requestAnimationFrame(animate);
-    };
-    animate();
 
-    const handleResize = () => {
-      width = window.innerWidth; height = window.innerHeight;
-      canvas.width = width; canvas.height = height;
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [mousePos]);
+      return [...prev, {
+        id: `alert-${msgData.id}`,
+        msgId: msgData.id,
+        alert: msgData.alert!,
+        top: idealCardTop,
+        msgY: exactMsgY,
+        opacity: 1
+      }];
+    });
+  }, [step, activeAlerts]);
 
+  // Disparar evaluación después de que el mensaje se anima
   useEffect(() => {
-    const sequence = async () => {
-      await new Promise((r) => setTimeout(r, 4000));
-      setChatState({ visible: true,  text: "", isTyping: true  });
-      await new Promise((r) => setTimeout(r, 2000));
-      setChatState({ visible: true,  text: "Hola, ¿cómo estás?", isTyping: false });
-      await new Promise((r) => setTimeout(r, 3000));
-      setChatState({ visible: true,  text: "", isTyping: true  });
-      await new Promise((r) => setTimeout(r, 2500));
-      setChatState({ visible: true,  text: "¿Cuántos años tenés?", isTyping: false });
-      await new Promise((r) => setTimeout(r, 4000));
-      setChatState({ visible: false, text: "", isTyping: false });
-    };
-    sequence();
+    const msgData = CHAT_SEQUENCE[step];
+    if (msgData?.alert) {
+      const timer = setTimeout(() => {
+        evaluateAlertLayout();
+      }, MSG_ANIMATION_TIME);
+      return () => clearTimeout(timer);
+    }
+  }, [step, evaluateAlertLayout]);
+
+  // 3. Scroll Sync: Actualiza las líneas SVG si el usuario (o el auto-scroll) mueve el chat
+  const handleChatScroll = useCallback(() => {
+    setActiveAlerts(prev => prev.map(item => {
+      const msgIndex = CHAT_SEQUENCE.findIndex(m => m.id === item.msgId);
+      const msgEl = messagesRef.current[msgIndex];
+      const containerEl = containerRef.current;
+      if (!msgEl || !containerEl) return item;
+
+      const msgRect = msgEl.getBoundingClientRect();
+      const containerRect = containerEl.getBoundingClientRect();
+      const newMsgY = (msgRect.top - containerRect.top) + (msgRect.height / 2);
+      
+      return { ...item, msgY: newMsgY };
+    }));
   }, []);
+
+  // Auto-scroll trigger
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [step]);
+
+  return {
+    step,
+    activeAlerts,
+    containerRef,
+    phoneRef,
+    chatScrollRef,
+    messagesRef,
+    handleChatScroll
+  };
+}
+
+/* ============================================================
+   PÁGINA PRINCIPAL
+   ============================================================ */
+export default function App() {
+  const {
+    step,
+    activeAlerts,
+    containerRef,
+    phoneRef,
+    chatScrollRef,
+    messagesRef,
+    handleChatScroll
+  } = useSimulationEngine();
+
+  // Scroll genérico para animaciones Reveal
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("active"); }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const isTyping = step < CHAT_SEQUENCE.length - 1 && CHAT_SEQUENCE[step + 1].sender === "left" && CHAT_SEQUENCE[step + 1].text !== null;
 
   return (
-    <main style={{ backgroundColor: colors.bgViewport, minHeight: "100vh", position: "relative", overflowX: "hidden" }}>
-      
+    <main className="safenet-main">
       <style>{`
-        @import url('https://fonts.cdnfonts.com/css/lemon-milk');
-        @import url('https://fonts.cdnfonts.com/css/altone');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
         html { scroll-behavior: smooth; }
-        
-        .font-display { font-family: 'LEMON MILK', sans-serif; text-transform: uppercase; }
-        .font-body { font-family: 'Altone', sans-serif; }
-        
-        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        body { margin: 0; background: ${C.white}; -webkit-font-smoothing: antialiased; }
+        .safenet-main { min-height: 100vh; color: ${C.blueDeep}; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        .delay-100 { transition-delay: 100ms; }
-        .delay-200 { transition-delay: 200ms; }
-        .delay-300 { transition-delay: 300ms; }
 
-        .grid-frame {
-          max-width: 1200px;
-          margin: 0 auto;
-          background-color: ${colors.bgContent};
-          position: relative;
-          z-index: 10;
-          border-left: 1px solid ${colors.line};
-          border-right: 1px solid ${colors.line};
-          box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
-          min-height: 100vh;
-        }
+        /* HERO LAYOUT */
+        .hero { position: relative; padding: 140px 32px 100px; background: ${C.white}; overflow: hidden; }
+        .hero-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.05fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
+        .hero-left { position: relative; z-index: 2; }
+        .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 2.2px; text-transform: uppercase; color: ${C.blue}; margin-bottom: 28px; }
+        .hero-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(40px, 5.4vw, 76px); line-height: 1.02; letter-spacing: -2px; color: ${C.blueDark}; margin: 0 0 28px; text-transform: uppercase; }
+        .hero-title .accent { color: ${C.blue}; }
+        .hero-desc { font-size: 17px; line-height: 1.65; color: ${C.blueDark}; max-width: 540px; margin: 0 0 36px; font-weight: 400; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 28px; border-radius: 100px; font-size: 12.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; text-decoration: none; border: none; cursor: pointer; transition: all .3s cubic-bezier(.16,1,.3,1); }
+        .btn-primary { background: ${C.blue}; color: ${C.white}; box-shadow: 0 6px 18px rgba(11,92,255,0.22); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(11,92,255,0.32); }
+
+        /* MOTOR VISUAL Y COMPONENTES DEL CHAT */
+        .hero-right { position: relative; height: 740px; display: flex; align-items: center; justify-content: center; }
         
-        .border-b-grid { border-bottom: 1px solid ${colors.line}; }
-        .border-r-md { border-right: 1px solid ${colors.line}; }
+        .phone { position: relative; width: 300px; height: 620px; background: #0a0a0a; border-radius: 44px; padding: 8px; box-shadow: 0 0 0 2px #1a1a1a, 0 30px 60px -20px rgba(11,21,56,0.35); z-index: 10; animation: sn-float 6s ease-in-out infinite; }
+        @keyframes sn-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         
-        .grid-2 { display: grid; grid-template-columns: 1fr; }
-        @media (min-width: 768px) {
-          .grid-2 { grid-template-columns: 1fr 1fr; }
+        .phone-screen { width: 100%; height: 100%; background: ${C.white}; border-radius: 36px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .phone-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px 10px; border-bottom: 1px solid #eee; background: ${C.white}; z-index: 2; }
+        .ph-user { display: flex; align-items: center; gap: 10px; }
+        
+        /* AVATAR ACTUALIZADO */
+        .ph-avatar { width: 34px; height: 34px; position: relative; border-radius: 50%; }
+        .ph-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: ${C.celesteMid}; display: block; }
+        .ph-avatar::after { content: ""; position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%; background: #22c55e; border: 2px solid ${C.white}; z-index: 2; }
+        
+        .ph-name { font-size: 13.5px; font-weight: 700; color: #111; line-height: 1.1; }
+        .ph-online { font-size: 10.5px; color: ${C.textMute}; font-weight: 500; }
+        
+        .phone-chat { flex: 1; padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; scroll-behavior: smooth; z-index: 1; scrollbar-width: none; }
+        .phone-chat::-webkit-scrollbar { display: none; }
+        
+        .chat-row { display: flex; align-items: flex-end; gap: 6px; max-width: 85%; opacity: 0; }
+        .chat-row.left { align-self: flex-start; }
+        .chat-row.right { align-self: flex-end; flex-direction: row-reverse; }
+        @keyframes fadeUpIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-row.animate-in { animation: fadeUpIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+        
+        /* AVATAR CHAT ACTUALIZADO */
+        .chat-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: ${C.celesteMid}; flex-shrink: 0; display: block; }
+        
+        .chat-bubble { padding: 9px 14px; border-radius: 18px; font-size: 12.5px; line-height: 1.4; font-weight: 500; position: relative; }
+        .chat-row.left .chat-bubble { background: #F1F3F4; color: #111; border-bottom-left-radius: 4px; }
+        .chat-row.right .chat-bubble { background: ${C.blue}; color: ${C.white}; border-bottom-right-radius: 4px; }
+        
+        .chat-typing { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 12px 16px; background: #F1F3F4; border-radius: 18px; border-bottom-left-radius: 4px; margin-left: 28px; opacity: 0; animation: fadeUpIn 0.3s forwards; }
+        .chat-typing span { width: 5px; height: 5px; border-radius: 50%; background: #6B7280; animation: typing 1.2s infinite; }
+        .chat-typing span:nth-child(2) { animation-delay: .15s; }
+        .chat-typing span:nth-child(3) { animation-delay: .3s; }
+        @keyframes typing { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-3px); opacity: 1; } }
+
+        /* TARJETAS DINÁMICAS */
+        @keyframes sn-scale-in { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .alert-card {
+          position: absolute; background: ${C.white}; border: 1px solid ${C.line}; border-radius: 12px; padding: 14px; width: 200px; z-index: 12;
+          box-shadow: 0 14px 28px -10px rgba(11,21,56,0.18);
+          animation: sn-scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          transition: top 0.4s cubic-bezier(0.16,1,.3,1);
+        }
+        .alert-card.ac-risk { background: ${C.blueDark}; border-color: ${C.blue}; color: ${C.white}; }
+        .alert-card.ac-risk .ac-title { color: ${C.white}; }
+        .alert-card.ac-risk .ac-text { color: rgba(255,255,255,0.8); }
+        .alert-card.ac-risk .ac-icon { background: rgba(11,92,255,0.2); }
+        
+        .alert-card.left { right: calc(50% + 150px + 30px); }
+        .alert-card.right { left: calc(50% + 150px + 30px); }
+        
+        .ac-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .ac-icon { width: 26px; height: 26px; background: ${C.celeste}; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ac-title { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: ${C.blueDeep}; text-transform: uppercase; line-height: 1.2; }
+        .ac-text { font-size: 12px; color: ${C.textMute}; line-height: 1.45; font-weight: 500; }
+        
+        /* CONECTORES SVG */
+        .connectors-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+        .svg-connector { fill: none; stroke: ${C.blue}; stroke-width: 1.5; stroke-dasharray: 4 4; stroke-dashoffset: 20; animation: sn-dash-draw 0.8s linear forwards; }
+        @keyframes sn-dash-draw { to { stroke-dashoffset: 0; } }
+        .svg-dot { fill: ${C.blue}; opacity: 0; animation: fadeUpIn 0.3s forwards 0.4s; }
+
+        @media (max-width: 1024px) {
+          .hero-inner { grid-template-columns: 1fr; text-align: center; }
+          .hero-left { text-align: center; }
+          .hero-right { height: 600px; }
+          .alert-card, .connectors-layer { display: none; }
         }
 
-        .module-card {
-          padding: 60px 40px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          position: relative; z-index: 1;
-        }
-        .module-card:hover {
-          transform: translateY(-8px) scale(1.01);
-          box-shadow: 0 15px 30px rgba(16, 42, 67, 0.08); z-index: 2; border-radius: 8px;
-          border-color: transparent !important;
-        }
-
-        /* Colores Específicos para las Cards de Mundos unificados */
-        .card-bg-0, .card-bg-3 { background: ${colors.white}; }
-        .card-bg-0:hover, .card-bg-3:hover { background: ${colors.white}; }
-        .card-bg-1, .card-bg-2 { background: ${colors.textMain}; }
-        .card-bg-1:hover, .card-bg-2:hover { background: ${colors.brandBlue}; }
-
-        .tech-label {
-          font-family: monospace; font-size: 12px; letter-spacing: 1.5px; 
-          text-transform: uppercase; color: ${colors.textSec}; display: block; 
-          margin-bottom: 16px; opacity: 0.9;
-        }
-
-        /* ── NAVBAR PILL FLOTANTE ── */
-        .nav-pill-container {
-          position: fixed;
-          top: 32px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 1000;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(12px);
-          border-radius: 60px;
-          padding: 8px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          box-shadow: 0 20px 40px rgba(16, 42, 67, 0.08), 0 1px 3px rgba(0,0,0,0.05);
-          border: 1px solid rgba(216, 227, 236, 0.8);
+        /* NAVBAR MOBILE CSS */
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: ${C.white}; border-bottom: 1px solid ${C.line}; transition: box-shadow .3s ease; }
+        .navbar.scrolled { box-shadow: 0 4px 18px -10px rgba(11,21,56,0.12); }
+        .nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: transparent; overflow: hidden; pointer-events: none; }
+        .nav-progress-bar { width: 100%; height: 100%; background: linear-gradient(90deg, ${C.blue} 0%, ${C.celesteMid} 100%); transform-origin: left center; transform: scaleX(0); transition: transform .15s linear; }
+        .nav-inner { max-width: 1280px; margin: 0 auto; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+        .nav-logo { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 700; font-size: 22px; color: ${C.blueDark}; letter-spacing: 1.5px; text-decoration: none; }
+        .nav-links { display: flex; gap: 36px; }
+        .nav-link { font-size: 14px; font-weight: 600; color: ${C.blueDeep}; text-decoration: none; transition: color .2s ease; position: relative; }
+        .nav-link::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: ${C.blue}; transition: width .25s ease; }
+        .nav-link:hover { color: ${C.blue}; }
+        .nav-link:hover::after { width: 100%; }
+        .nav-cta { background: ${C.blue}; color: ${C.white}; padding: 12px 22px; border-radius: 100px; font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; box-shadow: 0 4px 14px rgba(11,92,255,0.18); }
+        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(11,92,255,0.28); }
+        .nav-burger { display: none; background: transparent; border: 0; cursor: pointer; padding: 8px; }
+        .nav-burger span { display: block; width: 22px; height: 2px; background: ${C.blueDark}; margin: 4px 0; border-radius: 2px; }
+        .nav-mobile { display: none; }
+        @media (max-width: 880px) {
+          .nav-links, .nav-cta { display: none; }
+          .nav-burger { display: block; }
+          .nav-mobile { display: flex; flex-direction: column; gap: 8px; padding: 16px 32px 24px; background: ${C.white}; border-top: 1px solid ${C.line}; }
+          .nav-mobile a { padding: 12px 0; font-size: 15px; font-weight: 600; color: ${C.blueDeep}; text-decoration: none; border-bottom: 1px solid ${C.line}; }
+          .nav-cta-mobile { background: ${C.blue} !important; color: ${C.white} !important; border-radius: 100px; padding: 14px 22px !important; text-align: center; font-weight: 700 !important; font-size: 12px !important; margin-top: 8px; }
         }
 
-        .nav-item {
-          text-decoration: none;
-          color: ${colors.textSec};
-          font-family: 'Altone', sans-serif;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          padding: 12px 24px;
-          border-radius: 50px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          white-space: nowrap;
+        /* ESTADÍSTICAS */
+        .stats { background: ${C.celeste}; padding: 72px 32px; position: relative; overflow: hidden; }
+        .stats-inner { max-width: 1240px; margin: 0 auto; position: relative; }
+        .stats-header { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: end; margin-bottom: 36px; }
+        .stats-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: clamp(26px, 3vw, 40px); font-weight: 700; color: ${C.blueDark}; letter-spacing: -1.4px; line-height: 1.06; margin: 10px 0 0; text-transform: uppercase; }
+        .stats-title .accent { color: ${C.blue}; }
+        .stats-lead { font-size: 14.5px; line-height: 1.6; color: ${C.blueDeep}; font-weight: 500; max-width: 440px; margin: 0; padding-bottom: 4px; }
+        .stats-panel { position: relative; background: ${C.white}; border: 1px solid ${C.line}; border-radius: 14px; padding: 36px 40px 18px; box-shadow: 0 10px 30px -22px rgba(11,21,56,0.14); overflow: hidden; }
+        .stats-panel::before { content: ""; position: absolute; top: 0; left: 40px; right: 40px; height: 2px; background: ${C.blue}; border-radius: 0 0 2px 2px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+        .stat-item { padding: 0 32px; position: relative; }
+        .stat-item:first-child { padding-left: 0; }
+        .stat-item:last-child { padding-right: 0; }
+        .stat-item + .stat-item::before { content: ""; position: absolute; left: 0; top: 12%; bottom: 12%; width: 1px; background: ${C.line}; }
+        .stat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .stat-index { font-size: 10.5px; font-weight: 700; color: ${C.blue}; letter-spacing: 1.6px; font-family: 'Space Grotesk', 'Inter', sans-serif; }
+        .stat-dot { width: 5px; height: 5px; border-radius: 50%; background: ${C.celesteMid}; }
+        .stat-tag { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; color: ${C.textMute}; text-transform: uppercase; }
+        .stat-number { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 700; font-size: clamp(30px, 3.4vw, 46px); line-height: 1; color: ${C.blueDark}; margin: 0 0 14px; letter-spacing: -1.5px; }
+        .stat-text { font-size: 13.5px; line-height: 1.55; color: ${C.textMute}; font-weight: 500; margin: 0; max-width: 280px; }
+        .stats-panel-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 32px; padding-top: 16px; border-top: 1px solid ${C.line}; }
+        .stats-source-label { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; color: ${C.textMute}; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 700; }
+        .stats-source-label::before { content: ""; width: 20px; height: 1px; background: ${C.blue}; }
+        .stats-source-text { font-size: 12px; color: ${C.blueDeep}; font-weight: 600; letter-spacing: 0.2px; }
+        @media (max-width: 1024px) {
+          .stats-header { grid-template-columns: 1fr; gap: 18px; margin-bottom: 28px; align-items: start; }
+          .stats-panel { padding: 32px 32px 16px; }
+          .stats-panel::before { left: 32px; right: 32px; }
+        }
+        @media (max-width: 760px) {
+          .stats { padding: 56px 24px; }
+          .stats-panel { padding: 28px 24px 16px; border-radius: 12px; }
+          .stats-panel::before { left: 24px; right: 24px; }
+          .stats-grid { grid-template-columns: 1fr; gap: 0; }
+          .stat-item { padding: 24px 0; }
+          .stat-item:first-child { padding-top: 0; }
+          .stat-item:last-child { padding-bottom: 0; }
+          .stat-item + .stat-item { border-top: 1px solid ${C.line}; }
+          .stat-item + .stat-item::before { display: none; }
+          .stat-text { max-width: 100%; }
+          .stats-panel-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
 
-        .nav-item:hover {
-          color: ${colors.textMain};
-          background: rgba(248, 250, 252, 0.8);
+        /* METODOLOGIA / RECORRIDO */
+        .methodology { padding: 80px 32px 84px; background: ${C.bgSoft}; position: relative; }
+        .meth-inner { max-width: 1280px; margin: 0 auto; }
+        .meth-header { text-align: center; margin-bottom: 48px; }
+        .meth-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: clamp(28px, 3.5vw, 44px); font-weight: 700; color: ${C.blueDark}; letter-spacing: -1.2px; line-height: 1.1; margin: 10px 0 16px; text-transform: uppercase; }
+        .meth-sub { font-size: 15px; color: ${C.blue}; max-width: 600px; margin: 0 auto; line-height: 1.65; font-weight: 500; }
+        .meth-track { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-bottom: 40px; }
+        .meth-track::before { content: ""; position: absolute; top: 24px; left: 8%; right: 8%; height: 0; border-top: 2px dashed ${C.line}; z-index: 0; transform: scaleX(0); transform-origin: left center; transition: transform 1.2s cubic-bezier(.16,1,.3,1) .25s; }
+        .meth-track.active::before { transform: scaleX(1); }
+        .meth-step { position: relative; z-index: 1; transition: transform .35s cubic-bezier(.16,1,.3,1); }
+        .meth-step:hover { transform: translateY(-4px); }
+        .meth-num { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: ${C.white}; color: ${C.blue}; border: 2px solid ${C.celesteMid}; font-weight: 700; font-size: 15px; letter-spacing: 1px; margin-bottom: 20px; font-family: 'Space Grotesk', 'Inter', sans-serif; transition: all .35s ease; }
+        .meth-step:hover .meth-num { transform: scale(1.05); box-shadow: 0 8px 20px -8px rgba(11,92,255,0.4); border-color: ${C.blue}; background: ${C.blue}; color: ${C.white}; }
+        .meth-card-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: ${C.blueDark}; margin: 0 0 10px; text-transform: uppercase; }
+        .meth-card-text { font-size: 13.5px; line-height: 1.6; color: ${C.textMute}; font-weight: 500; margin: 0; }
+        .meth-banner { margin-top: 24px; background: ${C.white}; border: 1px solid ${C.line}; border-left: 4px solid ${C.blue}; border-radius: 12px; padding: 24px 32px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; box-shadow: 0 10px 30px -20px rgba(11,21,56,0.08); }
+        .mb-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: ${C.blueDark}; margin: 0 0 6px; text-transform: uppercase; }
+        .mb-title .accent { color: ${C.blue}; }
+        .mb-text { font-size: 14px; color: ${C.textMute}; margin: 0; line-height: 1.6; }
+        @media (max-width: 960px) {
+          .meth-track { grid-template-columns: 1fr 1fr; gap: 40px; }
+          .meth-track::before { display: none; }
+          .meth-banner { grid-template-columns: 1fr; text-align: center; border-left: 1px solid ${C.line}; border-top: 4px solid ${C.blue}; }
+        }
+        @media (max-width: 560px) { .meth-track { grid-template-columns: 1fr; gap: 32px; } }
+
+        /* MUNDOS */
+        .worlds { padding: 110px 32px; background: ${C.white}; position: relative; overflow: hidden; }
+        .worlds-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+        .worlds-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: clamp(34px, 4.6vw, 60px); font-weight: 700; color: ${C.blueDark}; letter-spacing: -2px; line-height: 1.02; margin: 14px 0 14px; text-transform: uppercase; }
+        .worlds-title .accent { color: ${C.blue}; }
+        @media (max-width: 560px) { .worlds-title { letter-spacing: -1.2px; } }
+        .worlds-underline { width: 90px; height: 3px; background: ${C.blue}; margin: 18px 0 28px; }
+        .worlds-desc { font-size: 16px; line-height: 1.65; color: ${C.blueDark}; margin: 0 0 16px; max-width: 400px; }
+        .worlds-list { display: flex; flex-direction: column; }
+        .world-row { display: grid; grid-template-columns: 60px 1fr auto; gap: 24px; align-items: center; padding: 28px 0; border-top: 1px solid ${C.line}; text-decoration: none; transition: background .35s ease, padding .35s ease; position: relative; }
+        .world-row:last-child { border-bottom: 1px solid ${C.line}; }
+        .world-row:hover { background: linear-gradient(90deg, ${C.celeste} 0%, transparent 100%); padding-left: 16px; padding-right: 16px; }
+        .wr-num { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: ${C.blue}; letter-spacing: -1px; transition: transform .35s cubic-bezier(.16,1,.3,1); }
+        .world-row:hover .wr-num { transform: translateX(4px); }
+        .wr-content { display: flex; flex-direction: column; gap: 6px; }
+        .wr-title { font-size: 18px; font-weight: 800; color: ${C.blueDark}; letter-spacing: 1px; text-transform: uppercase; }
+        .wr-desc { font-size: 14px; color: ${C.textMute}; line-height: 1.55; font-weight: 500; max-width: 460px; }
+        .wr-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 1.5px solid ${C.blue}; border-radius: 100px; color: ${C.blue}; font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; transition: all .25s ease; background: ${C.white}; flex-shrink: 0; }
+        .wr-cta::after { content: "→"; display: inline-block; transform: translateX(0); transition: transform .3s cubic-bezier(.16,1,.3,1); font-size: 13px; }
+        .world-row:hover .wr-cta::after { transform: translateX(4px); }
+        .world-row:hover .wr-cta { background: ${C.blue}; color: ${C.white}; }
+        @media (max-width: 1024px) { .worlds-inner { grid-template-columns: 1fr; gap: 50px; } }
+        @media (max-width: 700px) {
+          .worlds { padding: 80px 24px; }
+          .world-row { grid-template-columns: 50px 1fr; grid-template-areas: "num content" "cta cta"; gap: 14px; padding: 22px 0; }
+          .wr-num { grid-area: num; align-self: start; }
+          .wr-content { grid-area: content; }
+          .wr-cta { grid-area: cta; justify-self: stretch; justify-content: center; }
         }
 
-        .nav-item.active {
-          background: rgba(138, 184, 208, 0.15); /* Celeste suave basado en la paleta */
-          color: ${colors.textMain};
-          font-family: 'LEMON MILK', sans-serif;
-          font-size: 13px;
-          padding: 12px 28px;
+        /* SOBRE EL PROYECTO */
+        .about { padding: 64px 32px; background: ${C.celeste}; position: relative; overflow: hidden; }
+        .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 56px; align-items: center; position: relative; z-index: 2; }
+        .about-photo-wrap { position: relative; background: ${C.white}; border: 1px solid ${C.line}; border-radius: 16px; padding: 14px; box-shadow: 0 18px 40px -22px rgba(11,21,56,0.18); }
+        .about-photo-wrap::before { content: ""; position: absolute; left: -10px; top: 22px; bottom: 22px; width: 3px; background: ${C.blue}; border-radius: 2px; opacity: 0; transform: translateX(-6px); transition: opacity .6s ease .35s, transform .6s cubic-bezier(.16,1,.3,1) .35s; }
+        .about-inner.active .about-photo-wrap::before { opacity: 1; transform: translateX(0); }
+        .about-inner.active .about-photo-wrap { animation: sn-fade-left .8s cubic-bezier(.16,1,.3,1) both; }
+        .about-inner.active .about-content > * { animation: sn-fade-up .7s cubic-bezier(.16,1,.3,1) both; }
+        .about-inner.active .about-content > *:nth-child(1) { animation-delay: .15s; }
+        .about-inner.active .about-content > *:nth-child(2) { animation-delay: .25s; }
+        .about-inner.active .about-content > *:nth-child(3) { animation-delay: .35s; }
+        .about-inner.active .about-content > *:nth-child(4) { animation-delay: .45s; }
+        .about-photo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; background: ${C.bgSoft}; }
+        .about-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: clamp(26px, 3vw, 40px); font-weight: 700; color: ${C.blueDark}; letter-spacing: -1.4px; line-height: 1.06; margin: 10px 0 18px; text-transform: uppercase; }
+        .about-text { font-size: 15px; line-height: 1.65; color: ${C.blueDeep}; font-weight: 500; margin: 0 0 22px; }
+        .about-quote { border-left: 3px solid ${C.blue}; padding: 16px 22px; background: ${C.white}; border-radius: 8px; font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: clamp(15px, 1.4vw, 17px); font-weight: 600; color: ${C.blueDark}; line-height: 1.45; margin: 0; }
+        @media (max-width: 900px) {
+          .about { padding: 56px 24px; }
+          .about-inner { grid-template-columns: 1fr; gap: 28px; align-items: start; }
+          .about-photo-wrap { max-width: 340px; margin: 0 auto; width: 100%; }
         }
 
-        .nav-item.active:hover {
-          background: rgba(138, 184, 208, 0.25);
-        }
-
-        @media (max-width: 768px) {
-          .nav-pill-container {
-            top: 24px;
-            padding: 6px;
-            width: 92vw;
-            max-width: 500px;
-            justify-content: flex-start;
-            overflow-x: auto;
-            gap: 4px;
-          }
-          .nav-pill-container::-webkit-scrollbar {
-             display: none;
-          }
-          .nav-item {
-            padding: 10px 16px;
-            font-size: 11px;
-          }
-          .nav-item.active {
-            font-size: 11px;
-            padding: 10px 20px;
-          }
-        }
-
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes fadeOut   { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); pointer-events: none; } }
-        .typing-dot { display: inline-block; width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: typing 1.4s infinite ease-in-out; margin: 0 2px; }
-        .typing-dot:nth-child(1) { animation-delay: 0s; } .typing-dot:nth-child(2) { animation-delay: 0.2s; } .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-4px); opacity: 1; } }
-
-        @keyframes pulse-center-node-light {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(138, 184, 208, 0.1), inset 0 0 10px rgba(138, 184, 208, 0.05); }
-          50%      { box-shadow: 0 0 0 15px rgba(138, 184, 208, 0), inset 0 0 20px rgba(138, 184, 208, 0.1);  }
-        }
-        @keyframes spin-orbit { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -1000; } }
-        @keyframes halo-pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
-
-        .grooming-step-circle-light {
-          width: 78px; height: 78px; border-radius: 50%; background: #FFFFFF;
-          border: 2px solid ${colors.line}; display: flex; align-items: center; justify-content: center;
-          transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
-          position: relative; flex-shrink: 0; overflow: hidden; box-shadow: 0 4px 16px rgba(16,42,67,0.05);
-        }
-        .grooming-step-circle-light.danger { border-color: ${colors.alert}; }
-        .grooming-step-circle-light.active { border-color: ${colors.brandBlue} !important; box-shadow: 0 0 0 3px rgba(138, 184, 208, 0.2), 0 8px 20px rgba(16,42,67,0.1) !important; }
-        .grooming-step-circle-light.danger.active { border-color: ${colors.alert} !important; box-shadow: 0 0 0 3px rgba(255,60,80,0.2), 0 8px 20px rgba(255,60,80,0.2) !important; }
-
-        .grooming-step-badge-light {
-          position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; border-radius: 50%;
-          background: ${colors.celeste}; font-size: 10px; font-weight: 700; color: #FFFFFF;
-          display: flex; align-items: center; justify-content: center; border: 2px solid #FFFFFF; z-index: 1;
-        }
-        .grooming-step-badge-light.danger { background: ${colors.alert}; }
-
-        .grooming-step-label-light {
-          font-size: 9.5px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; text-align: center;
-          color: ${colors.textSec}; line-height: 1.3; max-width: 100px; transition: color 0.3s;
-        }
-        .grooming-step-label-light.danger { color: ${colors.alert}; }
-        .grooming-step-label-light.active-label { color: ${colors.brandBlue} !important; text-shadow: 0 0 10px rgba(138, 184, 208, 0.2); }
-        .grooming-step-label-light.danger.active-label { color: ${colors.alert} !important; }
-
+        /* FOOTER */
+        .footer { background: ${C.blueDark}; padding: 80px 32px 40px; color: ${C.white}; }
+        .footer-inner { max-width: 1280px; margin: 0 auto; }
+        .footer-top { display: grid; grid-template-columns: 1.5fr 1fr; gap: 60px; padding-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .footer-brand-name { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 1.8px; margin-bottom: 14px; }
+        .footer-tag { font-size: 14px; color: rgba(255,255,255,255); max-width: 340px; line-height: 1.6; }
+        .footer-links { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+        .footer-links a { color: ${C.white}; font-size: 13px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; text-decoration: none; opacity: 0.75; transition: opacity .2s ease; }
+        .footer-links a:hover { opacity: 1; }
+        .footer-bottom { padding-top: 32px; font-size: 12.5px; color: rgba(255,255,255,0.45); text-align: center; letter-spacing: 0.3px; }
+        @media (max-width: 700px) { .footer-top { grid-template-columns: 1fr; gap: 40px; } .footer { padding: 60px 24px 30px; } }
       `}</style>
 
-      <canvas ref={canvasRef} style={{ position: "fixed", top: 0, left: 0, zIndex: 0, pointerEvents: "none", opacity: 0.9 }} />
+      <Navbar />
 
-      {/* NAVBAR PILL FLOTANTE */}
-      <nav className="nav-pill-container">
-        <a href="/" className="nav-item active">
-          EL SAFENET
-        </a>
-        <a href="#mundos" className="nav-item">
-          Explorar Plataforma
-        </a>
-        <a href="#alertas" className="nav-item">
-          Ver Señales
-        </a>
-      </nav>
+      {/* ============================================================
+          1. HERO
+          ============================================================ */}
+      <section className="hero">
+        <div className="hero-orb o1" aria-hidden />
+        <div className="hero-orb o2" aria-hidden />
+        <PlusMark top={120} left={"6%"} size={16} opacity={0.45} />
+        <PlusMark top={"22%"} left={"42%"} size={14} opacity={0.35} />
+        <PlusMark top={"60%"} left={"4%"} size={14} opacity={0.35} />
+        <PlusMark top={180} right={"3%"} size={16} opacity={0.4} />
+        <PlusMark top={"68%"} right={"38%"} size={12} opacity={0.3} />
 
-      <div style={{ position: "fixed", bottom: "30px", right: "30px", zIndex: 100, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", pointerEvents: "none", animation: chatState.visible ? "slideInUp 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards" : "fadeOut 0.5s ease forwards", opacity: 0 }}>
-        <div style={{ fontSize: "11px", fontFamily: "'Altone', sans-serif", color: colors.alert, fontWeight: "bold", textTransform: "uppercase", letterSpacing: "1px", marginRight: "10px", textShadow: `0 0 10px rgba(255,60,80,0.5)` }}>
-          Usuario Desconocido
-        </div>
-        <div style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", border: `1px solid ${colors.line}`, borderLeft: `3px solid ${colors.alert}`, padding: "14px 20px", borderRadius: "18px 18px 4px 18px", color: colors.textMain, fontFamily: "'Altone', sans-serif", fontSize: "14px", boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)", maxWidth: "250px" }}>
-          {chatState.isTyping
-            ? <div style={{ display: "flex", alignItems: "center", height: "20px" }}><span className="typing-dot"/><span className="typing-dot"/><span className="typing-dot"/></div>
-            : <span>{chatState.text}</span>}
-        </div>
-      </div>
-
-      <div className="grid-frame">
-
-        {/* 1. HERO SECTION */}
-        <section className="border-b-grid reveal" style={{ position: "relative", zIndex: 1, padding: "160px 24px 140px" }}>
-          <span className="tech-label" style={{ marginBottom: "24px", display: "inline-block", background: colors.bgAlt, padding: "6px 12px", borderRadius: "4px" }}>[ SEC. 01 ] — PLATAFORMA DE PREVENCIÓN</span>
-          <h1 className="font-display" style={{ fontSize: "clamp(36px, 5vw, 68px)", lineHeight: 1.15, color: colors.textMain, maxWidth: "1000px", margin: "0 0 40px" }}>
-            El <span style={{ color: colors.celeste }}>grooming</span> evolucionó<br/>¿Estamos preparados?
-          </h1>
-          
-          <div className="reveal delay-100">
-            <p className="font-body" style={{ fontSize: "18px", lineHeight: 1.6, color: colors.textSec, margin: 0, maxWidth: "600px" }}>
-             SAFENET ofrece una experiencia educativa e interactiva pensada para preparar a niños, adolescentes, familias y docentes frente a los riesgos del grooming, brindando herramientas concretas para reconocer señales, prevenir situaciones y actuar a tiempo.
+        <div className="hero-inner">
+          <div className="hero-left reveal">
+            <span className="eyebrow">Educación digital para prevenir el grooming</span>
+            <h1 className="hero-title">
+              Aprendé a reconocer el <span className="accent">grooming</span> antes de que sea tarde
+            </h1>
+            <p className="hero-desc">
+              SafeNet transforma situaciones digitales reales en experiencias interactivas para que niños, adolescentes, familias y docentes aprendan a detectar señales de riesgo, actuar con criterio y pedir ayuda a tiempo.
             </p>
-          </div>
-        </section>
-
-        {/* 2. VIDEO SECTION */}
-        <section className="border-b-grid grid-2 reveal" style={{ position: "relative", zIndex: 1 }}>
-          <div className="border-r-md" style={{ padding: "80px 24px", display: "flex", flexDirection: "column", justifyContent: "center", background: colors.bgAlt }}>
-            <span className="tech-label">[ SEC. 02 ] — CONTEXTO</span>
-            <h2 className="font-display" style={{ fontSize: "32px", margin: "0 0 24px", letterSpacing: "1px", color: colors.textMain }}>
-              No es ficción,<br/>pasa todos los días.
-            </h2>
-            <p className="font-body" style={{ fontSize: "16px", lineHeight: 1.7, color: colors.textSec, margin: 0 }}>
-              Un breve recurso audiovisual para introducir la problemática y comprender el alcance real de las interacciones digitales no supervisadas en la actualidad.
-            </p>
-          </div>
-
-          <div style={{ padding: "60px 24px", display: "flex", alignItems: "center" }}>
-            <div style={{ width: "100%", position: "relative", paddingTop: "56.25%", borderRadius: "8px", overflow: "hidden", border: `1px solid ${colors.line}`, boxShadow: "0 20px 40px rgba(16,42,67,0.08)" }}>
-              <iframe src="https://www.youtube.com/embed/LxfcvzgKmUs" title="Video sobre grooming" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "0" }} />
+            <div className="hero-actions">
+              <a href="#mundos" className="btn btn-primary">Explorar la plataforma</a>
             </div>
           </div>
-        </section>
 
-        {/* ============================================================ */}
-        {/* 3. LLUVIA DE MENSAJES (ACTUALIZADA ESTILO DARK/IMAGEN) */}
-        {/* ============================================================ */}
-        <section id="alertas" ref={storyRef} className="reveal" style={{ padding: "100px 40px", position: "relative", zIndex: 1, backgroundColor: colors.textMain }}>
-          <div style={{ textAlign: "left", marginBottom: "60px", maxWidth: "800px" }}>
-            <span className="tech-label" style={{ display: "inline-block", color: colors.celeste, padding: "0", background: "transparent", letterSpacing: "2px", fontSize: "11px", marginBottom: "16px" }}>
-              03 / PATRONES DE RIESGO
-            </span>
-            <h2 className="font-display" style={{ fontSize: "clamp(36px, 5vw, 64px)", margin: "0 0 24px", color: colors.white, lineHeight: 1.1 }}>
-              TODO EMPIEZA CON<br/>UN <span style={{ color: colors.celeste }}>SIMPLE MENSAJE.</span>
-            </h2>
-            <p className="font-body" style={{ fontSize: "16px", color: "rgba(255,255,255,0.8)", lineHeight: 1.6, fontWeight: 400, maxWidth: "600px", margin: 0 }}>
-              Técnicas documentadas de ingeniería social utilizadas para vulnerar la confianza de los menores. Reconocerlas anula su efectividad.
+          <div className="hero-right reveal" ref={containerRef}>
+            
+            {/* CAPA DE CONECTORES SVG */}
+            <svg className="connectors-layer">
+              {activeAlerts.map(item => {
+                if (item.alert.isRisk) return null;
+                const isLeft = item.alert.side === "left";
+                const containerW = containerRef.current?.offsetWidth || 0;
+                
+                const cardX = isLeft ? (containerW / 2) - 180 : (containerW / 2) + 180;
+                const cardY = item.top + 45; 
+                
+                const msgX = isLeft ? (containerW / 2) - 150 : (containerW / 2) + 150;
+                const msgY = item.msgY;
+
+                const cp1x = cardX + (isLeft ? 40 : -40);
+                const cp2x = msgX + (isLeft ? -40 : 40);
+                const pathD = `M ${cardX} ${cardY} C ${cp1x} ${cardY}, ${cp2x} ${msgY}, ${msgX} ${msgY}`;
+
+                return (
+                  <g key={`conn-${item.id}`}>
+                    <path d={pathD} className="svg-connector" />
+                    <circle cx={msgX + (isLeft ? 4 : -4)} cy={msgY} r="3.5" className="svg-dot" />
+                    <circle cx={cardX + (isLeft ? -4 : 4)} cy={cardY} r="3.5" className="svg-dot" />
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* TARJETAS RENDERIZADAS POR EL MOTOR */}
+            {activeAlerts.map(item => (
+              <div
+                key={item.id}
+                className={`alert-card ${item.alert.side} ${item.alert.isRisk ? 'ac-risk' : ''}`}
+                style={{ top: item.top }}
+              >
+                <div className="ac-head">
+                  <span className="ac-icon">{item.alert.icon}</span>
+                  <span className="ac-title">{item.alert.title}</span>
+                </div>
+                <div className="ac-text">{item.alert.text}</div>
+              </div>
+            ))}
+
+            {/* TELÉFONO */}
+            <div className="phone" ref={phoneRef}>
+              <div className="phone-screen">
+                <div className="phone-header">
+                  <div className="ph-user">
+                    <div className="ph-avatar">
+                      <img src="/avatar.png" alt="Avatar de jose_alvarez" />
+                    </div>
+                    <div>
+                      <div className="ph-name">jose_alvarez</div>
+                      <div className="ph-online">En línea</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* CHAT CONTAINER */}
+                <div className="phone-chat" ref={chatScrollRef} onScroll={handleChatScroll}>
+                  {CHAT_SEQUENCE.map((item, index) => {
+                    if (index === 0 || index > step || !item.text) return null;
+                    return (
+                      <div 
+                        key={item.id} 
+                        className={`chat-row ${item.sender} animate-in`}
+                        ref={el => messagesRef.current[index] = el}
+                      >
+                        {item.sender === "left" && (
+                          <img src="/avatar.png" alt="Avatar de jose_alvarez" className="chat-avatar" />
+                        )}
+                        <div className="chat-bubble">{item.text}</div>
+                      </div>
+                    );
+                  })}
+                  
+                  {isTyping && (
+                    <div className="chat-typing">
+                      <span /><span /><span />
+                    </div>
+                  )}
+                  {/* Anchor para scroll suave */}
+                  <div style={{ height: 10, flexShrink: 0 }} />
+                </div>
+
+                {/* Input mock */}
+                <div style={{ padding: "12px", borderTop: "1px solid #eee", background: C.white, display: "flex", gap: 8 }}>
+                  <div style={{ flex: 1, background: "#F1F3F4", borderRadius: 100, height: 32, display: "flex", alignItems: "center", padding: "0 12px", fontSize: 12, color: "#9CA3AF" }}>Mensaje...</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          2. ESTADÍSTICAS
+          ============================================================ */}
+      <section id="senales" className="stats">
+        <PlusMark top={64} left={"4%"} opacity={0.45} />
+        <PlusMark top={"38%"} left={"2%"} opacity={0.3} />
+        <PlusMark bottom={80} left={"6%"} opacity={0.4} />
+        <PlusMark top={70} right={"5%"} opacity={0.45} />
+        <PlusMark top={"50%"} right={"3%"} opacity={0.3} />
+        <PlusMark bottom={60} right={"8%"} opacity={0.35} />
+
+        <div className="stats-inner">
+          <div className="stats-header reveal">
+            <div>
+              <span className="eyebrow">Por qué es urgente</span>
+              <h2 className="stats-title">
+                El riesgo empieza antes de que <span className="accent">parezca peligroso</span>
+              </h2>
+            </div>
+            <p className="stats-lead">
+              Estos datos reflejan por qué la prevención temprana y la concientización activa son fundamentales para anticipar señales en entornos digitales cotidianos.
             </p>
           </div>
 
-          <div style={{ position: "relative", width: "100%", display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "flex-start" }}>
-            {groomingBubbles.map((bubble, j) => {
-              const isVisible = visibleBubbles.includes(j);
-              return (
-                <div key={j} style={{
-                  background: "transparent",
-                  border: `1px solid rgba(138, 184, 208, 0.3)`, /* Borde sutil celeste */
-                  padding: "16px 24px",
-                  opacity: isVisible ? 1 : 0,
-                  transform: isVisible ? "translateY(0)" : "translateY(15px)",
-                  transition: `all 0.5s cubic-bezier(0.34,1.4,0.64,1) ${j * 60}ms`,
-                  cursor: "default"
-                }}>
-                  <span className="font-body" style={{ fontSize: "13px", fontWeight: 400, color: colors.white, lineHeight: 1.5, display: "block" }}>
-                    {bubble.text}
-                  </span>
+          <div className="stats-panel reveal">
+            <div className="stats-grid">
+              <article className="stat-item">
+                <div className="stat-head">
+                  <span className="stat-index">01</span>
+                  <span className="stat-dot" />
+                  <span className="stat-tag">Inicio</span>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+                <h3 className="stat-number"><CountUp to={90} prefix="+" suffix="%" /></h3>
+                <p className="stat-text">De los vínculos de riesgo comienzan con conversaciones aparentemente normales y amigables.</p>
+              </article>
 
-        {/* 4. EXPLORAR ESPACIOS (MUNDOS) */}
-        <section id="mundos" className="reveal" style={{ padding: 0, position: "relative", zIndex: 1, background: "linear-gradient(180deg, #EAF2F6 0%, #E1ECF2 100%)" }}>
-          <div style={{ padding: "80px 24px 60px", borderBottom: `1px solid ${colors.line}`, background: colors.bgAlt }}>
-            <span className="tech-label">[ SEC. 04 ] — PLATAFORMA</span>
-            <h2 className="font-display" style={{ fontSize: "36px", margin: "0 0 16px", color: colors.textMain }}>
-              Un recorrido para cada usuario
-            </h2>
-            <p className="font-body" style={{ fontSize: "16px", color: colors.textSec, maxWidth: "700px", lineHeight: 1.6, margin: 0 }}>
-              La plataforma organiza sus contenidos según la edad y el rol de cada persona para que la prevención sea clara, pertinente y efectiva.
+              <article className="stat-item">
+                <div className="stat-head">
+                  <span className="stat-index">02</span>
+                  <span className="stat-dot" />
+                  <span className="stat-tag">Exposición</span>
+                </div>
+                <h3 className="stat-number">1 de cada 5</h3>
+                <p className="stat-text">Adolescentes recibe mensajes de adultos desconocidos en sus redes sociales de uso diario.</p>
+              </article>
+
+              <article className="stat-item">
+                <div className="stat-head">
+                  <span className="stat-index">03</span>
+                  <span className="stat-dot" />
+                  <span className="stat-tag">Vulnerabilidad</span>
+                </div>
+                <h3 className="stat-number"><CountUp to={60} suffix="%" /></h3>
+                <p className="stat-text">Admite no saber a quién recurrir de forma segura cuando se enfrenta a un pedido íntimo en línea.</p>
+              </article>
+            </div>
+
+            <div className="stats-panel-footer">
+              <span className="stats-source-label">Fuente</span>
+              <span className="stats-source-text">Grooming Argentina · Datos oficiales</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          3. UN RECORRIDO SIMPLE
+          ============================================================ */}
+      <section className="methodology">
+        <PlusMark top={120} left={"3%"} opacity={0.4} />
+        <PlusMark top={"50%"} right={"3%"} opacity={0.4} />
+        <PlusMark bottom={120} left={"7%"} opacity={0.35} />
+
+        <div className="meth-inner">
+          <div className="meth-header reveal">
+            <span className="eyebrow">Recorrido SafeNet</span>
+            <h2 className="meth-title">Un recorrido simple para aprender a actuar</h2>
+            <p className="meth-sub">
+              Cuatro pasos cortos para reconocer señales de grooming, tomar decisiones seguras y aprender mediante experiencias interactivas.
             </p>
           </div>
 
-          <div className="grid-2">
-            {worlds.map((world, idx) => {
-              const isDarkCard = idx === 1 || idx === 2; // Identifica Adolescentes (1) y Familias (2)
-              return (
-                <div key={idx} className={`module-card card-bg-${idx} border-r-md border-b-grid reveal delay-${(idx % 2) * 100}`} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                  <span className="tech-label" style={{ color: colors.celeste, margin: 0, fontWeight: "bold", marginBottom: "16px" }}>Módulo 0{idx + 1}</span>
-                  <h3 className="font-display" style={{ fontSize: "24px", margin: "0 0 16px", color: isDarkCard ? colors.white : colors.textMain }}>{world.title}</h3>
-                  <p className="font-body" style={{ fontSize: "16px", lineHeight: 1.7, color: isDarkCard ? "rgba(255,255,255,0.8)" : colors.textSec, margin: "0 0 32px", flexGrow: 1 }}>{world.desc}</p>
-                  <a href={world.href} className="font-body" style={{ 
-                      display: "inline-flex", alignItems: "center", gap: "8px", 
-                      border: `1px solid ${isDarkCard ? 'rgba(138, 184, 208, 0.5)' : colors.celeste}`, 
-                      color: isDarkCard ? colors.white : colors.textMain, 
-                      padding: "10px 20px", fontSize: "13px", textTransform: "uppercase", 
-                      letterSpacing: "1px", borderRadius: "4px", textDecoration: "none", 
-                      fontWeight: "bold", transition: "all 0.3s ease", marginTop: "auto",
-                      background: isDarkCard ? "transparent" : colors.white
-                    }}
-                    onMouseOver={(e) => { 
-                      e.currentTarget.style.backgroundColor = isDarkCard ? 'rgba(138, 184, 208, 0.1)' : colors.celeste; 
-                      e.currentTarget.style.color = '#FFFFFF'; 
-                    }}
-                    onMouseOut={(e) => { 
-                      e.currentTarget.style.backgroundColor = isDarkCard ? "transparent" : colors.white; 
-                      e.currentTarget.style.color = isDarkCard ? colors.white : colors.textMain; 
-                    }}
-                  >
-                    Explorar Espacio
-                  </a>
+          <div className="meth-track reveal">
+            <div className="meth-step stagger" style={{ ['--d' as any]: '0ms' }}>
+              <span className="meth-num">01</span>
+              <div className="meth-card">
+                <h4 className="meth-card-title">Reconocé señales</h4>
+                <p className="meth-card-text">Identificá pistas visuales y de texto en perfiles, mensajes y conversaciones cotidianas.</p>
+              </div>
+            </div>
+            
+            <div className="meth-step stagger" style={{ ['--d' as any]: '120ms' }}>
+              <span className="meth-num">02</span>
+              <div className="meth-card">
+                <h4 className="meth-card-title">Tomá decisiones</h4>
+                <p className="meth-card-text">Elegí respuestas seguras frente a simulaciones inspiradas en redes sociales reales.</p>
+              </div>
+            </div>
+            
+            <div className="meth-step stagger" style={{ ['--d' as any]: '240ms' }}>
+              <span className="meth-num">03</span>
+              <div className="meth-card">
+                <h4 className="meth-card-title">Recibí feedback</h4>
+                <p className="meth-card-text">Entendé qué señales detectaste y por qué importan en cada situación de riesgo.</p>
+              </div>
+            </div>
+            
+            <div className="meth-step stagger" style={{ ['--d' as any]: '360ms' }}>
+              <span className="meth-num">04</span>
+              <div className="meth-card">
+                <h4 className="meth-card-title">Aprendé a cuidarte</h4>
+                <p className="meth-card-text">Construí criterio analítico para reconocer peligros digitales y pedir ayuda a tiempo.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="meth-banner reveal stagger" style={{ ['--d' as any]: '480ms' }}>
+            <div>
+              <p className="mb-title">SafeNet no busca asustar: <span className="accent">busca entrenar criterio.</span></p>
+              <p className="mb-text">A través de ejemplos realistas, cada usuario aprende a detectar señales y responder de forma segura.</p>
+            </div>
+            <a href="#mundos" className="btn btn-dark">
+              Explorar la plataforma <IconArrowRight size={14} color={C.white} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          4. MUNDOS
+          ============================================================ */}
+      <section id="mundos" className="worlds">
+        <PlusMark top={80} left={"30%"} opacity={0.4} />
+        <PlusMark top={"40%"} left={"38%"} opacity={0.3} />
+        <PlusMark bottom={120} left={"22%"} opacity={0.35} />
+        <PlusMark top={140} right={"6%"} opacity={0.3} />
+
+        <div className="worlds-inner">
+          <div className="reveal">
+            <span className="eyebrow">Espacios de aprendizaje</span>
+            <h2 className="worlds-title">
+              Elegí cómo querés aprender a <span className="accent">cuidarte</span>
+            </h2>
+            <div className="worlds-underline" />
+            <p className="worlds-desc">SafeNet adapta cada experiencia según la edad, el rol y el contexto de quien la usa.</p>
+            <p className="worlds-desc">Cada mundo propone una forma distinta de aprender: jugar, detectar señales, conversar o acompañar.</p>
+          </div>
+
+          <div className="worlds-list reveal">
+            {[
+              ["01", "Niños", "Aprender jugando, con decisiones simples, señales claras y situaciones pensadas para la edad.", "/ninos"],
+              ["02", "Adolescentes", "Simulaciones realistas inspiradas en redes sociales, chats y perfiles digitales cotidianos.", "/adolescentes"],
+              ["03", "Familias", "Herramientas para conversar, acompañar y actuar a tiempo frente a señales de alerta.", "/familias"],
+              ["04", "Docentes", "Recursos para trabajar la prevención en el aula con criterio institucional y enfoque educativo.", "/docentes"],
+            ].map(([num, title, desc, href]) => (
+              <a href={href} className="world-row" key={title}>
+                <span className="wr-num">{num}</span>
+                <div className="wr-content">
+                  <span className="wr-title">{title}</span>
+                  <span className="wr-desc">{desc}</span>
                 </div>
-              );
-            })}
+                <span className="wr-cta">Entrar</span>
+              </a>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
+      {/* ============================================================
+          5. SOBRE EL PROYECTO
+          ============================================================ */}
+      <section id="proyecto" className="about">
+        <PlusMark top={70} left={"4%"} opacity={0.4} />
+        <PlusMark bottom={60} right={"6%"} opacity={0.4} />
+        <PlusMark top={"50%"} right={"3%"} opacity={0.3} />
 
-      {/* FOOTER */}
-      <footer className="reveal" style={{ background: colors.white, padding: "60px 24px", position: "relative", zIndex: 1, borderTop: `1px solid ${colors.line}` }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "40px" }}>
-          <div>
-            <div className="font-display" style={{ fontSize: "28px", fontWeight: "bold", color: colors.textMain, letterSpacing: "1.5px", marginBottom: "8px" }}>SAFENET</div>
-            <div className="font-body" style={{ fontSize: "13px", color: colors.textSec, letterSpacing: "0.5px" }}>PLATAFORMA EDUCATIVA DE PREVENCIÓN DIGITAL</div>
+        <div className="about-inner reveal">
+          <div className="about-photo-wrap">
+            <img
+              src="/foto_mia.png"
+              alt="Autor del proyecto SafeNet"
+              className="about-photo"
+            />
           </div>
-          
-          <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <a href="#mundos" className="font-body" style={{ textDecoration: "none", color: colors.textMain, fontSize: "14px", transition: "color 0.3s", fontWeight: "bold" }}
-              onMouseOver={(e) => e.currentTarget.style.color = colors.brandBlue}
-              onMouseOut={(e) => e.currentTarget.style.color = colors.textMain}
-            >
-              Explorar Espacios
-            </a>
-            <a href="/docentes" className="font-body" style={{ textDecoration: "none", color: colors.textMain, fontSize: "14px", transition: "color 0.3s", fontWeight: "bold" }}
-              onMouseOver={(e) => e.currentTarget.style.color = colors.brandBlue}
-              onMouseOut={(e) => e.currentTarget.style.color = colors.textMain}
-            >
-              Guía Docentes
-            </a>
+          <div className="about-content">
+            <span className="eyebrow">Sobre el proyecto</span>
+            <h2 className="about-title">UNA MOTIVACIÓN PERSONAL CON IMPACTO PREVENTIVO</h2>
+            <p className="about-text">
+              Mi interés por esta problemática no surgió de manera casual. Hace algunos años, durante una tesina del colegio secundario, investigué por primera vez el grooming y desde entonces lo entendí como una problemática urgente, poco visibilizada y profundamente humana.
+
+La elección de estudiar Ciberseguridad también está vinculada con esa motivación: proteger a las personas en el mundo digital, concientizar sobre amenazas reales y desarrollar soluciones con impacto social.
+
+SAFENET nace de esa convicción. No es solo un proyecto académico, sino una forma de aplicar lo aprendido durante mi formación universitaria a un problema actual, sensible y concreto.
+            </p>
+            <blockquote className="about-quote">
+              SAFENET nace de una convicción: la tecnología también puede cuidar, prevenir y proteger.
+            </blockquote>
           </div>
+        </div>
+      </section>
 
-          <div style={{ width: "100%", height: "1px", background: colors.line, margin: "20px 0" }}></div>
-
-          <div className="font-body" style={{ width: "100%", display: "flex", justifyContent: "space-between", fontSize: "13px", color: colors.textSec }}>
-            <span>© 2026 SAFENET</span>
-            <span>TFG · Licenciatura en Ciberseguridad</span>
+      {/* ============================================================
+          6. FOOTER
+          ============================================================ */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-top">
+            <div>
+              <div className="footer-brand-name">SAFENET</div>
+              <p className="footer-tag">Plataforma educativa de prevención del grooming.</p>
+            </div>
+            <div className="footer-links">
+              <a href="#mundos">Mundos</a>
+              <a href="#senales">Señales</a>
+              <a href="#proyecto">Proyecto</a>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            © 2026 SAFENET. Trabajo Final de Grado · Licenciatura en Ciberseguridad
           </div>
         </div>
       </footer>
-
     </main>
   );
 }

@@ -26,6 +26,7 @@ import {
   X,
   Check,
   ChevronLeft,
+  UserPlus,
 } from "lucide-react";
 
 /* ════════════════════════════════════════════════════════════
@@ -37,8 +38,9 @@ type ModuleId =
   | "profile_detector"
   | "story_path"
   | "red_flags"
-  | "screenshot_analysis";
-type NavTab = "home" | "search" | "dm" | "profile";
+  | "screenshot_analysis"
+  | "requests";
+type NavTab = "home" | "search" | "dm" | "profile" | "requests";
 
 /* ════════════════════════════════════════════════════════════
    CONSTANTES VISUALES
@@ -67,11 +69,11 @@ const USERS = {
 };
 
 /* ════════════════════════════════════════════════════════════
-   DATOS DE STORIES (imágenes + contenido educativo)
+   DATOS DE STORIES
 ════════════════════════════════════════════════════════════ */
 type StorySlide = {
-  bg: string;
-  emoji: string;
+  imageSrc: string;
+  imageAlt: string;
   title: string;
   body: string;
   tag: string;
@@ -88,18 +90,18 @@ const STORIES_DATA: StoryData[] = [
     user: "valen",
     slides: [
       {
-        bg: "linear-gradient(160deg,#0f2027,#203a43,#2c5364)",
-        emoji: "🚨",
-        title: "Señal #1: El halago inicial",
-        body: "\"Sos diferente a los demás\" — Es la frase más usada. El groomer necesita que bajes la guardia primero.",
+        imageSrc: "/stories/story-halago-inicial.jpg",
+        imageAlt: "Celular con notificaciones en un escritorio",
+        title: "Cuando el halago llega rápido",
+        body: "Si alguien que no conocés intenta hacerte sentir especial desde el primer mensaje, frená. Puede ser una forma de bajar tu guardia.",
         tag: "RED FLAG",
         tagColor: "#FF8A95",
       },
       {
-        bg: "linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)",
-        emoji: "🔒",
-        title: "¿Cómo responder?",
-        body: "Mantener distancia no es ser mala persona. Es protegerte. Podés no responder y está bien.",
+        imageSrc: "/stories/story-respuesta-segura.jpg",
+        imageAlt: "Adolescente sosteniendo su celular",
+        title: "No tenés que contestar",
+        body: "Mantener distancia no te hace mala onda. Priorizar tu seguridad siempre está bien. Clavar el visto también es una respuesta válida.",
         tag: "CONSEJO",
         tagColor: "#A9DFBF",
       },
@@ -109,18 +111,18 @@ const STORIES_DATA: StoryData[] = [
     user: "juani",
     slides: [
       {
-        bg: "linear-gradient(160deg,#2d1b69,#11998e,#38ef7d)",
-        emoji: "📱",
-        title: "\"Pasemos a Telegram\"",
-        body: "Querer salir de la plataforma es una señal clásica. Elimina el rastro y desactiva los reportes.",
+        imageSrc: "/stories/story-telegram.jpg",
+        imageAlt: "Pantalla de chat borrosa y notificaciones",
+        title: "¿Por qué quiere ir a Telegram?",
+        body: "Si alguien te pide salir de Insta para hablar por otra app, es alerta máxima. Buscan borrar el rastro y evitar que los reportes.",
         tag: "ALERTA",
         tagColor: "#FFE08A",
       },
       {
-        bg: "linear-gradient(160deg,#0d0d0d,#1a1a1a,#2d2d2d)",
-        emoji: "✋",
-        title: "Tu respuesta ideal",
-        body: "\"Prefiero seguir hablando acá. Si no podés, no hay problema.\" — Sin explicaciones, sin culpa.",
+        imageSrc: "/stories/story-quedate-aca.jpg",
+        imageAlt: "Manos escribiendo rápido en un celular",
+        title: "Marcá la cancha",
+        body: "\"Prefiero seguir hablando acá.\" Si la persona se enoja, insiste o te hace sentir culpa, ya sabés todo lo que necesitabas saber.",
         tag: "ACCIÓN SEGURA",
         tagColor: "#A9DFBF",
       },
@@ -130,18 +132,18 @@ const STORIES_DATA: StoryData[] = [
     user: "sofi",
     slides: [
       {
-        bg: "linear-gradient(160deg,#b92b27,#1565c0)",
-        emoji: "🤫",
-        title: "El pedido de secreto",
-        body: "\"No le cuentes esto a nadie\" — Es aislamiento. El groomer necesita que no tengas a quién recurrir.",
-        tag: "TÁCTICA DE GROOMING",
+        imageSrc: "/stories/story-secreto.jpg",
+        imageAlt: "Adolescente con capucha caminando de espaldas",
+        title: "El peso de un secreto",
+        body: "\"Que quede entre nosotros\". Te hacen sentir especial para aislarte. Si te piden que no cuentes algo, es exactamente lo que tenés que hacer.",
+        tag: "TÁCTICA",
         tagColor: "#FF8A95",
       },
       {
-        bg: "linear-gradient(160deg,#4b1248,#f10711)",
-        emoji: "💬",
-        title: "Contá lo que pasa",
-        body: "Un adulto de confianza, un docente, una amiga. Contar lo que te incomoda no te hace débil. Te protege.",
+        imageSrc: "/stories/story-contar-adulto.jpg",
+        imageAlt: "Dos personas conversando en un café",
+        title: "Rompé el silencio",
+        body: "Hablar no es traicionar a nadie. Contarle a un amigo o a un adulto de confianza es tu mejor escudo contra la manipulación.",
         tag: "IMPORTANTE",
         tagColor: "#74B3CE",
       },
@@ -151,10 +153,10 @@ const STORIES_DATA: StoryData[] = [
     user: "mateo",
     slides: [
       {
-        bg: "linear-gradient(160deg,#134e5e,#71b280)",
-        emoji: "👤",
-        title: "Perfiles falsos: señales",
-        body: "Miles de seguidores, pocas publicaciones, cuenta nueva, bio seductora. El ratio no miente.",
+        imageSrc: "/stories/story-perfil-falso.jpg",
+        imageAlt: "Interfaz de red social difuminada",
+        title: "Las matemáticas no mienten",
+        body: "Miles de seguidores, tres fotos y cuenta nueva. No te dejes llevar por una biografía cool. Si los números no cierran, el perfil es falso.",
         tag: "DETECTOR",
         tagColor: "#FFE08A",
       },
@@ -164,18 +166,18 @@ const STORIES_DATA: StoryData[] = [
     user: "lucas",
     slides: [
       {
-        bg: "linear-gradient(160deg,#360033,#0b8793)",
-        emoji: "❤️",
-        title: "\"Sos mi refugio\"",
-        body: "Dependencia emocional intensa con un desconocido es manipulación, no amor. El groomer construye eso a propósito.",
+        imageSrc: "/stories/story-manipulacion.jpg",
+        imageAlt: "Silueta mirando por una ventana de noche",
+        title: "El rescate emocional",
+        body: "Si un desconocido online te dice rápido que sos \"la única persona que lo entiende\", está construyendo dependencia a propósito.",
         tag: "MANIPULACIÓN",
         tagColor: "#FF8A95",
       },
       {
-        bg: "linear-gradient(160deg,#0f0c29,#302b63,#24243e)",
-        emoji: "🛡️",
-        title: "Protegé tu energía",
-        body: "No le debés tiempo ni explicaciones a nadie online. Bloquear y reportar es siempre una opción válida.",
+        imageSrc: "/stories/story-bloquear-reportar.jpg",
+        imageAlt: "Dedo a punto de tocar la pantalla del móvil",
+        title: "Tu paz mental primero",
+        body: "No le debés explicaciones ni tu tiempo a extraños. El botón de bloquear y reportar existe por una razón. Usalo sin culpa.",
         tag: "TU DERECHO",
         tagColor: "#A9DFBF",
       },
@@ -185,10 +187,10 @@ const STORIES_DATA: StoryData[] = [
     user: "caro",
     slides: [
       {
-        bg: "linear-gradient(160deg,#1f4037,#99f2c8)",
-        emoji: "📸",
-        title: "\"Mandame una foto\"",
-        body: "\"Solo para verificar que sos real.\" Ninguna verificación legítima requiere fotos personales.",
+        imageSrc: "/stories/story-foto-personal.jpg",
+        imageAlt: "Cámara de celular enfocando",
+        title: "La prueba de vida",
+        body: "\"Mandame una foto para ver si sos real\". Ninguna persona real necesita fotos tuyas para hablar. Es el primer paso para pedir cosas peores.",
         tag: "NUNCA",
         tagColor: "#FF8A95",
       },
@@ -198,18 +200,18 @@ const STORIES_DATA: StoryData[] = [
     user: "edu",
     slides: [
       {
-        bg: "linear-gradient(160deg,#005c97,#363795)",
-        emoji: "📋",
-        title: "¿Qué es el grooming?",
-        body: "Es cuando un adulto usa internet para ganarse la confianza de un menor con el objetivo de abusar.",
+        imageSrc: "/stories/story-grooming-definicion.jpg",
+        imageAlt: "Personas caminando por la calle, estilo urbano",
+        title: "Hablemos de Grooming",
+        body: "Es cuando un adulto se hace pasar por un par online o se gana tu confianza para obtener contenido íntimo. Conocerlo es la clave para prevenirlo.",
         tag: "DEFINICIÓN",
         tagColor: "#74B3CE",
       },
       {
-        bg: "linear-gradient(160deg,#1a1a2e,#16213e)",
-        emoji: "📞",
-        title: "Línea de ayuda",
-        body: "En Argentina: 102 (Defensoría del Niño). Es gratuita, confidencial y disponible las 24hs.",
+        imageSrc: "/stories/story-linea-ayuda.jpg",
+        imageAlt: "Un teléfono en primer plano sobre una mesa",
+        title: "No estás solo",
+        body: "Si algo te incomoda, siempre hay alguien para escuchar. En Argentina podés llamar al 102 las 24 horas. Es gratis, anónimo y confidencial.",
         tag: "RECURSOS",
         tagColor: "#A9DFBF",
       },
@@ -233,11 +235,11 @@ type DmConversation = {
 const DM_CONVERSATIONS: DmConversation[] = [
   {
     id: "stranger",
-    name: "alex_reyes23",
-    avatar: "",
-    preview: "Ey, vi tus posts. Tenés un contenido muy bueno 👀",
+    name: "nicoo.raw",
+    avatar: "https://i.pravatar.cc/150?img=11",
+    preview: "Che, creo que te vi en recomendados.",
     time: "2 min",
-    unread: 5,
+    unread: 1,
     isStranger: true,
   },
   {
@@ -262,7 +264,7 @@ const DM_CONVERSATIONS: DmConversation[] = [
     id: "caro",
     name: USERS.caro.handle,
     avatar: USERS.caro.avatar,
-    preview: "Fundamental para adolescentes esto 🙌",
+    preview: "Fundamental para adolescentes esto",
     time: "5 h",
     unread: 0,
     isStranger: false,
@@ -270,7 +272,85 @@ const DM_CONVERSATIONS: DmConversation[] = [
 ];
 
 /* ════════════════════════════════════════════════════════════
-   UTILIDADES UI (módulos — lógica intacta)
+   DATOS DE SOLICITUDES DE SEGUIMIENTO (NUEVO)
+════════════════════════════════════════════════════════════ */
+const REQUEST_PROFILES = [
+  {
+    id: "req1",
+    username: "sofi.martinez",
+    name: "Sofía Martínez",
+    type: "real",
+    followers: 486,
+    posts: 112,
+    age: "Desde 2020",
+    mutual: 5,
+    followedBy: "valen.raw",
+    bio: "17 | música, fotos y dump",
+    activity: "Comentarios normales, publicaciones variadas, interacciones coherentes.",
+    feedback: "Perfil coherente. Tiene historial, publicaciones variadas y contactos en común.",
+    avatar: "https://i.pravatar.cc/150?img=43",
+  },
+  {
+    id: "req2",
+    username: "tomas.rivero",
+    name: "Tomás Rivero",
+    type: "real",
+    followers: 623,
+    posts: 89,
+    age: "Desde 2021",
+    mutual: 3,
+    followedBy: "juanix.mp4",
+    bio: "hockey, gym y alguna foto cada tanto",
+    activity: "Perfil cotidiano, seguidores y publicaciones coherentes.",
+    feedback: "No se observan señales claras de riesgo. Aun así, revisar antes de aceptar siempre es válido.",
+    avatar: "https://i.pravatar.cc/150?img=11",
+  },
+  {
+    id: "req3",
+    username: "valen.ph",
+    name: "Valentina",
+    type: "suspicious",
+    followers: "9.8K",
+    posts: 4,
+    age: "Hace 3 semanas",
+    mutual: 0,
+    bio: "contenido · lifestyle · collabs",
+    activity: "Pocas publicaciones, comentarios genéricos, imagen muy producida, cuenta reciente.",
+    feedback: "Perfil con señales inconsistentes: muchos seguidores, pocas publicaciones, cuenta reciente y sin vínculos reales en común.",
+    avatar: "https://i.pravatar.cc/150?img=5",
+  },
+  {
+    id: "req4",
+    username: "mateo.digital",
+    name: "Mateo",
+    type: "suspicious",
+    followers: 217,
+    posts: 1,
+    age: "Hace 5 días",
+    mutual: 0,
+    bio: "gaming, edits y música",
+    activity: "Empezó a seguir muchas cuentas adolescentes en poco tiempo.",
+    feedback: "La cuenta es nueva y no tiene historial. Es recomendable no aceptar sin verificar quién es.",
+    avatar: "https://i.pravatar.cc/150?img=12",
+  },
+  {
+    id: "req5",
+    username: "casting.joven.ar",
+    name: "Casting Joven Argentina",
+    type: "risky",
+    followers: "7.5K",
+    posts: 6,
+    age: "Hace 1 mes",
+    mutual: 0,
+    bio: "talentos · campañas · contenido digital",
+    activity: "Invita a escribir por privado, promete visibilidad, no tiene datos verificables.",
+    feedback: "Prometer exposición o beneficios a adolescentes por privado puede funcionar como anzuelo. No conviene aceptar ni continuar el contacto.",
+    avatar: "https://i.pravatar.cc/150?img=32",
+  },
+];
+
+/* ════════════════════════════════════════════════════════════
+   UTILIDADES UI
 ════════════════════════════════════════════════════════════ */
 function FeedbackBox({
   message,
@@ -400,119 +480,100 @@ function ProgressBar({
 }
 
 /* ════════════════════════════════════════════════════════════
-   MÓDULO 1 — DM SIM (lógica 100% intacta)
+   MÓDULO 1 — DM SIM
 ════════════════════════════════════════════════════════════ */
 const dmScript = [
   {
     from: "stranger",
-    text: "Ey, vi tus posts. Tenés un contenido muy bueno, lo digo en serio.",
+    text: "Che, creo que te vi en recomendados. ¿Vos subiste una historia del recital ayer?",
   },
   {
     from: "stranger",
-    text: "Soy de Buenos Aires también. Qué raro que no nos sigamos antes, jaja.",
+    text: "Jajaja no, pero me salió tu perfil. Tenemos varios gustos parecidos.",
   },
   {
     from: "stranger",
-    text: "Mira, no le cuentes a nadie esto, pero tengo acceso a una cuenta de influencer que podría repostear tu contenido. ¿Te interesa?",
+    text: "Tranqui, no soy raro jajaja. ¿Vas al cole por la mañana o por la tarde?",
   },
   {
     from: "stranger",
-    text: "¿Podemos pasar a Telegram? Instagram me shadowbannea los mensajes. Te explico todo ahí.",
+    text: "Bien ahí. Igual no le cuentes a nadie que te escribí, capaz piensan cualquiera.",
   },
   {
     from: "stranger",
-    text: "Necesito una foto tuya para verificar que sos real antes de conectarte con mi contacto. Cualquier foto.",
+    text: "Te paso mi otro perfil. Por acá casi no hablo. O mandame una foto normal así sé que sos vos.",
   },
 ];
+
 const dmChoices: Record<number, any[]> = {
   0: [
     {
-      text: "Gracias, igual no conozco a quién seguís",
+      text: "Puede ser, no sé. ¿Nos conocemos?",
       isSafe: true,
-      points: 20,
-      consequence:
-        "Respuesta neutra y con distancia. No compartiste info personal.",
-      type: "info",
+      points: 25,
+      signal: "Contacto iniciado por un desconocido.",
     },
     {
-      text: "¿De verdad? ¿Qué te gustó más de mis posts?",
+      text: "Sii, fui ayer. ¿Vos también?",
       isSafe: false,
       points: 0,
-      consequence:
-        "Al mostrar entusiasmo abrís la puerta a más interacción. El halago es la primera táctica de grooming.",
-      type: "warn",
+      signal: "Contacto iniciado por un desconocido.",
     },
   ],
   1: [
     {
-      text: "¿Y cómo sabes que soy de Buenos Aires?",
+      text: "Ahh ok. Igual no suelo hablar mucho con gente que no conozco.",
       isSafe: true,
-      points: 30,
-      consequence:
-        "Pregunta que incomoda al groomer. Buen instinto: ¿cómo obtuvieron esa info?",
-      type: "success",
+      points: 25,
+      signal: "Falsa cercanía por gustos compartidos.",
     },
     {
-      text: "Sí, qué coincidencia. ¿De qué zona sos?",
+      text: "Qué gustos? capaz posta tenemos cosas en común.",
       isSafe: false,
       points: 0,
-      consequence:
-        "Acabas de confirmar tu ubicación y abriste una conversación sobre datos personales.",
-      type: "danger",
+      signal: "Falsa cercanía por gustos compartidos.",
     },
   ],
   2: [
     {
-      text: "Si es legítimo, que me contacte por DM acá nomás.",
+      text: "Prefiero no decir datos personales.",
       isSafe: true,
-      points: 40,
-      consequence:
-        "Perfecto. No te dejás llevar por la urgencia ni por ofertas que suenan demasiado buenas.",
-      type: "success",
+      points: 25,
+      signal: "Pregunta sobre rutina o colegio.",
     },
     {
-      text: "¿Qué influencer? Me interesa mucho.",
+      text: "A la tarde, por?",
       isSafe: false,
       points: 0,
-      consequence:
-        "Las ofertas tentadoras son anzuelos. El groomer usa tus ambiciones para mantenerte enganchado.",
-      type: "danger",
+      signal: "Pregunta sobre rutina o colegio.",
     },
   ],
   3: [
     {
-      text: "No, prefiero seguir hablando acá. Si no podés, no hay problema.",
+      text: "Si tengo que esconderlo, prefiero no seguir hablando.",
       isSafe: true,
-      points: 50,
-      consequence:
-        "Excelente. Salir de la plataforma es una señal de alarma clásica. Seguir acá te protege.",
-      type: "success",
+      points: 25,
+      signal: "Pedido de secreto.",
     },
     {
-      text: "Dale, instalo Telegram ahora.",
+      text: "Jaja tranqui, no digo nada.",
       isSafe: false,
       points: 0,
-      consequence:
-        "Pasar a otra app elimina los registros y el sistema de reportes. Es una señal de alerta mayor.",
-      type: "danger",
+      signal: "Pedido de secreto.",
     },
   ],
   4: [
     {
-      text: "Esto no tiene ningún sentido. Te voy a bloquear y reportar.",
+      text: "No. Te bloqueo y lo voy a mostrar.",
       isSafe: true,
-      points: 60,
-      consequence:
-        "Decisión correcta. Pedir una foto a un desconocido online no es verificación — es el inicio de algo peligroso.",
-      type: "success",
+      points: 25,
+      signal: "Intento de mover la conversación o pedir una foto.",
     },
     {
-      text: "Supongo que no hay problema con una foto de perfil...",
+      text: "Bueno, una foto normal no pasa nada.",
       isSafe: false,
       points: 0,
-      consequence:
-        'Una foto "inocente" puede ser el primer paso hacia escaladas más graves. El límite tiene que ser claro.',
-      type: "danger",
+      signal: "Intento de mover la conversación o pedir una foto.",
     },
   ],
 };
@@ -529,27 +590,29 @@ function DmSimModule({
   ]);
   const [step, setStep] = useState(0);
   const [pts, setPts] = useState(0);
+  const [choicesMade, setChoicesMade] = useState<boolean[]>([]);
   const [typing, setTyping] = useState(false);
   const [phase, setPhase] = useState<"playing" | "result">("playing");
   const [xpPop, setXpPop] = useState(0);
   const chatRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
   }, [history, typing]);
+
   const handleChoice = (c: any) => {
-    const newH = [
-      ...history,
-      { from: "player", text: c.text },
-      { from: "system", text: c.consequence, stype: c.type },
-    ];
+    const newH = [...history, { from: "player", text: c.text }];
     setHistory(newH);
+    setChoicesMade((prev) => [...prev, c.isSafe]);
+    
     if (c.points > 0) {
       setPts((p) => p + c.points);
       setXpPop(c.points);
       onXp(c.points);
     }
+    
     if (step + 1 >= Object.keys(dmChoices).length) {
-      setTimeout(() => setPhase("result"), 1800);
+      setTimeout(() => setPhase("result"), 1200);
       return;
     }
     setTyping(true);
@@ -559,40 +622,12 @@ function DmSimModule({
       setStep((p) => p + 1);
     }, 1600);
   };
-  const totalPossible = Object.values(dmChoices).reduce(
-    (acc, arr) => acc + Math.max(...arr.map((x: any) => x.points)),
-    0,
-  );
+
   if (phase === "result") {
-    const pct = Math.round((pts / totalPossible) * 100);
-    const verdict =
-      pct >= 80
-        ? {
-            text: "Criterio digital muy alto. Reconociste todas las tácticas.",
-            color: "#A9DFBF",
-          }
-        : pct >= 50
-          ? {
-              text: "Buen instinto en algunos señales. Hay señales que conviene reforzar.",
-              color: "#FFE08A",
-            }
-          : {
-              text: "Varias respuestas pusieron en riesgo tu seguridad. Vale la pena revisar las señales.",
-              color: "#FF8A95",
-            };
+    const detectedCount = choicesMade.filter(Boolean).length;
+    
     return (
-      <div style={{ textAlign: "center", padding: "10px 0" }}>
-        <div
-          style={{
-            fontSize: "11px",
-            textTransform: "uppercase",
-            letterSpacing: "2px",
-            color: ACCENT,
-            marginBottom: "12px",
-          }}
-        >
-          Conversación cerrada
-        </div>
+      <div style={{ textAlign: "center", padding: "10px 0", animation: "slideUpIn 0.3s ease" }}>
         <h3
           style={{
             fontFamily: "'LEMON MILK',sans-serif",
@@ -601,11 +636,11 @@ function DmSimModule({
             marginBottom: "8px",
           }}
         >
-          {pts} / {totalPossible} pts
+          Conversación finalizada
         </h3>
         <p
           style={{
-            color: verdict.color,
+            color: "rgba(255,255,255,0.85)",
             fontSize: "14px",
             lineHeight: 1.6,
             marginBottom: "24px",
@@ -613,7 +648,7 @@ function DmSimModule({
             margin: "0 auto 24px",
           }}
         >
-          {verdict.text}
+          La conversación no empezó con una amenaza. Empezó con algo que parecía normal.
         </p>
         <div
           style={{
@@ -634,45 +669,46 @@ function DmSimModule({
               marginBottom: "10px",
             }}
           >
-            Señales identificadas
+            Señales observadas
           </div>
-          {[
-            "Halago inicial para bajar la guardia",
-            "Mencionar ubicación para crear falsa cercanía",
-            "Oferta irreal como anzuelo",
-            "Solicitud de cambio de plataforma",
-            'Pedido de foto para "verificar"',
-          ].map((s, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                gap: "10px",
-                alignItems: "flex-start",
-                marginBottom: "8px",
-              }}
-            >
+          {Object.keys(dmChoices).map((key, i) => {
+            const signal = dmChoices[Number(key)][0].signal;
+            const isDetected = choicesMade[i];
+            return (
               <div
+                key={i}
                 style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  background: "#FF8A95",
-                  marginTop: "5px",
-                  flexShrink: 0,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: "13px",
-                  color: "rgba(255,255,255,0.8)",
-                  lineHeight: 1.5,
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "flex-start",
+                  marginBottom: "8px",
                 }}
               >
-                {s}
-              </span>
-            </div>
-          ))}
+                <div
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    background: isDetected ? "#A9DFBF" : "#FF8A95",
+                    marginTop: "5px",
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.8)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {signal}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: "16px", fontWeight: "bold", color: "#FFF", marginBottom: "20px" }}>
+          Detectaste {detectedCount} de {Object.keys(dmChoices).length} señales.
         </div>
         <button
           suppressHydrationWarning
@@ -689,7 +725,7 @@ function DmSimModule({
             cursor: "pointer",
           }}
         >
-          LISTO
+          VOLVER A MENSAJES
         </button>
       </div>
     );
@@ -714,21 +750,16 @@ function DmSimModule({
             width: "36px",
             height: "36px",
             borderRadius: "50%",
-            background: "linear-gradient(135deg,#667eea,#764ba2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "14px",
-            fontWeight: "bold",
-            color: "#FFF",
+            overflow: "hidden",
             flexShrink: 0,
           }}
         >
-          A
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
         <div>
           <div style={{ fontSize: "13px", fontWeight: "bold", color: "#FFF" }}>
-            alex_reyes23
+            nicoo.raw
           </div>
           <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
             Activo hace 2 min
@@ -767,17 +798,12 @@ function DmSimModule({
                     width: "26px",
                     height: "26px",
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg,#667eea,#764ba2)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    color: "#FFF",
+                    overflow: "hidden",
                     flexShrink: 0,
                   }}
                 >
-                  A
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div
                   style={{
@@ -812,9 +838,6 @@ function DmSimModule({
                   {m.text}
                 </div>
               </div>
-            )}
-            {m.from === "system" && (
-              <FeedbackBox message={m.text} type={m.stype} />
             )}
           </div>
         ))}
@@ -904,7 +927,7 @@ function DmSimModule({
 }
 
 /* ════════════════════════════════════════════════════════════
-   MÓDULO 2 — DETECTOR DE PERFILES (lógica intacta)
+   MÓDULO 2 — DETECTOR DE PERFILES
 ════════════════════════════════════════════════════════════ */
 const profiles = [
   {
@@ -985,6 +1008,7 @@ function ProfileDetectorModule({
   const [xpPop, setXpPop] = useState(0);
   const [phase, setPhase] = useState<"playing" | "result">("playing");
   const p = profiles[idx];
+  
   const handleVerdict = (v: "real" | "falso" | "sospechoso") => {
     setChosen(v);
     const isCorrect =
@@ -996,6 +1020,7 @@ function ProfileDetectorModule({
       onXp(earned);
     }
   };
+
   const handleNext = () => {
     setChosen(null);
     if (idx + 1 >= profiles.length) {
@@ -1004,6 +1029,7 @@ function ProfileDetectorModule({
     }
     setIdx((i) => i + 1);
   };
+
   if (phase === "result")
     return (
       <div style={{ textAlign: "center" }}>
@@ -1296,7 +1322,7 @@ function ProfileDetectorModule({
 }
 
 /* ════════════════════════════════════════════════════════════
-   MÓDULO 3 — STORY PATH (lógica intacta)
+   MÓDULO 3 — STORY PATH
 ════════════════════════════════════════════════════════════ */
 type StoryNode = {
   id: string;
@@ -1428,40 +1454,35 @@ const storyNodes: Record<string, StoryNode> = {
     isEnd: true,
     endType: "safe",
     text: "",
-    endMsg:
-      "Mantuviste la distancia ante una situación ambigua. Eso requiere criterio.",
+    endMsg: "Mantuviste la distancia ante una situación ambigua. Eso requiere criterio.",
   },
   late_realization: {
     id: "late_realization",
     isEnd: true,
     endType: "ambiguous",
     text: "",
-    endMsg:
-      "Reconociste la señal, aunque tarde. El proceso de construcción de confianza fue gradual y funcionó un tiempo.",
+    endMsg: "Reconociste la señal, aunque tarde. El proceso de construcción de confianza fue gradual y funcionó un tiempo.",
   },
   ideal_end: {
     id: "ideal_end",
     isEnd: true,
     endType: "ideal",
     text: "",
-    endMsg:
-      "Detectaste señales desde el principio y actuaste. Este es el camino ideal.",
+    endMsg: "Detectaste señales desde el principio y actuaste. Este es el camino ideal.",
   },
   danger_end: {
     id: "danger_end",
     isEnd: true,
     endType: "risk",
     text: "",
-    endMsg:
-      "La persona fue creando una relacion de dependencia emocional gradualmente. Esta situación requería haber pedido ayuda antes.",
+    endMsg: "La persona fue creando una relación de dependencia emocional gradualmente. Esta situación requería haber pedido ayuda antes.",
   },
   ambiguous_end: {
     id: "ambiguous_end",
     isEnd: true,
     endType: "ambiguous",
     text: "",
-    endMsg:
-      "Contarle a una amiga es mejor que guardar silencio, pero un adulto de confianza tiene más herramientas.",
+    endMsg: "Contarle a una amiga es mejor que guardar silencio, pero un adulto de confianza tiene más herramientas.",
   },
 };
 const endColors: Record<string, string> = {
@@ -1494,6 +1515,7 @@ function StoryPathModule({
   const [history, setHistory] = useState<string[]>(["start"]);
   const [xpPop, setXpPop] = useState(0);
   const node = storyNodes[nodeId];
+  
   const handleOption = (opt: {
     text: string;
     next: string;
@@ -1508,6 +1530,7 @@ function StoryPathModule({
     setHistory((h) => [...h, opt.next]);
     setNodeId(opt.next);
   };
+
   if (node.isEnd) {
     const type = node.endType!;
     return (
@@ -1673,50 +1696,44 @@ function StoryPathModule({
 }
 
 /* ════════════════════════════════════════════════════════════
-   MÓDULO 4 — RED FLAGS (lógica intacta)
+   MÓDULO 4 — RED FLAGS
 ════════════════════════════════════════════════════════════ */
 const redFlagMessages = [
   {
     id: "rf1",
     text: '"No le cuentes esto a nadie, es solo entre nosotros."',
     isFlag: true,
-    explanation:
-      "Pedir secreto es una de las tácticas principales de aislamiento.",
+    explanation: "Pedir secreto es una de las tácticas principales de aislamiento.",
   },
   {
     id: "rf2",
     text: '"¿En qué barrio vivís? Es para ver si estamos cerca."',
     isFlag: true,
-    explanation:
-      "Pedir ubicación a un desconocido es una señal de alarma directa.",
+    explanation: "Pedir ubicación a un desconocido es una señal de alarma directa.",
   },
   {
     id: "rf3",
     text: '"Vi la peli que recomendaste. Tenías razón, estuvo buena."',
     isFlag: false,
-    explanation:
-      "Un comentario sobre contenido compartido, sin información personal ni presión.",
+    explanation: "Un comentario sobre contenido compartido, sin información personal ni presión.",
   },
   {
     id: "rf4",
     text: '"Sos la única persona que me entiende de verdad. No sé qué haría sin vos."',
     isFlag: true,
-    explanation:
-      "Crear dependencia emocional intensa con un desconocido es manipulacion.",
+    explanation: "Crear dependencia emocional intensa con un desconocido es manipulación.",
   },
   {
     id: "rf5",
     text: '"¿Podemos hablar por Telegram? Instagram me tiene bloqueado."',
     isFlag: true,
-    explanation:
-      "Querer salir de la plataforma elimina el rastro y el sistema de denuncia.",
+    explanation: "Querer salir de la plataforma elimina el rastro y el sistema de denuncia.",
   },
   {
     id: "rf6",
     text: '"¿Que música escuchas? Estoy armando una playlist."',
     isFlag: false,
-    explanation:
-      "Pregunta de preferencia casual sin intento de obtener datos personales.",
+    explanation: "Pregunta de preferencia casual sin intento de obtener datos personales.",
   },
 ];
 
@@ -1734,6 +1751,7 @@ function RedFlagsModule({
   const [pts, setPts] = useState(0);
   const [xpPop, setXpPop] = useState(0);
   const [phase, setPhase] = useState<"playing" | "result">("playing");
+  
   const handleAnswer = (id: string, choice: boolean) => {
     if (answered[id] !== undefined) return;
     const msg_obj = redFlagMessages.find((m) => m.id === id)!;
@@ -1752,6 +1770,7 @@ function RedFlagsModule({
     if (Object.keys(answered).length + 1 >= redFlagMessages.length)
       setTimeout(() => setPhase("result"), 800);
   };
+
   if (phase === "result")
     return (
       <div style={{ textAlign: "center" }}>
@@ -1897,7 +1916,7 @@ function RedFlagsModule({
 }
 
 /* ════════════════════════════════════════════════════════════
-   MÓDULO 5 — SCREENSHOT (lógica intacta)
+   MÓDULO 5 — SCREENSHOT
 ════════════════════════════════════════════════════════════ */
 const screenshotChat = [
   {
@@ -1923,29 +1942,25 @@ const screenshotOptions = [
     text: "Sigo hablando, parece genuino",
     correct: false,
     pts: 0,
-    explanation:
-      "La combinación de halago + secreto + urgencia emocional es un patrón de grooming.",
+    explanation: "La combinación de halago + secreto + urgencia emocional es un patrón de grooming.",
   },
   {
     text: "Lo bloqueo sin decirle nada",
     correct: false,
     pts: 15,
-    explanation:
-      "Bloquear es válido, pero no alcanza. Esta conversación merece ser reportada y comentada.",
+    explanation: "Bloquear es válido, pero no alcanza. Esta conversación merece ser reportada y comentada.",
   },
   {
     text: "Hago captura, reporto y se lo muestro a alguien de confianza",
     correct: true,
     pts: 70,
-    explanation:
-      "Perfecto. Guardar evidencia, reportar y pedir ayuda es la respuesta más completa.",
+    explanation: "Perfecto. Guardar evidencia, reportar y pedir ayuda es la respuesta más completa.",
   },
   {
     text: "Le pregunto por qué pide tanto secreto",
     correct: false,
     pts: 10,
-    explanation:
-      "Confrontar al groomer raramente cambia la situación y puede aumentar la presión.",
+    explanation: "Confrontar al groomer raramente cambia la situación y puede aumentar la presión.",
   },
 ];
 
@@ -1958,6 +1973,7 @@ function ScreenshotModule({
 }) {
   const [chosen, setChosen] = useState<number | null>(null);
   const [xpPop, setXpPop] = useState(0);
+  
   const handleChoice = (i: number) => {
     setChosen(i);
     const opt = screenshotOptions[i];
@@ -1966,6 +1982,7 @@ function ScreenshotModule({
       onXp(opt.pts);
     }
   };
+
   return (
     <div>
       {xpPop > 0 && <XpPop amount={xpPop} onDone={() => setXpPop(0)} />}
@@ -1996,7 +2013,7 @@ function ScreenshotModule({
               width: "28px",
               height: "28px",
               borderRadius: "50%",
-              background: "linear-gradient(135deg,#764ba2,#667eea)",
+              background: "linear-gradient(135deg,#163A63,#5A99B4)",
               flexShrink: 0,
             }}
           />
@@ -2028,7 +2045,7 @@ function ScreenshotModule({
                 width: "22px",
                 height: "22px",
                 borderRadius: "50%",
-                background: "linear-gradient(135deg,#764ba2,#667eea)",
+                background: "linear-gradient(135deg,#163A63,#5A99B4)",
                 flexShrink: 0,
               }}
             />
@@ -2141,7 +2158,7 @@ function Avatar({ src, size = 32 }: { src: string; size?: number }) {
         borderRadius: "50%",
         overflow: "hidden",
         flexShrink: 0,
-        background: "#EFEFEF",
+        background: "#D8E3EC",
         boxShadow: "0 0 0 1px rgba(0,0,0,0.05)",
       }}
     >
@@ -2167,6 +2184,7 @@ function PostActionBar({ initialLikes }: { initialLikes: number }) {
   const [saved, setSaved] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [count, setCount] = useState(initialLikes);
+  
   const toggleLike = () => {
     const next = !liked;
     setLiked(next);
@@ -2174,6 +2192,7 @@ function PostActionBar({ initialLikes }: { initialLikes: number }) {
     setPulse(true);
     setTimeout(() => setPulse(false), 260);
   };
+
   return (
     <div
       style={{
@@ -2285,7 +2304,7 @@ function CommentInput() {
         display: "flex",
         alignItems: "center",
         gap: "10px",
-        borderTop: "1px solid #EFEFEF",
+        borderTop: "1px solid #D8E3EC",
         paddingTop: "10px",
       }}
     >
@@ -2315,7 +2334,7 @@ function CommentInput() {
           suppressHydrationWarning
           onClick={() => setVal("")}
           style={{
-            color: "#0095f6",
+            color: ACCENT_DIM,
             fontWeight: 700,
             fontSize: "14px",
             background: "none",
@@ -2329,7 +2348,7 @@ function CommentInput() {
       ) : (
         <span
           style={{
-            color: "#C7C7C7",
+            color: "#9AA8B7",
             fontWeight: 600,
             fontSize: "14px",
             cursor: "default",
@@ -2343,7 +2362,7 @@ function CommentInput() {
 }
 
 /* ────────────────────────────────────────────────────────────
-   STORY VIEWER MODAL — NUEVO
+   STORY VIEWER MODAL
 ──────────────────────────────────────────────────────────── */
 function StoryViewer({
   stories,
@@ -2366,16 +2385,16 @@ function StoryViewer({
   const DURATION = 5000;
 
   const story = stories[storyIndex];
-  const slide = story.slides[slideIndex];
-  const totalSlides = story.slides.length;
+  const slide = story?.slides[slideIndex];
+  const totalSlides = story?.slides.length || 0;
 
   const goNext = useCallback(() => {
     if (slideIndex < totalSlides - 1) {
-      setSlideIndex((s) => s + 1);
+      setSlideIndex(slideIndex + 1);
       setProgress(0);
     } else if (storyIndex < stories.length - 1) {
       onSeen(storyIndex);
-      setStoryIndex((s) => s + 1);
+      setStoryIndex(storyIndex + 1);
       setSlideIndex(0);
       setProgress(0);
     } else {
@@ -2386,14 +2405,15 @@ function StoryViewer({
 
   const goPrev = useCallback(() => {
     if (slideIndex > 0) {
-      setSlideIndex((s) => s - 1);
+      setSlideIndex(slideIndex - 1);
       setProgress(0);
     } else if (storyIndex > 0) {
-      setStoryIndex((s) => s - 1);
-      setSlideIndex(0);
+      const prevIdx = storyIndex - 1;
+      setStoryIndex(prevIdx);
+      setSlideIndex(stories[prevIdx].slides.length - 1);
       setProgress(0);
     }
-  }, [slideIndex, storyIndex]);
+  }, [slideIndex, storyIndex, stories]);
 
   useEffect(() => {
     onSeen(storyIndex);
@@ -2418,6 +2438,14 @@ function StoryViewer({
     };
   }, [slideIndex, storyIndex, paused, goNext]);
 
+  useEffect(() => {
+    if (!story || !slide) {
+      onClose();
+    }
+  }, [story, slide, onClose]);
+
+  if (!story || !slide) return null;
+
   const user = USERS[story.user];
 
   return (
@@ -2434,7 +2462,6 @@ function StoryViewer({
       }}
       onClick={onClose}
     >
-      {/* Story card */}
       <div
         style={{
           width: "100%",
@@ -2444,13 +2471,35 @@ function StoryViewer({
           borderRadius: 20,
           overflow: "hidden",
           position: "relative",
-          background: slide.bg,
+          backgroundColor: "#000",
           boxShadow: "0 30px 80px rgba(0,0,0,0.7)",
           animation: "modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Progress bars */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={slide.imageSrc}
+          alt={slide.imageAlt}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)",
+            zIndex: 1,
+          }}
+        />
+
         <div
           style={{
             position: "absolute",
@@ -2491,7 +2540,6 @@ function StoryViewer({
           ))}
         </div>
 
-        {/* Header */}
         <div
           style={{
             position: "absolute",
@@ -2509,11 +2557,12 @@ function StoryViewer({
               width: 34,
               height: 34,
               borderRadius: "50%",
-              border: "2px solid #FFF",
+              border: "2px solid #FFFFFF",
               overflow: "hidden",
               flexShrink: 0,
             }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={user.avatar}
               alt={user.handle}
@@ -2521,10 +2570,10 @@ function StoryViewer({
             />
           </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#FFF" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#FFF", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
               {user.handle}
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
               hace 2 h
             </div>
           </div>
@@ -2545,42 +2594,31 @@ function StoryViewer({
           </button>
         </div>
 
-        {/* Content */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "80px 28px 100px",
-            textAlign: "center",
+            justifyContent: "flex-end",
+            padding: "80px 24px 40px",
+            textAlign: "left",
+            zIndex: 10,
           }}
         >
           <div
             style={{
-              fontSize: 64,
-              marginBottom: 24,
-              filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.3))",
-              animation: "slideUpIn 0.4s ease",
-            }}
-          >
-            {slide.emoji}
-          </div>
-          <div
-            style={{
               display: "inline-block",
-              padding: "5px 14px",
-              borderRadius: 99,
-              background: `${slide.tagColor}22`,
-              border: `1px solid ${slide.tagColor}55`,
-              color: slide.tagColor,
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: 1.5,
+              alignSelf: "flex-start",
+              padding: "6px 12px",
+              borderRadius: 6,
+              background: slide.tagColor,
+              color: "#111",
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: 0.5,
               textTransform: "uppercase",
-              marginBottom: 18,
+              marginBottom: 16,
               animation: "slideUpIn 0.4s ease 0.05s both",
             }}
           >
@@ -2588,11 +2626,11 @@ function StoryViewer({
           </div>
           <div
             style={{
-              fontSize: 22,
-              fontWeight: 700,
+              fontSize: 26,
+              fontWeight: 800,
               color: "#FFF",
-              lineHeight: 1.3,
-              marginBottom: 16,
+              lineHeight: 1.2,
+              marginBottom: 12,
               animation: "slideUpIn 0.4s ease 0.1s both",
             }}
           >
@@ -2600,18 +2638,17 @@ function StoryViewer({
           </div>
           <div
             style={{
-              fontSize: 15,
-              color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.65,
+              fontSize: 16,
+              color: "rgba(255,255,255,0.9)",
+              lineHeight: 1.5,
               animation: "slideUpIn 0.4s ease 0.15s both",
-              maxWidth: 300,
+              maxWidth: 320,
             }}
           >
             {slide.body}
           </div>
         </div>
 
-        {/* Tap zones */}
         <button
           suppressHydrationWarning
           onClick={goPrev}
@@ -2651,7 +2688,6 @@ function StoryViewer({
           }}
         />
 
-        {/* Nav arrows hint */}
         {storyIndex > 0 && (
           <div
             style={{
@@ -2718,7 +2754,7 @@ function StoryViewer({
 }
 
 /* ────────────────────────────────────────────────────────────
-   DM INBOX — NUEVO
+   DM INBOX
 ──────────────────────────────────────────────────────────── */
 function DmInbox({
   onOpenStranger,
@@ -2742,11 +2778,10 @@ function DmInbox({
         boxShadow: "-8px 0 40px rgba(0,0,0,0.12)",
       }}
     >
-      {/* Header */}
       <div
         style={{
           padding: "16px 16px 12px",
-          borderBottom: "1px solid #EFEFEF",
+          borderBottom: "1px solid #D8E3EC",
           display: "flex",
           alignItems: "center",
           gap: 12,
@@ -2761,12 +2796,12 @@ function DmInbox({
             cursor: "pointer",
             padding: 4,
             display: "flex",
-            color: "#000",
+            color: "#061538",
           }}
         >
           <ArrowLeft size={22} strokeWidth={2} />
         </button>
-        <div style={{ fontSize: 16, fontWeight: 700, color: "#000" }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#061538" }}>
           Mensajes
         </div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 16 }}>
@@ -2777,7 +2812,7 @@ function DmInbox({
               border: "none",
               cursor: "pointer",
               display: "flex",
-              color: "#000",
+              color: "#061538",
             }}
           >
             <Search size={22} strokeWidth={1.8} />
@@ -2785,11 +2820,11 @@ function DmInbox({
         </div>
       </div>
 
-      {/* Search bar */}
       <div style={{ padding: "10px 16px" }}>
         <div
           style={{
-            background: "#F2F2F2",
+            background: "#EEF6FB",
+            border: "1px solid #D8E3EC",
             borderRadius: 10,
             padding: "10px 14px",
             display: "flex",
@@ -2797,12 +2832,11 @@ function DmInbox({
             gap: 8,
           }}
         >
-          <Search size={16} color="#8E8E8E" strokeWidth={2} />
-          <span style={{ fontSize: 14, color: "#8E8E8E" }}>Buscar</span>
+          <Search size={16} color="#5B6B7A" strokeWidth={2} />
+          <span style={{ fontSize: 14, color: "#5B6B7A" }}>Buscar</span>
         </div>
       </div>
 
-      {/* Conversations */}
       <div style={{ flex: 1, overflowY: "auto" }}>
         {DM_CONVERSATIONS.map((conv) => (
           <div
@@ -2828,7 +2862,6 @@ function DmInbox({
                 conv.isStranger ? "rgba(116,179,206,0.04)" : "#FFF";
             }}
           >
-            {/* Avatar */}
             <div style={{ position: "relative", flexShrink: 0 }}>
               {conv.avatar ? (
                 <div
@@ -2838,10 +2871,14 @@ function DmInbox({
                     borderRadius: "50%",
                     overflow: "hidden",
                     border: conv.isStranger
-                      ? "2px solid #FF8A95"
+                      ? "2px solid #E94E5D"
                       : "2px solid transparent",
+                    boxShadow: conv.isStranger
+                      ? "0 0 0 3px rgba(233,78,93,0.12)"
+                      : "none",
                   }}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={conv.avatar}
                     alt=""
@@ -2858,17 +2895,17 @@ function DmInbox({
                     width: 56,
                     height: 56,
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg,#667eea,#764ba2)",
+                    background: "linear-gradient(135deg,#102A43,#74B3CE)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 20,
                     fontWeight: 700,
                     color: "#FFF",
-                    border: "2px solid #FF8A95",
+                    border: "2px solid #E94E5D",
                   }}
                 >
-                  A
+                  {conv.name.charAt(0).toUpperCase()}
                 </div>
               )}
               {conv.unread > 0 && (
@@ -2880,8 +2917,8 @@ function DmInbox({
                     width: 18,
                     height: 18,
                     borderRadius: "50%",
-                    background: "#ed4956",
-                    border: "2px solid #FFF",
+                    background: "#E94E5D",
+                    border: "2px solid #FFFFFF",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -2895,7 +2932,6 @@ function DmInbox({
               )}
             </div>
 
-            {/* Info */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
@@ -2909,19 +2945,19 @@ function DmInbox({
                   style={{
                     fontSize: 14,
                     fontWeight: conv.unread > 0 ? 700 : 600,
-                    color: "#000",
+                    color: "#061538",
                   }}
                 >
                   {conv.name}
                 </span>
-                <span style={{ fontSize: 12, color: "#8E8E8E" }}>
+                <span style={{ fontSize: 12, color: "#7C8A99" }}>
                   {conv.time}
                 </span>
               </div>
               <div
                 style={{
                   fontSize: 13,
-                  color: conv.unread > 0 ? "#000" : "#8E8E8E",
+                  color: conv.unread > 0 ? "#061538" : "#7C8A99",
                   fontWeight: conv.unread > 0 ? 500 : 400,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -2935,15 +2971,16 @@ function DmInbox({
                   style={{
                     marginTop: 4,
                     fontSize: 11,
-                    color: "#FF8A95",
-                    fontWeight: 600,
+                    color: "#E94E5D",
+                    fontWeight: 700,
                     display: "flex",
                     alignItems: "center",
                     gap: 4,
+                    letterSpacing: 0.2,
                   }}
                 >
                   <AlertTriangle size={11} strokeWidth={2.5} />
-                  Solicitud de desconocido — tocá para revisar
+                  Solicitud de mensaje
                 </div>
               )}
             </div>
@@ -2955,7 +2992,7 @@ function DmInbox({
 }
 
 /* ────────────────────────────────────────────────────────────
-   DM CHAT VIEW — NUEVO (envuelve DmSimModule con UI de chat)
+   DM CHAT VIEW
 ──────────────────────────────────────────────────────────── */
 function DmChatView({
   onComplete,
@@ -2981,11 +3018,10 @@ function DmChatView({
         boxShadow: "-8px 0 40px rgba(0,0,0,0.12)",
       }}
     >
-      {/* Chat header */}
       <div
         style={{
           padding: "12px 16px",
-          borderBottom: "1px solid #EFEFEF",
+          borderBottom: "1px solid #D8E3EC",
           display: "flex",
           alignItems: "center",
           gap: 12,
@@ -3001,7 +3037,7 @@ function DmChatView({
             cursor: "pointer",
             padding: 4,
             display: "flex",
-            color: "#000",
+            color: "#061538",
           }}
         >
           <ArrowLeft size={22} strokeWidth={2} />
@@ -3011,26 +3047,21 @@ function DmChatView({
             width: 36,
             height: 36,
             borderRadius: "50%",
-            background: "linear-gradient(135deg,#667eea,#764ba2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 14,
-            fontWeight: 700,
-            color: "#FFF",
+            overflow: "hidden",
             flexShrink: 0,
           }}
         >
-          A
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#000" }}>
-            alex_reyes23
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#061538" }}>
+            nicoo.raw
           </div>
           <div
             style={{
               fontSize: 12,
-              color: "#8E8E8E",
+              color: "#5B6B7A",
               display: "flex",
               alignItems: "center",
               gap: 4,
@@ -3056,7 +3087,7 @@ function DmChatView({
               border: "none",
               cursor: "pointer",
               display: "flex",
-              color: "#000",
+              color: "#061538",
             }}
           >
             <MoreHorizontal size={22} strokeWidth={1.8} />
@@ -3064,11 +3095,10 @@ function DmChatView({
         </div>
       </div>
 
-      {/* Solicitud banner */}
       <div
         style={{
-          background: "#FFF9F9",
-          borderBottom: "1px solid #FFE5E5",
+          background: "#FBE5E8",
+          borderBottom: "1px solid rgba(233,78,93,0.18)",
           padding: "10px 16px",
           textAlign: "center",
         }}
@@ -3076,19 +3106,19 @@ function DmChatView({
         <div
           style={{
             fontSize: 12,
-            color: "#FF8A95",
-            fontWeight: 600,
+            color: "#E94E5D",
+            fontWeight: 700,
             marginBottom: 2,
+            letterSpacing: 0.2,
           }}
         >
-          Este usuario no te sigue · Solicitud de mensaje
+          Este usuario no te sigue
         </div>
-        <div style={{ fontSize: 11, color: "#8E8E8E" }}>
-          Respondé con cuidado. Revisá las señales de riesgo.
+        <div style={{ fontSize: 11, color: "#7C8A99" }}>
+          Respondé solo si te sentís cómodo.
         </div>
       </div>
 
-      {/* Module content */}
       <div
         style={{
           flex: 1,
@@ -3107,7 +3137,338 @@ function DmChatView({
 }
 
 /* ────────────────────────────────────────────────────────────
-   POST ONG (groomingargentina) — sin cambios
+   REQUESTS VIEW — NUEVO (Módulo Solicitudes)
+──────────────────────────────────────────────────────────── */
+function RequestsView({
+  onClose,
+  onComplete,
+  onXp,
+  onAction,
+}: {
+  onClose: () => void;
+  onComplete: (pts: number) => void;
+  onXp: (n: number) => void;
+  onAction: () => void;
+}) {
+  const [handled, setHandled] = useState<Record<string, { choice: string; isCorrect: boolean; msg: string }>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [reviewed, setReviewed] = useState<Record<string, boolean>>({});
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [xpPop, setXpPop] = useState(0);
+
+  const handleScoreXp = (amount: number) => {
+    if (amount > 0) {
+      setXpPop(amount);
+      onXp(amount);
+      setTotalPoints((prev) => prev + amount);
+    }
+  };
+
+  const handleReview = (id: string) => {
+    if (reviewed[id]) {
+      setExpanded((p) => ({ ...p, [id]: !p[id] }));
+      return;
+    }
+    
+    setExpanded((p) => ({ ...p, [id]: true }));
+    setReviewed((p) => ({ ...p, [id]: true }));
+    
+    const profile = REQUEST_PROFILES.find((p) => p.id === id);
+    if (profile && profile.type !== "real") {
+      handleScoreXp(15);
+    }
+  };
+
+  const handleDecision = (id: string, action: "accept" | "reject") => {
+    if (handled[id]) return;
+    const profile = REQUEST_PROFILES.find((p) => p.id === id);
+    if (!profile) return;
+
+    let earned = 0;
+    let isCorrect = false;
+    let msg = profile.feedback;
+
+    if (profile.type === "real") {
+      if (action === "accept") {
+        earned = 25;
+        isCorrect = true;
+      } else if (action === "reject") {
+        earned = 5;
+        isCorrect = true; 
+      }
+    } else {
+      if (action === "accept") {
+        earned = 0;
+        isCorrect = false;
+      } else if (action === "reject") {
+        earned = reviewed[id] ? 10 : 25; 
+        isCorrect = true;
+      }
+    }
+
+    handleScoreXp(earned);
+    setHandled((prev) => ({ ...prev, [id]: { choice: action, isCorrect, msg } }));
+    onAction();
+  };
+
+  const completedCount = Object.keys(handled).length;
+  const isFinished = completedCount === REQUEST_PROFILES.length;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 400,
+        background: "#F8FAFC",
+        display: "flex",
+        flexDirection: "column",
+        animation: "slideInFromRight 0.28s cubic-bezier(0.4,0,0.2,1)",
+        maxWidth: 480,
+        marginLeft: "auto",
+        boxShadow: "-8px 0 40px rgba(0,0,0,0.12)",
+      }}
+    >
+      {xpPop > 0 && <XpPop amount={xpPop} onDone={() => setXpPop(0)} />}
+
+      <div
+        style={{
+          padding: "16px",
+          borderBottom: "1px solid #D8E3EC",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          background: "#FFF",
+        }}
+      >
+        <button
+          suppressHydrationWarning
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 4,
+            display: "flex",
+            color: "#061538",
+          }}
+        >
+          <ArrowLeft size={22} strokeWidth={2} />
+        </button>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#061538" }}>
+          Solicitudes
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px" }}>
+        {!isFinished && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#061538", letterSpacing: -0.2 }}>
+              {REQUEST_PROFILES.length - completedCount} solicitudes pendientes
+            </div>
+            <div style={{ fontSize: 13, color: "#5B6B7A", marginTop: 4 }}>
+              Cuentas que solicitaron seguirte.
+            </div>
+          </div>
+        )}
+
+        {isFinished ? (
+          <div
+            style={{
+              background: "#FFF",
+              border: "1px solid #D8E3EC",
+              borderRadius: 14,
+              padding: "32px 24px",
+              textAlign: "center",
+              animation: "slideUpIn 0.4s ease",
+              marginTop: 20,
+              boxShadow: "0 12px 32px rgba(6,21,56,0.06)",
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "rgba(116,179,206,0.14)",
+                border: "1px solid rgba(116,179,206,0.28)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+              }}
+            >
+              <Check size={32} color={ACCENT} strokeWidth={2.5} />
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "#061538", marginBottom: 8 }}>
+              Revisión completada
+            </div>
+            <div style={{ fontSize: 14, color: "#102A43", marginBottom: 16, fontWeight: 500 }}>
+              Detectaste {Object.values(handled).filter((h) => h.isCorrect).length} de {REQUEST_PROFILES.length} perfiles correctamente.
+            </div>
+            <p style={{ fontSize: 13, color: "#5B6B7A", lineHeight: 1.6, marginBottom: 24 }}>
+              Revisar antes de aceptar también es una forma de cuidarte. En redes sociales, una solicitud puede ser el primer contacto de una situación de riesgo.
+            </p>
+            <button
+              suppressHydrationWarning
+              onClick={() => onComplete(totalPoints)}
+              style={{
+                width: "100%",
+                padding: "14px",
+                borderRadius: 10,
+                background: "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
+                color: "#FFF",
+                border: "none",
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer",
+                boxShadow: "0 8px 20px rgba(116,179,206,0.32)",
+                letterSpacing: 0.2,
+              }}
+            >
+              Volver al feed
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {REQUEST_PROFILES.map((p) => {
+              const isHandled = handled[p.id];
+              return (
+                <div
+                  key={p.id}
+                  style={{
+                    background: "#FFF",
+                    border: "1px solid #D8E3EC",
+                    borderRadius: 14,
+                    padding: "16px",
+                    animation: "fadeIn 0.3s ease",
+                    boxShadow: "0 8px 22px rgba(6,21,56,0.04)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "1px solid #D8E3EC" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.avatar} alt={p.username} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: "#061538", display: "flex", justifyContent: "space-between" }}>
+                        <span>{p.username}</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: "#5B6B7A" }}>{p.name}</div>
+                      <div style={{ fontSize: 13, color: "#102A43", marginTop: 4, lineHeight: 1.4 }}>{p.bio}</div>
+                      <div style={{ fontSize: 12, color: "#7C8A99", marginTop: 6 }}>
+                        {p.mutual > 0 && p.followedBy
+                          ? `Seguido por ${p.followedBy} y ${p.mutual} personas más`
+                          : "Sin seguidores en común"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Red social stats minimal */}
+                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: "#5B6B7A", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #EEF2F7" }}>
+                    <div><span style={{ fontWeight: 700, color: "#061538" }}>{p.followers}</span> seg.</div>
+                    <div><span style={{ fontWeight: 700, color: "#061538" }}>{p.posts}</span> posts</div>
+                  </div>
+
+                  {expanded[p.id] && (
+                    <div style={{ background: "#F8FAFC", border: "1px solid #EEF2F7", padding: "12px", borderRadius: 10, fontSize: 12, color: "#5B6B7A", marginBottom: 16, lineHeight: 1.5 }}>
+                      <div style={{ marginBottom: 6 }}>
+                        <span style={{ fontWeight: 700, color: "#061538" }}>En Instagram desde:</span> {p.age}
+                      </div>
+                      <div>
+                        <span style={{ fontWeight: 700, color: "#061538" }}>Actividad:</span> {p.activity}
+                      </div>
+                    </div>
+                  )}
+
+                  {!isHandled ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          suppressHydrationWarning
+                          onClick={() => handleDecision(p.id, "accept")}
+                          style={{
+                            flex: 1,
+                            padding: "10px 0",
+                            borderRadius: 10,
+                            background: "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
+                            color: "#FFF",
+                            border: "none",
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: "pointer",
+                            boxShadow: "0 4px 12px rgba(116,179,206,0.28)",
+                          }}
+                        >
+                          Aceptar
+                        </button>
+                        <button
+                          suppressHydrationWarning
+                          onClick={() => handleDecision(p.id, "reject")}
+                          style={{
+                            flex: 1,
+                            padding: "10px 0",
+                            borderRadius: 10,
+                            background: "#EEF6FB",
+                            color: "#061538",
+                            border: "1px solid #D8E3EC",
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+                      <button
+                        suppressHydrationWarning
+                        onClick={() => handleReview(p.id)}
+                        style={{
+                          width: "100%",
+                          padding: "9px 0",
+                          borderRadius: 10,
+                          background: "none",
+                          color: ACCENT_DIM,
+                          border: `1px solid rgba(116,179,206,0.32)`,
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {expanded[p.id] ? "Ocultar detalles" : "Revisar más"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        padding: "12px 14px",
+                        background: isHandled.isCorrect ? "rgba(34,197,94,0.08)" : "rgba(233,78,93,0.08)",
+                        borderLeft: `3px solid ${isHandled.isCorrect ? "#22C55E" : "#E94E5D"}`,
+                        borderRadius: "0 10px 10px 0",
+                        fontSize: 12,
+                        color: "#102A43",
+                        lineHeight: 1.5,
+                        animation: "slideUpIn 0.3s ease",
+                      }}
+                    >
+                      <span style={{ fontWeight: 700, color: isHandled.isCorrect ? "#15803D" : "#E94E5D", display: "block", marginBottom: 2, letterSpacing: 0.2 }}>
+                        {isHandled.choice === "accept" ? "Aceptado" : "Rechazado"}
+                      </span>
+                      {isHandled.msg}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   POST ONG (groomingargentina)
 ──────────────────────────────────────────────────────────── */
 function OngPost({
   time,
@@ -3158,12 +3519,12 @@ function OngPost({
               fill="rgba(0,149,246,0.1)"
               strokeWidth={2.5}
             />
-            <span style={{ color: "#737373", fontSize: 14, margin: "0 3px" }}>
+            <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>
               •
             </span>
             <span
               style={{
-                color: "#0095f6",
+                color: ACCENT_DIM,
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -3174,14 +3535,14 @@ function OngPost({
           </div>
           <div className="ig-post-sublabel">Argentina</div>
         </div>
-        <MoreHorizontal size={20} color="#000" style={{ cursor: "pointer" }} />
+        <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
       <div
         style={{
           position: "relative",
           width: "100%",
           aspectRatio: "1/1",
-          background: "#FAFAFA",
+          background: "#F8FAFC",
         }}
       >
         <Image
@@ -3198,7 +3559,7 @@ function OngPost({
           style={{
             fontSize: 14,
             fontWeight: 600,
-            color: "#000",
+            color: "#061538",
             marginBottom: 5,
           }}
         >
@@ -3224,7 +3585,7 @@ function OngPost({
 }
 
 /* ────────────────────────────────────────────────────────────
-   POST VIDEO / REEL — sin cambios
+   POST VIDEO / REEL
 ──────────────────────────────────────────────────────────── */
 function ReelPost({
   user,
@@ -3255,7 +3616,7 @@ function ReelPost({
           </div>
           <div className="ig-post-sublabel">{time}</div>
         </div>
-        <MoreHorizontal size={20} color="#000" style={{ cursor: "pointer" }} />
+        <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
 
       <div className="ig-reel-frame">
@@ -3273,7 +3634,7 @@ function ReelPost({
           style={{
             fontSize: 14,
             fontWeight: 600,
-            color: "#000",
+            color: "#061538",
             marginBottom: 5,
           }}
         >
@@ -3299,7 +3660,7 @@ function ReelPost({
 }
 
 /* ────────────────────────────────────────────────────────────
-   POST INTERACTIVO DE DECISIÓN RÁPIDA — sin cambios
+   POST INTERACTIVO DE DECISIÓN RÁPIDA
 ──────────────────────────────────────────────────────────── */
 function DecisionPost({
   user,
@@ -3330,25 +3691,25 @@ function DecisionPost({
           </div>
           <div className="ig-post-sublabel">{time}</div>
         </div>
-        <MoreHorizontal size={20} color="#000" style={{ cursor: "pointer" }} />
+        <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
 
-      {/* Visual panel */}
       <div
         style={{
-          background: "#F7F7F7",
-          borderTop: "1px solid #EFEFEF",
-          borderBottom: "1px solid #EFEFEF",
+          background: "#EEF6FB",
+          borderTop: "1px solid #D8E3EC",
+          borderBottom: "1px solid #D8E3EC",
           padding: "32px 24px",
         }}
       >
         <div
           style={{
             fontSize: 11,
-            color: "#8E8E8E",
+            color: "#5B6B7A",
             textTransform: "uppercase",
             letterSpacing: 1.6,
             marginBottom: 12,
+            fontWeight: 700,
           }}
         >
           en este momento
@@ -3357,14 +3718,14 @@ function DecisionPost({
           style={{
             fontSize: 20,
             fontWeight: 700,
-            color: "#000",
+            color: "#061538",
             lineHeight: 1.3,
             marginBottom: 10,
           }}
         >
           {question}
         </div>
-        <div style={{ fontSize: 14, color: "#737373", lineHeight: 1.5 }}>
+        <div style={{ fontSize: 14, color: "#5B6B7A", lineHeight: 1.5 }}>
           {context}
         </div>
       </div>
@@ -3430,7 +3791,7 @@ function DecisionPost({
 }
 
 /* ────────────────────────────────────────────────────────────
-   POST DE EXPERIENCIA — sin cambios
+   POST DE EXPERIENCIA
 ──────────────────────────────────────────────────────────── */
 function ExperiencePost({
   moduleId,
@@ -3458,10 +3819,10 @@ function ExperiencePost({
     chat: (
       <div
         style={{
-          background: "#F7F7F7",
+          background: "#EEF6FB",
           padding: "20px 20px 16px",
-          borderTop: "1px solid #EFEFEF",
-          borderBottom: "1px solid #EFEFEF",
+          borderTop: "1px solid #D8E3EC",
+          borderBottom: "1px solid #D8E3EC",
         }}
       >
         <div
@@ -3471,7 +3832,7 @@ function ExperiencePost({
             gap: 10,
             marginBottom: 14,
             paddingBottom: 10,
-            borderBottom: "1px solid #E5E5E5",
+            borderBottom: "1px solid #D8E3EC",
           }}
         >
           <div
@@ -3479,15 +3840,18 @@ function ExperiencePost({
               width: 32,
               height: 32,
               borderRadius: "50%",
-              background: "linear-gradient(135deg,#764ba2,#667eea)",
+              overflow: "hidden",
               flexShrink: 0,
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#000" }}>
-              alex_reyes23
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#061538" }}>
+              nicoo.raw
             </div>
-            <div style={{ fontSize: 11, color: "#ABABAB" }}>
+            <div style={{ fontSize: 11, color: "#7C8A99" }}>
               Solicitud de mensaje
             </div>
           </div>
@@ -3503,8 +3867,8 @@ function ExperiencePost({
           />
         </div>
         {[
-          "Ey, vi tus posts. Tenés un contenido muy bueno 👀",
-          "Soy de Buenos Aires también. Qué raro que no nos sigamos",
+          "Che, creo que te vi en recomendados.",
+          "¿Vos subiste una historia del recital ayer?",
         ].map((t, i) => (
           <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <div
@@ -3512,17 +3876,20 @@ function ExperiencePost({
                 width: 24,
                 height: 24,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg,#764ba2,#667eea)",
+                overflow: "hidden",
                 flexShrink: 0,
               }}
-            />
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
             <div
               style={{
-                background: "#E8E8E8",
+                background: "#EEF6FB",
                 padding: "8px 12px",
                 borderRadius: "18px 18px 18px 3px",
                 fontSize: 13,
-                color: "#000",
+                color: "#061538",
                 maxWidth: "85%",
                 lineHeight: 1.4,
               }}
@@ -3536,7 +3903,7 @@ function ExperiencePost({
             textAlign: "center",
             marginTop: 12,
             fontSize: 11,
-            color: "#FF3B30",
+            color: "#E94E5D",
             fontWeight: 700,
             letterSpacing: 0.4,
           }}
@@ -3548,20 +3915,21 @@ function ExperiencePost({
     profile: (
       <div
         style={{
-          background: "#FAFAFA",
+          background: "#F8FAFC",
           padding: "20px",
-          borderTop: "1px solid #EFEFEF",
-          borderBottom: "1px solid #EFEFEF",
+          borderTop: "1px solid #D8E3EC",
+          borderBottom: "1px solid #D8E3EC",
         }}
       >
         <div
           style={{
             background: "#FFF",
-            border: "1px solid #DBDBDB",
-            borderRadius: 8,
+            border: "1px solid #D8E3EC",
+            borderRadius: 12,
             padding: "16px",
             maxWidth: 340,
             margin: "0 auto",
+            boxShadow: "0 6px 18px rgba(6,21,56,0.04)",
           }}
         >
           <div
@@ -3577,22 +3945,23 @@ function ExperiencePost({
                 width: 48,
                 height: 48,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg,#f093fb,#f5576c)",
+                background: "linear-gradient(135deg,#102A43 0%,#74B3CE 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 20,
                 fontWeight: 700,
                 color: "#FFF",
+                boxShadow: "0 6px 14px rgba(116,179,206,0.32)",
               }}
             >
               V
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: 14, color: "#000" }}>
+              <div style={{ fontWeight: 600, fontSize: 14, color: "#061538" }}>
                 valeria.foto_oficial
               </div>
-              <div style={{ fontSize: 12, color: "#ABABAB" }}>
+              <div style={{ fontSize: 12, color: "#7C8A99" }}>
                 Creada hace 2 semanas
               </div>
             </div>
@@ -3604,7 +3973,7 @@ function ExperiencePost({
               textAlign: "center",
               marginBottom: 12,
               paddingBottom: 12,
-              borderBottom: "1px solid #EFEFEF",
+              borderBottom: "1px solid #D8E3EC",
             }}
           >
             {[
@@ -3613,10 +3982,10 @@ function ExperiencePost({
               ["8", "Siguiendo"],
             ].map(([v, l]) => (
               <div key={l}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#000" }}>
+                <div style={{ fontWeight: 700, fontSize: 16, color: "#061538" }}>
                   {v}
                 </div>
-                <div style={{ fontSize: 11, color: "#ABABAB" }}>{l}</div>
+                <div style={{ fontSize: 11, color: "#7C8A99" }}>{l}</div>
               </div>
             ))}
           </div>
@@ -3624,7 +3993,7 @@ function ExperiencePost({
             style={{
               textAlign: "center",
               fontSize: 12,
-              color: "#FF3B30",
+              color: "#E94E5D",
               fontWeight: 700,
             }}
           >
@@ -3636,26 +4005,40 @@ function ExperiencePost({
     story: (
       <div
         style={{
-          background: "linear-gradient(135deg,#1A1A2E,#16213E)",
+          background: "linear-gradient(135deg,#061538 0%,#102A43 55%,#163A63 100%)",
           padding: "48px 32px",
-          borderTop: "1px solid #EFEFEF",
-          borderBottom: "1px solid #EFEFEF",
+          borderTop: "1px solid #D8E3EC",
+          borderBottom: "1px solid #D8E3EC",
           textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(circle at 20% 20%, rgba(116,179,206,0.18), transparent 40%), radial-gradient(circle at 80% 80%, rgba(191,231,245,0.12), transparent 40%)",
+            pointerEvents: "none",
+          }}
+        />
         <div
           style={{
             width: 52,
             height: 52,
             margin: "0 auto 16px",
             borderRadius: "50%",
-            background: "rgba(255,255,255,0.12)",
+            background: "rgba(116,179,206,0.18)",
+            border: "1px solid rgba(116,179,206,0.32)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            position: "relative",
           }}
         >
-          <MessageCircle size={26} color="#FFF" strokeWidth={1.8} />
+          <MessageCircle size={26} color="#BFE7F5" strokeWidth={1.8} />
         </div>
         <div
           style={{
@@ -3664,6 +4047,7 @@ function ExperiencePost({
             color: "#FFF",
             lineHeight: 1.3,
             marginBottom: 10,
+            position: "relative",
           }}
         >
           Tu historia, tus decisiones
@@ -3671,8 +4055,9 @@ function ExperiencePost({
         <div
           style={{
             fontSize: 13,
-            color: "rgba(255,255,255,0.5)",
+            color: "rgba(255,255,255,0.62)",
             lineHeight: 1.5,
+            position: "relative",
           }}
         >
           Un escenario real. Cada elección tiene consecuencias.
@@ -3682,10 +4067,10 @@ function ExperiencePost({
     redflag: (
       <div
         style={{
-          background: "#FFFBEB",
+          background: "#FFF7E6",
           padding: "32px 24px",
-          borderTop: "1px solid #EFEFEF",
-          borderBottom: "1px solid #EFEFEF",
+          borderTop: "1px solid #D8E3EC",
+          borderBottom: "1px solid #D8E3EC",
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -3697,13 +4082,14 @@ function ExperiencePost({
               key={i}
               style={{
                 background: "#FFF",
-                border: "1px solid #FDE68A",
-                borderRadius: 8,
+                border: "1px solid #F5D89C",
+                borderRadius: 10,
                 padding: "12px 14px",
                 fontSize: 13,
-                color: "#000",
+                color: "#061538",
                 lineHeight: 1.5,
                 position: "relative",
+                boxShadow: "0 4px 12px rgba(240,180,69,0.08)",
               }}
             >
               {t}
@@ -3715,7 +4101,8 @@ function ExperiencePost({
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: "#EF4444",
+                  background: "#E94E5D",
+                  boxShadow: "0 0 0 3px rgba(233,78,93,0.18)",
                 }}
               />
             </div>
@@ -3723,7 +4110,7 @@ function ExperiencePost({
           <div
             style={{
               fontSize: 12,
-              color: "#B45309",
+              color: "#A37210",
               fontWeight: 700,
               textAlign: "center",
             }}
@@ -3745,7 +4132,7 @@ function ExperiencePost({
           </div>
           <div className="ig-post-sublabel">{time}</div>
         </div>
-        <MoreHorizontal size={20} color="#000" style={{ cursor: "pointer" }} />
+        <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
 
       {visuals[visualType]}
@@ -3756,7 +4143,7 @@ function ExperiencePost({
           style={{
             fontSize: 14,
             fontWeight: 600,
-            color: "#000",
+            color: "#061538",
             marginBottom: 5,
           }}
         >
@@ -3764,31 +4151,41 @@ function ExperiencePost({
         </div>
         <div className="ig-post-caption">
           <b>{u.handle}</b>
-          {headline} <span style={{ color: "#737373" }}>{subline}</span>
+          {headline} <span style={{ color: "#5B6B7A" }}>{subline}</span>
         </div>
         <button
           suppressHydrationWarning
           onClick={() => onStart(moduleId)}
           style={{
             width: "100%",
-            padding: "11px 16px",
+            padding: "12px 16px",
             marginBottom: 12,
-            borderRadius: 8,
-            background: ACCENT,
+            borderRadius: 10,
+            background: "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
             color: "#FFF",
             border: "none",
             fontSize: 14,
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 8,
-            transition: "opacity 0.15s",
+            transition: "transform 0.18s ease, box-shadow 0.18s ease",
             fontFamily: "inherit",
+            boxShadow: "0 6px 16px rgba(116,179,206,0.32)",
+            letterSpacing: 0.2,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-1px)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 22px rgba(116,179,206,0.42)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow =
+              "0 6px 16px rgba(116,179,206,0.32)";
+          }}
         >
           {ctaLabel} <ChevronRight size={16} strokeWidth={2.5} />
         </button>
@@ -3822,6 +4219,10 @@ export default function AdolescentesPage() {
   const [showDmInbox, setShowDmInbox] = useState(false);
   const [showDmChat, setShowDmChat] = useState(false);
 
+  // Requests state
+  const [showRequests, setShowRequests] = useState(false);
+  const [requestsPending, setRequestsPending] = useState(5);
+
   // Bottom nav (mobile)
   const [activeTab, setActiveTab] = useState<NavTab>("home");
 
@@ -3830,6 +4231,7 @@ export default function AdolescentesPage() {
     setCompletedModules((prev) => new Set([...prev, id]));
     setActiveModule(null);
     setShowDmChat(false);
+    setShowRequests(false);
   };
   const openModule = (id: ModuleId) => setActiveModule(id);
 
@@ -3843,161 +4245,474 @@ export default function AdolescentesPage() {
     setShowDmInbox(false);
   };
 
+  const handleRequestsComplete = (pts: number) => {
+    handleComplete("requests", pts);
+    setShowRequests(false);
+  };
+
   const handleNavClick = (tab: NavTab) => {
     setActiveTab(tab);
     if (tab === "dm") {
       setShowDmInbox(true);
+    } else if (tab === "requests") {
+      setShowRequests(true);
     }
   };
 
   return (
     <main
       style={{
-        background: "#FAFAFA",
-        color: "#000",
+        background: "#F8FAFC",
+        color: "#061538",
         minHeight: "100vh",
         fontFamily:
-          "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif",
+          "Outfit,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif",
         position: "relative",
         overflowX: "hidden",
       }}
     >
       <style>{`
         @import url('https://fonts.cdnfonts.com/css/lemon-milk');
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
 
-        /* ── Módulos dark ── */
+        :root {
+          --sf-blue-dark:#061538;
+          --sf-blue-deep:#102A43;
+          --sf-blue-soft:#163A63;
+          --sf-celeste:#74B3CE;
+          --sf-celeste-soft:#BFE7F5;
+          --sf-bg:#F8FAFC;
+          --sf-bg-blue:#EEF6FB;
+          --sf-line:#D8E3EC;
+          --sf-text-muted:#5B6B7A;
+          --sf-text-soft:#7C8A99;
+          --sf-white:#FFFFFF;
+          --sf-danger:#E94E5D;
+          --sf-danger-soft:#FBE5E8;
+          --sf-success:#22C55E;
+          --sf-warn:#F0B445;
+          --sf-warn-soft:#FFF7E6;
+          --sf-shadow-soft:0 12px 32px rgba(6,21,56,.06);
+          --sf-shadow-card:0 18px 44px rgba(6,21,56,.055);
+        }
+
+        body { background:var(--sf-bg); }
+        button, input { font-family:inherit; }
+
+        /* ── Animaciones base ── */
         @keyframes slideUpIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         @keyframes xpPop { 0%{opacity:0;transform:translateY(0)} 20%{opacity:1;transform:translateY(-15px)} 100%{opacity:0;transform:translateY(-35px)} }
         @keyframes typingDot { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
         @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes modalIn { from{opacity:0;transform:scale(0.96) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
         @keyframes slideInFromRight { from{opacity:0;transform:translateX(32px)} to{opacity:1;transform:translateX(0)} }
-        ::-webkit-scrollbar { width:4px; }
-        ::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); }
-        ::-webkit-scrollbar-thumb { background:rgba(116,179,206,0.3); border-radius:99px; }
+        @keyframes likeBounce { 0%{transform:scale(1)} 45%{transform:scale(1.38)} 100%{transform:scale(1)} }
+        @keyframes softPulse { 0%,100%{box-shadow:0 0 0 0 rgba(116,179,206,.22)} 50%{box-shadow:0 0 0 8px rgba(116,179,206,0)} }
 
-        /* ── IG Shell ── */
+        ::selection { background:rgba(116,179,206,.28); color:var(--sf-blue-dark); }
+        ::-webkit-scrollbar { width:6px; height:4px; }
+        ::-webkit-scrollbar-track { background:rgba(216,227,236,0.25); }
+        ::-webkit-scrollbar-thumb { background:rgba(116,179,206,0.45); border-radius:99px; }
+
+        /* ── Shell tipo red social, con piel SAFENET ── */
         .ig-shell {
           display:grid;
-          grid-template-columns:244px 1fr 320px;
+          grid-template-columns:248px minmax(0,1fr) 324px;
           min-height:100vh;
+          background:
+            radial-gradient(circle at 18% 6%, rgba(116,179,206,.18), transparent 28%),
+            radial-gradient(circle at 86% 18%, rgba(191,231,245,.28), transparent 24%),
+            linear-gradient(180deg,#FFFFFF 0%,#F8FAFC 52%,#EEF6FB 100%);
+          color:var(--sf-blue-dark);
         }
-        @media(max-width:1100px){ .ig-shell{grid-template-columns:72px 1fr} .ig-right{display:none!important} .ig-nav-label{display:none!important} }
-        @media(max-width:768px){ .ig-shell{grid-template-columns:1fr} .ig-sidebar{display:none!important} .ig-feed-inner{padding-bottom:80px!important} }
+        @media(max-width:1100px){
+          .ig-shell{grid-template-columns:76px 1fr}
+          .ig-right{display:none!important}
+          .ig-nav-label{display:none!important}
+          .ig-sidebar-logo span{display:none!important}
+          .ig-sidebar-logo{justify-content:center!important;padding-left:0!important;padding-right:0!important}
+        }
+        @media(max-width:768px){
+          .ig-shell{grid-template-columns:1fr;background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFC 46%,#EEF6FB 100%)}
+          .ig-sidebar{display:none!important}
+          .ig-feed-inner{padding:14px 12px 86px!important;max-width:520px!important}
+          .ig-post,.ig-stories-bar,.xp-banner{border-radius:18px!important}
+        }
 
         /* ── Sidebar ── */
         .ig-sidebar {
-          border-right:1px solid #DBDBDB;
-          padding:20px 12px;
+          border-right:1px solid rgba(216,227,236,.86);
+          padding:18px 12px;
           position:sticky;
-          top:0; height:100vh;
+          top:0;
+          height:100vh;
           display:flex;
           flex-direction:column;
-          background:#FFF;
+          background:rgba(255,255,255,.86);
+          backdrop-filter:blur(18px);
           overflow-y:auto;
+          box-shadow:12px 0 36px rgba(6,21,56,.035);
         }
-        .ig-sidebar-logo { padding:14px 12px 28px; display:flex; align-items:center; gap:10px; }
-        .ig-nav-item { display:flex; align-items:center; gap:16px; padding:12px; border-radius:8px; cursor:pointer; margin-bottom:2px; transition:background 0.15s; color:#000; user-select:none; }
-        .ig-nav-item:hover { background:rgba(0,0,0,0.05); }
-        .ig-nav-item.active .ig-nav-label { font-weight:700; }
-        .ig-nav-label { font-size:16px; font-weight:400; color:#000; }
+        .ig-sidebar-logo {
+          padding:18px 14px 22px;
+          display:flex;
+          align-items:center;
+          gap:11px;
+          color:var(--sf-blue-dark)!important;
+          border-radius:16px;
+          text-decoration:none;
+          position:relative;
+        }
+        .ig-sidebar-logo::after {
+          content:"";
+          position:absolute;
+          left:14px;
+          right:14px;
+          bottom:8px;
+          height:1px;
+          background:linear-gradient(90deg,transparent,rgba(116,179,206,.32),transparent);
+        }
+        .ig-sidebar-logo svg {
+          stroke:var(--sf-celeste)!important;
+          filter:drop-shadow(0 6px 14px rgba(116,179,206,.28));
+          transition:transform .25s ease;
+        }
+        .ig-sidebar-logo:hover svg { transform:rotate(-6deg) scale(1.05); }
+        .ig-sidebar-logo span {
+          color:var(--sf-blue-dark)!important;
+          letter-spacing:1.2px;
+          font-weight:700;
+        }
+        .ig-nav-item {
+          display:flex;
+          align-items:center;
+          gap:15px;
+          padding:12px 12px;
+          border-radius:14px;
+          cursor:pointer;
+          margin-bottom:4px;
+          transition:background .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+          color:var(--sf-blue-dark)!important;
+          user-select:none;
+          position:relative;
+        }
+        .ig-nav-item svg { stroke:var(--sf-blue-deep)!important; transition:stroke .18s ease, transform .18s ease; }
+        .ig-nav-item:hover {
+          background:rgba(238,246,251,.95)!important;
+          transform:translateX(2px);
+        }
+        .ig-nav-item:hover svg { transform:scale(1.05); }
+        .ig-nav-item.active {
+          background:linear-gradient(135deg,rgba(116,179,206,.22),rgba(238,246,251,.98));
+          box-shadow:inset 0 0 0 1px rgba(116,179,206,.22);
+        }
+        .ig-nav-item.active::before {
+          content:"";
+          position:absolute;
+          left:-12px;
+          top:50%;
+          transform:translateY(-50%);
+          width:3px;
+          height:22px;
+          border-radius:0 3px 3px 0;
+          background:linear-gradient(180deg,var(--sf-blue-dark),var(--sf-celeste));
+        }
+        .ig-nav-item.active svg { stroke:var(--sf-celeste)!important; }
+        .ig-nav-item.active .ig-nav-label { font-weight:800; color:var(--sf-blue-dark)!important; }
+        .ig-nav-label { font-size:15px; font-weight:600; color:var(--sf-blue-deep)!important; }
 
         /* ── Feed area ── */
-        .ig-feed-area { overflow-y:auto; height:100vh; }
-        .ig-feed-inner { max-width:470px; margin:0 auto; padding:24px 0 60px; }
+        .ig-feed-area {
+          overflow-y:auto;
+          height:100vh;
+          scroll-behavior:smooth;
+        }
+        .ig-feed-inner {
+          max-width:486px;
+          margin:0 auto;
+          padding:24px 8px 60px;
+        }
 
         /* ── Stories ── */
-        .ig-stories-bar { background:#FFF; border:1px solid #DBDBDB; border-radius:12px; padding:14px 16px; margin-bottom:20px; display:flex; gap:18px; overflow-x:auto; }
+        .ig-stories-bar {
+          background:rgba(255,255,255,.94)!important;
+          border:1px solid rgba(216,227,236,.92)!important;
+          border-radius:18px!important;
+          padding:16px 18px 14px;
+          margin-bottom:18px;
+          display:flex;
+          gap:18px;
+          overflow-x:auto;
+          box-shadow:0 18px 44px rgba(6,21,56,.055);
+          position:relative;
+        }
+        .ig-stories-bar::before {
+          content:"";
+          position:absolute;
+          top:0; left:0; right:0;
+          height:1px;
+          background:linear-gradient(90deg,transparent,rgba(116,179,206,0.28),transparent);
+          border-radius:18px 18px 0 0;
+        }
         .ig-stories-bar::-webkit-scrollbar { display:none; }
-        .ig-story-wrap { display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; flex-shrink:0; }
-        .ig-story-ring { width:66px; height:66px; border-radius:50%; padding:2.5px; background:linear-gradient(45deg,#74B3CE,#a8d4e8,#74B3CE); transition:transform 0.15s; }
-        .ig-story-ring.seen { background:#DBDBDB; }
-        .ig-story-ring:hover { transform:scale(1.06); }
-        .ig-story-inner { width:100%; height:100%; border-radius:50%; border:2.5px solid #FFF; overflow:hidden; background:#FAFAFA; }
+        .ig-story-wrap {
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          gap:6px;
+          cursor:pointer;
+          flex-shrink:0;
+        }
+        .ig-story-ring {
+          width:66px;
+          height:66px;
+          border-radius:50%;
+          padding:2.6px;
+          background:conic-gradient(from 145deg,var(--sf-blue-dark) 0%,var(--sf-celeste) 35%,var(--sf-celeste-soft) 60%,var(--sf-celeste) 80%,var(--sf-blue-dark) 100%);
+          transition:transform .18s cubic-bezier(.34,1.56,.64,1), filter .18s ease;
+          box-shadow:0 8px 22px rgba(116,179,206,.22);
+        }
+        .ig-story-ring.seen {
+          background:#D8E3EC;
+          box-shadow:none;
+        }
+        .ig-story-ring:hover { transform:scale(1.08); filter:saturate(1.08); }
+        .ig-story-ring.seen:hover { filter:none; transform:scale(1.04); }
+        .ig-story-inner {
+          width:100%;
+          height:100%;
+          border-radius:50%;
+          border:2.5px solid #FFF;
+          overflow:hidden;
+          background:#F8FAFC;
+        }
         .ig-story-inner img { width:100%; height:100%; object-fit:cover; display:block; }
-        .ig-story-name { font-size:12px; color:#262626; font-weight:400; max-width:68px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ig-story-name {
+          font-size:11.5px;
+          color:var(--sf-blue-deep)!important;
+          font-weight:600;
+          max-width:70px;
+          text-align:center;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
 
         /* ── Posts ── */
-        .ig-post { background:#FFF; border:1px solid #DBDBDB; border-radius:12px; margin-bottom:20px; overflow:hidden; animation:fadeIn 0.4s ease both; }
-        .ig-post:hover { box-shadow:0 18px 45px rgba(0,0,0,0.055); transform:translateY(-1px); transition:box-shadow 0.22s ease, transform 0.22s ease; }
-        .tap-bounce { animation:likeBounce 0.26s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes likeBounce { 0%{transform:scale(1)} 45%{transform:scale(1.38)} 100%{transform:scale(1)} }
-        .ig-post button:active { transform:scale(0.97); }
-        .social-pill { border:1px solid #EFEFEF; background:#FAFAFA; color:#737373; border-radius:999px; padding:5px 9px; font-size:11px; font-weight:600; }
-
-        .ig-post-header { display:flex; align-items:center; padding:10px 14px; gap:10px; }
-        .ig-post-username { font-size:14px; font-weight:600; color:#000; line-height:1.2; }
-        .ig-post-sublabel { font-size:12px; color:#737373; font-weight:400; line-height:1.2; }
-        .ig-post-footer { padding:10px 14px 12px; }
-        .ig-post-caption { font-size:14px; color:#000; line-height:1.5; margin-bottom:6px; word-break:break-word; }
-        .ig-post-caption b { font-weight:600; margin-right:5px; }
-        .ig-post-see-comments { font-size:14px; color:#737373; cursor:pointer; margin-bottom:4px; }
-        .ig-post-comment-preview { font-size:14px; color:#000; margin-bottom:3px; line-height:1.4; }
-        .ig-post-comment-preview b { font-weight:600; margin-right:5px; }
-        .ig-post-timestamp { font-size:10px; color:#737373; text-transform:uppercase; letter-spacing:0.4px; margin-top:6px; margin-bottom:8px; }
+        .ig-post {
+          background:rgba(255,255,255,.96)!important;
+          border:1px solid rgba(216,227,236,.92)!important;
+          border-radius:18px!important;
+          margin-bottom:18px;
+          overflow:hidden;
+          animation:fadeIn .4s ease both;
+          box-shadow:0 18px 48px rgba(6,21,56,.055);
+          transition:box-shadow .22s ease, transform .22s ease, border-color .22s ease;
+        }
+        .ig-post:hover {
+          box-shadow:0 24px 58px rgba(6,21,56,.085);
+          transform:translateY(-1px);
+          border-color:rgba(116,179,206,.36)!important;
+        }
+        .tap-bounce { animation:likeBounce .26s cubic-bezier(.34,1.56,.64,1); }
+        .ig-post button:active { transform:scale(.98); }
+        .ig-post-header {
+          display:flex;
+          align-items:center;
+          padding:12px 14px;
+          gap:10px;
+          background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,250,252,.72));
+          border-bottom:1px solid rgba(216,227,236,.5);
+        }
+        .ig-post-header svg { stroke:var(--sf-blue-deep)!important; }
+        .ig-post-username {
+          font-size:14px;
+          font-weight:800;
+          color:var(--sf-blue-dark)!important;
+          line-height:1.2;
+          letter-spacing:-.01em;
+        }
+        .ig-post-sublabel {
+          font-size:12px;
+          color:var(--sf-text-muted)!important;
+          font-weight:500;
+          line-height:1.2;
+        }
+        .ig-post-footer { padding:11px 14px 13px; }
+        .ig-post-footer svg { stroke:var(--sf-blue-dark)!important; }
+        .ig-post-caption {
+          font-size:14px;
+          color:var(--sf-blue-dark)!important;
+          line-height:1.52;
+          margin-bottom:7px;
+          word-break:break-word;
+        }
+        .ig-post-caption b { font-weight:800; margin-right:5px; color:var(--sf-blue-dark)!important; }
+        .ig-post-caption span { color:var(--sf-text-muted)!important; }
+        .ig-post-see-comments {
+          font-size:13.5px;
+          color:var(--sf-text-muted)!important;
+          cursor:pointer;
+          margin-bottom:4px;
+        }
+        .ig-post-comment-preview {
+          font-size:13.5px;
+          color:var(--sf-blue-dark)!important;
+          margin-bottom:4px;
+          line-height:1.42;
+        }
+        .ig-post-comment-preview b { font-weight:800; margin-right:5px; }
+        .ig-post-timestamp {
+          font-size:10px;
+          color:#7C8A99!important;
+          text-transform:uppercase;
+          letter-spacing:.45px;
+          margin-top:7px;
+          margin-bottom:9px;
+        }
+        .social-pill {
+          border:1px solid rgba(216,227,236,.95)!important;
+          background:#F8FAFC!important;
+          color:var(--sf-text-muted)!important;
+          border-radius:999px;
+          padding:5px 9px;
+          font-size:11px;
+          font-weight:700;
+        }
 
         .back-home {
           position:fixed;
-          top:18px;
-          left:18px;
+          top:16px;
+          left:16px;
           z-index:50;
-          width:38px;
-          height:38px;
+          width:40px;
+          height:40px;
           border-radius:999px;
-          background:rgba(255,255,255,0.92);
-          border:1px solid #DBDBDB;
+          background:rgba(255,255,255,.92)!important;
+          border:1px solid rgba(216,227,236,.95)!important;
           display:flex;
           align-items:center;
           justify-content:center;
-          color:#000;
+          color:var(--sf-blue-dark)!important;
           text-decoration:none;
-          box-shadow:0 8px 24px rgba(0,0,0,0.08);
+          box-shadow:0 12px 30px rgba(6,21,56,.12);
           transition:transform .15s ease, background .15s ease;
+          backdrop-filter:blur(12px);
         }
-        .back-home:hover { transform:translateY(-1px); background:#FFF; }
+        .back-home svg { stroke:var(--sf-blue-dark)!important; }
+        .back-home:hover { transform:translateY(-1px); background:#FFF!important; }
         @media(min-width:769px){ .back-home{display:none;} }
-        .ig-reel-frame { position:relative; width:100%; aspect-ratio:9/16; background:#000; overflow:hidden; }
+
+        .ig-reel-frame {
+          position:relative;
+          width:100%;
+          aspect-ratio:9/16;
+          background:#000;
+          overflow:hidden;
+        }
         .ig-reel-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 
         /* Decision post buttons */
-        .ig-decision-btn { width:100%; padding:12px 16px; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; text-align:left; border:1px solid #DBDBDB; background:#FAFAFA; color:#000; transition:all 0.15s; font-family:inherit; }
-        .ig-decision-btn:hover { background:#F0F0F0; border-color:#ABABAB; }
-        .ig-decision-a:hover { background:#F0FFF4; border-color:#86EFAC !important; color:#15803D; }
-        .ig-decision-b:hover { background:#FFF7ED; border-color:#FCA5A5 !important; color:#B91C1C; }
+        .ig-decision-btn {
+          width:100%;
+          padding:13px 16px;
+          border-radius:12px!important;
+          font-size:14px;
+          font-weight:700;
+          cursor:pointer;
+          text-align:left;
+          border:1px solid rgba(216,227,236,.95)!important;
+          background:#F8FAFC!important;
+          color:var(--sf-blue-dark)!important;
+          transition:all .18s ease;
+          font-family:inherit;
+        }
+        .ig-decision-btn:hover {
+          background:#EEF6FB!important;
+          border-color:rgba(116,179,206,.55)!important;
+          transform:translateY(-1px);
+          box-shadow:0 6px 14px rgba(6,21,56,.06);
+        }
+        .ig-decision-a:hover { color:var(--sf-blue-deep)!important; border-color:rgba(34,197,94,.45)!important; background:rgba(34,197,94,.06)!important; }
+        .ig-decision-b:hover { color:var(--sf-blue-deep)!important; border-color:rgba(233,78,93,.45)!important; background:rgba(233,78,93,.06)!important; }
 
         /* ── Right panel ── */
-        .ig-right { padding:32px 16px 32px 32px; position:sticky; top:0; height:100vh; overflow-y:auto; background:#FFF; border-left:1px solid #DBDBDB; }
+        .ig-right {
+          padding:30px 18px 32px 28px;
+          position:sticky;
+          top:0;
+          height:100vh;
+          overflow-y:auto;
+          background:rgba(255,255,255,.72)!important;
+          border-left:1px solid rgba(216,227,236,.82)!important;
+          backdrop-filter:blur(18px);
+          box-shadow:-12px 0 36px rgba(6,21,56,.025);
+        }
+        .ig-right button { color:var(--sf-celeste)!important; }
+        .ig-right [style*="color: #000"], .ig-right [style*="color:#000"] { color:var(--sf-blue-dark)!important; }
+        .ig-right [style*="color: #737373"], .ig-right [style*="color:#737373"] { color:var(--sf-text-muted)!important; }
 
         /* ── XP banner ── */
         .xp-banner {
-          background:#FFF;
-          border:1px solid #DBDBDB;
-          border-radius:12px;
-          padding:16px;
-          margin-bottom:20px;
+          background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(238,246,251,.98))!important;
+          border:1px solid rgba(116,179,206,.22)!important;
+          border-radius:18px!important;
+          padding:15px 16px;
+          margin-bottom:18px;
           display:flex;
           align-items:center;
           justify-content:space-between;
+          box-shadow:0 18px 44px rgba(6,21,56,.055);
         }
+        .xp-banner [style*="color: #000"], .xp-banner [style*="color:#000"] { color:var(--sf-blue-dark)!important; }
+        .xp-banner [style*="color: #737373"], .xp-banner [style*="color:#737373"] { color:var(--sf-text-muted)!important; }
+        .xp-banner [style*="background: #EFEFEF"], .xp-banner [style*="background:#EFEFEF"] { background:#D8E3EC!important; }
+        .xp-banner [style*="background: rgb"], .xp-banner [style*="background: #74B3CE"], .xp-banner [style*="background:#74B3CE"] { background:linear-gradient(90deg,var(--sf-blue-dark),var(--sf-celeste))!important; }
 
         /* ── Module overlay ── */
-        .module-overlay { position:fixed; inset:0; z-index:200; background:rgba(5,12,30,0.97); display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn 0.25s ease; }
-        .module-inner { max-width:560px; width:100%; max-height:90vh; overflow-y:auto; background:rgba(8,20,45,0.99); border:1px solid rgba(116,179,206,0.18); border-radius:24px; padding:36px; position:relative; animation:modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+        .module-overlay {
+          position:fixed;
+          inset:0;
+          z-index:200;
+          background:rgba(5,16,36,.94);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:20px;
+          animation:fadeIn .25s ease;
+          backdrop-filter:blur(16px);
+        }
+        .module-inner {
+          max-width:560px;
+          width:100%;
+          max-height:90vh;
+          overflow-y:auto;
+          background:linear-gradient(180deg,rgba(8,20,45,.99),rgba(5,16,36,.99));
+          border:1px solid rgba(116,179,206,.24);
+          border-radius:26px;
+          padding:36px;
+          position:relative;
+          animation:modalIn .35s cubic-bezier(.34,1.56,.64,1);
+          box-shadow:0 30px 90px rgba(0,0,0,.36);
+        }
 
-        /* ── Bottom nav (mobile only) ── */
+        /* ── Mobile bottom nav ── */
         .bottom-nav {
           display:none;
           position:fixed;
-          bottom:0; left:0; right:0;
-          height:64px;
-          background:#FFF;
-          border-top:1px solid #DBDBDB;
+          bottom:0;
+          left:0;
+          right:0;
+          height:66px;
+          background:rgba(255,255,255,.92)!important;
+          border-top:1px solid rgba(216,227,236,.95)!important;
           z-index:100;
           align-items:center;
           justify-content:space-around;
-          padding:0 8px;
+          padding:0 8px max(0px,env(safe-area-inset-bottom));
+          backdrop-filter:blur(18px);
+          box-shadow:0 -14px 34px rgba(6,21,56,.08);
         }
         @media(max-width:768px){ .bottom-nav{display:flex;} }
         .bottom-nav-item {
@@ -4006,30 +4721,57 @@ export default function AdolescentesPage() {
           align-items:center;
           justify-content:center;
           gap:3px;
-          padding:6px 16px;
-          border-radius:10px;
+          padding:6px 12px;
+          border-radius:13px;
           cursor:pointer;
           border:none;
           background:none;
-          transition:opacity 0.15s;
+          transition:background .15s ease, opacity .15s ease, transform .15s ease;
           position:relative;
+          color:var(--sf-blue-dark);
         }
-        .bottom-nav-item:active { opacity:0.6; }
-        .bottom-nav-label { font-size:10px; color:#737373; font-weight:500; }
-        .bottom-nav-label.active { color:#000; font-weight:700; }
+        .bottom-nav-item::before {
+          content:"";
+          position:absolute;
+          top:-1px;
+          left:50%;
+          transform:translateX(-50%) scaleX(0);
+          width:22px;
+          height:2px;
+          border-radius:0 0 4px 4px;
+          background:linear-gradient(90deg,var(--sf-blue-dark),var(--sf-celeste));
+          transition:transform .22s ease;
+        }
+        .bottom-nav-item.active-tab::before { transform:translateX(-50%) scaleX(1); }
+        .bottom-nav-item svg { stroke:var(--sf-blue-deep)!important; }
+        .bottom-nav-item:hover { background:#EEF6FB; }
+        .bottom-nav-item:active { opacity:.72; transform:scale(.98); }
+        .bottom-nav-label { font-size:10px; color:var(--sf-text-muted)!important; font-weight:600; }
+        .bottom-nav-label.active { color:var(--sf-blue-dark)!important; font-weight:800; }
+        .bottom-nav-label.active + .dm-badge { animation:softPulse 1.8s ease infinite; }
 
-        /* DM badge */
         .dm-badge {
           position:absolute;
-          top:4px; right:10px;
-          width:16px; height:16px;
+          top:4px;
+          right:10px;
+          width:16px;
+          height:16px;
           border-radius:50%;
-          background:#ed4956;
-          border:2px solid #FFF;
+          background:var(--sf-danger)!important;
+          border:2px solid #FFF!important;
           font-size:9px;
-          font-weight:700;
+          font-weight:800;
           color:#FFF;
-          display:flex; align-items:center; justify-content:center;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        }
+
+        @media(max-width:520px){
+          .ig-feed-inner{padding-left:10px!important;padding-right:10px!important;}
+          .ig-stories-bar{margin-left:-2px;margin-right:-2px;}
+          .ig-story-ring{width:62px;height:62px;}
+          .module-inner{padding:24px 18px;border-radius:22px;}
         }
       `}</style>
 
@@ -4044,7 +4786,8 @@ export default function AdolescentesPage() {
         <div
           style={{
             minHeight: "100vh",
-            background: BG_DARK,
+            background:
+              "radial-gradient(circle at 22% 18%, rgba(116,179,206,0.18), transparent 35%), radial-gradient(circle at 78% 82%, rgba(22,58,99,0.55), transparent 38%), linear-gradient(160deg,#061538 0%,#0a1f47 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -4055,10 +4798,12 @@ export default function AdolescentesPage() {
             style={{
               width: "100%",
               maxWidth: 420,
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(116,179,206,0.25)",
-              borderRadius: 20,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(116,179,206,0.28)",
+              borderRadius: 22,
               padding: "48px 40px",
+              boxShadow: "0 30px 80px rgba(0,0,0,0.36)",
+              backdropFilter: "blur(18px)",
             }}
           >
             <div
@@ -4129,7 +4874,9 @@ export default function AdolescentesPage() {
                 padding: 16,
                 borderRadius: 12,
                 background:
-                  username.length >= 3 ? ACCENT : "rgba(255,255,255,0.06)",
+                  username.length >= 3
+                    ? "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)"
+                    : "rgba(255,255,255,0.06)",
                 color: "#FFF",
                 border: "none",
                 fontFamily: "'LEMON MILK',sans-serif",
@@ -4137,6 +4884,12 @@ export default function AdolescentesPage() {
                 fontWeight: "bold",
                 opacity: username.length >= 3 ? 1 : 0.5,
                 cursor: username.length >= 3 ? "pointer" : "not-allowed",
+                boxShadow:
+                  username.length >= 3
+                    ? "0 10px 24px rgba(116,179,206,0.32)"
+                    : "none",
+                letterSpacing: 1.2,
+                transition: "transform 0.18s ease",
               }}
             >
               CONTINUAR
@@ -4153,13 +4906,13 @@ export default function AdolescentesPage() {
           {/* ── Sidebar ── */}
           <aside className="ig-sidebar">
             <Link href="/" className="ig-sidebar-logo" style={{ textDecoration: "none" }} aria-label="Volver al inicio">
-              <ShieldCheck size={24} color="#000" strokeWidth={2.5} />
+              <ShieldCheck size={24} color="#061538" strokeWidth={2.5} />
               <span
                 style={{
                   fontFamily: "'LEMON MILK',sans-serif",
                   fontSize: 16,
                   fontWeight: "bold",
-                  color: "#000",
+                  color: "#061538",
                 }}
               >
                 SAFENET
@@ -4176,6 +4929,12 @@ export default function AdolescentesPage() {
                   tab: "dm" as NavTab,
                   badge: completedModules.has("dm_sim") ? 0 : 5,
                 },
+                {
+                  Icon: UserPlus,
+                  label: "Solicitudes",
+                  tab: "requests" as NavTab,
+                  badge: completedModules.has("requests") ? 0 : requestsPending,
+                },
                 { Icon: Heart, label: "Notificaciones", tab: "home" as NavTab },
                 { Icon: PlusSquare, label: "Crear", tab: "home" as NavTab },
                 { Icon: User, label: "Perfil", tab: "profile" as NavTab },
@@ -4186,6 +4945,10 @@ export default function AdolescentesPage() {
                   onClick={() => {
                     if (label === "Mensajes") {
                       setShowDmInbox(true);
+                      setActiveTab("dm");
+                    } else if (label === "Solicitudes") {
+                      setShowRequests(true);
+                      setActiveTab("requests");
                     }
                   }}
                   style={{ position: "relative" }}
@@ -4193,7 +4956,7 @@ export default function AdolescentesPage() {
                   <Icon
                     size={24}
                     strokeWidth={active ? 2.5 : 1.8}
-                    color="#000"
+                    color="#061538"
                   />
                   <span className="ig-nav-label">{label}</span>
                   {badge ? (
@@ -4205,8 +4968,8 @@ export default function AdolescentesPage() {
                         width: 16,
                         height: 16,
                         borderRadius: "50%",
-                        background: "#ed4956",
-                        border: "2px solid #FFF",
+                        background: "#E94E5D",
+                        border: "2px solid #FFFFFF",
                         fontSize: 9,
                         fontWeight: 700,
                         color: "#FFF",
@@ -4225,27 +4988,37 @@ export default function AdolescentesPage() {
               {view === "world" && (
                 <div
                   style={{
-                    padding: "12px",
+                    padding: "12px 14px",
                     marginBottom: 8,
-                    background: "rgba(116,179,206,0.08)",
-                    borderRadius: 10,
-                    border: "1px solid rgba(116,179,206,0.15)",
+                    background:
+                      "linear-gradient(135deg,rgba(116,179,206,0.14) 0%,rgba(238,246,251,0.95) 100%)",
+                    borderRadius: 12,
+                    border: "1px solid rgba(116,179,206,0.22)",
+                    boxShadow: "0 4px 14px rgba(116,179,206,0.08)",
                   }}
                 >
                   <div
-                    style={{ fontSize: 11, color: "#737373", marginBottom: 4 }}
+                    style={{
+                      fontSize: 10,
+                      color: "#5B6B7A",
+                      marginBottom: 4,
+                      fontWeight: 700,
+                      letterSpacing: 1.1,
+                      textTransform: "uppercase",
+                    }}
                   >
                     Sesión activa
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#000" }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#061538" }}>
                     @{username}
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       color: ACCENT_DIM,
-                      fontWeight: 700,
+                      fontWeight: 800,
                       marginTop: 4,
+                      letterSpacing: 0.3,
                     }}
                   >
                     {xp} XP
@@ -4253,7 +5026,7 @@ export default function AdolescentesPage() {
                 </div>
               )}
               <div className="ig-nav-item">
-                <Menu size={24} strokeWidth={1.8} color="#000" />
+                <Menu size={24} strokeWidth={1.8} color="#061538" />
                 <span className="ig-nav-label">Más</span>
               </div>
             </div>
@@ -4267,11 +5040,12 @@ export default function AdolescentesPage() {
                 <div
                   style={{
                     background: "#FFF",
-                    border: "1px solid #DBDBDB",
-                    borderRadius: 3,
-                    padding: "24px 20px",
+                    border: "1px solid #D8E3EC",
+                    borderRadius: 18,
+                    padding: "28px 22px",
                     marginBottom: 20,
                     textAlign: "center",
+                    boxShadow: "0 18px 44px rgba(6,21,56,0.055)",
                   }}
                 >
                   <ShieldCheck
@@ -4283,7 +5057,7 @@ export default function AdolescentesPage() {
                     style={{
                       fontSize: 16,
                       fontWeight: 700,
-                      color: "#000",
+                      color: "#061538",
                       marginBottom: 8,
                     }}
                   >
@@ -4292,7 +5066,7 @@ export default function AdolescentesPage() {
                   <div
                     style={{
                       fontSize: 14,
-                      color: "#737373",
+                      color: "#5B6B7A",
                       marginBottom: 16,
                       lineHeight: 1.5,
                     }}
@@ -4305,18 +5079,32 @@ export default function AdolescentesPage() {
                     suppressHydrationWarning
                     onClick={() => setView("setup")}
                     style={{
-                      background: ACCENT,
+                      background:
+                        "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
                       color: "#FFF",
                       border: "none",
-                      borderRadius: 8,
-                      padding: "12px 24px",
+                      borderRadius: 10,
+                      padding: "12px 26px",
                       fontSize: 14,
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 8,
                       fontFamily: "inherit",
+                      boxShadow: "0 8px 20px rgba(116,179,206,0.32)",
+                      letterSpacing: 0.2,
+                      transition: "transform 0.18s ease, box-shadow 0.18s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 12px 26px rgba(116,179,206,0.42)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 8px 20px rgba(116,179,206,0.32)";
                     }}
                   >
                     Continuar <ArrowRight size={16} />
@@ -4328,13 +5116,27 @@ export default function AdolescentesPage() {
               {view === "world" && (
                 <div className="xp-banner">
                   <div>
-                    <div style={{ fontSize: 12, color: "#737373" }}>
+                    <div
+                      style={{
+                        fontSize: 10.5,
+                        color: "#5B6B7A",
+                        fontWeight: 700,
+                        letterSpacing: 1.2,
+                        textTransform: "uppercase",
+                        marginBottom: 2,
+                      }}
+                    >
                       Lecturas del feed
                     </div>
                     <div
-                      style={{ fontSize: 16, fontWeight: 700, color: "#000" }}
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 800,
+                        color: "#061538",
+                        letterSpacing: -0.2,
+                      }}
                     >
-                      {xp} XP · {completedModules.size}/5 señales
+                      {xp} XP · {completedModules.size}/6 señales
                     </div>
                   </div>
                   <div
@@ -4342,7 +5144,7 @@ export default function AdolescentesPage() {
                       flex: 1,
                       margin: "0 16px",
                       height: 6,
-                      background: "#EFEFEF",
+                      background: "#D8E3EC",
                       borderRadius: 99,
                       overflow: "hidden",
                     }}
@@ -4350,20 +5152,21 @@ export default function AdolescentesPage() {
                     <div
                       style={{
                         height: "100%",
-                        width: `${Math.min(100, Math.round((completedModules.size / 5) * 100))}%`,
-                        background: ACCENT,
+                        width: `${Math.min(100, Math.round((completedModules.size / 6) * 100))}%`,
+                        background:
+                          "linear-gradient(90deg,#102A43 0%,#74B3CE 100%)",
                         borderRadius: 99,
                         transition: "width 0.8s ease",
                       }}
                     />
                   </div>
-                  <div style={{ fontSize: 12, color: ACCENT, fontWeight: 700 }}>
-                    {Math.round((completedModules.size / 5) * 100)}%
+                  <div style={{ fontSize: 12, color: "#5A99B4", fontWeight: 800, letterSpacing: 0.3 }}>
+                    {Math.round((completedModules.size / 6) * 100)}%
                   </div>
                 </div>
               )}
 
-              {/* ── STORIES — ahora interactivas ── */}
+              {/* ── STORIES ── */}
               <div className="ig-stories-bar">
                 {STORIES_DATA.map((story, i) => {
                   const user = USERS[story.user];
@@ -4614,10 +5417,14 @@ export default function AdolescentesPage() {
               <div
                 style={{
                   textAlign: "center",
-                  padding: "32px 0",
-                  color: "#C7C7C7",
-                  fontSize: 12,
-                  borderTop: "1px solid #DBDBDB",
+                  padding: "36px 0 20px",
+                  color: "#9AA8B7",
+                  fontSize: 11,
+                  borderTop: "1px solid rgba(216,227,236,0.7)",
+                  marginTop: 8,
+                  letterSpacing: 1.2,
+                  textTransform: "uppercase",
+                  fontWeight: 600,
                 }}
               >
                 © 2026 SAFENET
@@ -4646,7 +5453,7 @@ export default function AdolescentesPage() {
                       overflow: "hidden",
                       position: "relative",
                       flexShrink: 0,
-                      background: "#EFEFEF",
+                      background: "#D8E3EC",
                       }} > 
                     <Image
                     src="/safenet.png"
@@ -4659,11 +5466,11 @@ export default function AdolescentesPage() {
                   
                   <div style={{ flex: 1 }}>
                     <div
-                      style={{ fontWeight: 600, fontSize: 14, color: "#000" }}
+                      style={{ fontWeight: 600, fontSize: 14, color: "#061538" }}
                     >
                       @{username}
                     </div>
-                    <div style={{ fontSize: 14, color: "#737373" }}>
+                    <div style={{ fontSize: 14, color: "#5B6B7A" }}>
                       Perfil activo
                     </div>
                   </div>
@@ -4671,17 +5478,32 @@ export default function AdolescentesPage() {
                 {/* Progreso de módulos */}
                 <div
                   style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: "#737373",
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    color: "#5B6B7A",
                     marginBottom: 14,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
                   }}
                 >
-                  Movimientos para revisar
+                  <span style={{ flex: "0 0 auto" }}>Movimientos para revisar</span>
+                  <span
+                    aria-hidden
+                    style={{
+                      flex: 1,
+                      height: 1,
+                      background:
+                        "linear-gradient(90deg,rgba(116,179,206,0.32),transparent)",
+                    }}
+                  />
                 </div>
                 {(
                   [
                     { id: "dm_sim", label: "Solicitud de mensaje" },
+                    { id: "requests", label: "Solicitudes" },
                     { id: "profile_detector", label: "Perfil nuevo" },
                     { id: "story_path", label: "Historia pendiente" },
                     { id: "red_flags", label: "Mensajes raros" },
@@ -4698,7 +5520,7 @@ export default function AdolescentesPage() {
                     }}
                   >
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
                     >
                       <div
                         style={{
@@ -4707,7 +5529,10 @@ export default function AdolescentesPage() {
                           borderRadius: "50%",
                           background: completedModules.has(m.id)
                             ? "#22C55E"
-                            : "#DBDBDB",
+                            : "#D8E3EC",
+                          boxShadow: completedModules.has(m.id)
+                            ? "0 0 0 3px rgba(34,197,94,0.18)"
+                            : "none",
                           flexShrink: 0,
                         }}
                       />
@@ -4715,8 +5540,9 @@ export default function AdolescentesPage() {
                         style={{
                           fontSize: 14,
                           color: completedModules.has(m.id)
-                            ? "#737373"
-                            : "#000",
+                            ? "#7C8A99"
+                            : "#061538",
+                          fontWeight: completedModules.has(m.id) ? 500 : 600,
                           textDecoration: completedModules.has(m.id)
                             ? "line-through"
                             : "none",
@@ -4742,11 +5568,11 @@ export default function AdolescentesPage() {
                 >
                   <div>
                     <div
-                      style={{ fontWeight: 600, fontSize: 14, color: "#000" }}
+                      style={{ fontWeight: 600, fontSize: 14, color: "#061538" }}
                     >
                       tu_usuario
                     </div>
-                    <div style={{ fontSize: 14, color: "#737373" }}>
+                    <div style={{ fontSize: 14, color: "#5B6B7A" }}>
                       Tu Perfil
                     </div>
                   </div>
@@ -4754,7 +5580,7 @@ export default function AdolescentesPage() {
                     suppressHydrationWarning
                     onClick={() => setView("setup")}
                     style={{
-                      color: "#0095f6",
+                      color: ACCENT_DIM,
                       fontWeight: 700,
                       fontSize: 12,
                       background: "none",
@@ -4769,7 +5595,7 @@ export default function AdolescentesPage() {
                   style={{
                     fontSize: 14,
                     fontWeight: 600,
-                    color: "#737373",
+                    color: "#5B6B7A",
                     marginBottom: 16,
                     display: "flex",
                     justifyContent: "space-between",
@@ -4780,7 +5606,7 @@ export default function AdolescentesPage() {
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
-                      color: "#000",
+                      color: "#061538",
                       cursor: "pointer",
                     }}
                   >
@@ -4821,7 +5647,7 @@ export default function AdolescentesPage() {
                           style={{
                             fontWeight: 600,
                             fontSize: 14,
-                            color: "#000",
+                            color: "#061538",
                           }}
                         >
                           {user.handle}
@@ -4829,7 +5655,7 @@ export default function AdolescentesPage() {
                         <div
                           style={{
                             fontSize: 12,
-                            color: "#737373",
+                            color: "#5B6B7A",
                             maxWidth: 160,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -4843,7 +5669,7 @@ export default function AdolescentesPage() {
                     <button
                       suppressHydrationWarning
                       style={{
-                        color: "#0095f6",
+                        color: ACCENT_DIM,
                         fontWeight: 700,
                         fontSize: 12,
                         background: "none",
@@ -4861,7 +5687,7 @@ export default function AdolescentesPage() {
               style={{
                 marginTop: 24,
                 fontSize: 11,
-                color: "#C7C7C7",
+                color: "#9AA8B7",
                 lineHeight: 1.8,
               }}
             >
@@ -4882,6 +5708,12 @@ export default function AdolescentesPage() {
               { tab: "home" as NavTab, Icon: Home, label: "Inicio" },
               { tab: "search" as NavTab, Icon: Search, label: "Buscar" },
               {
+                tab: "requests" as NavTab,
+                Icon: UserPlus,
+                label: "Solicitudes",
+                badge: completedModules.has("requests") ? 0 : requestsPending,
+              },
+              {
                 tab: "dm" as NavTab,
                 Icon: MessageCircle,
                 label: "Mensajes",
@@ -4898,13 +5730,13 @@ export default function AdolescentesPage() {
             <button
               key={tab}
               suppressHydrationWarning
-              className="bottom-nav-item"
+              className={`bottom-nav-item ${activeTab === tab ? "active-tab" : ""}`}
               onClick={() => handleNavClick(tab)}
             >
               <Icon
                 size={24}
                 strokeWidth={activeTab === tab ? 2.5 : 1.8}
-                color={activeTab === tab ? "#000" : "#737373"}
+                color={activeTab === tab ? "#061538" : "#5B6B7A"}
               />
               <span
                 className={`bottom-nav-label ${activeTab === tab ? "active" : ""}`}
@@ -4944,7 +5776,7 @@ export default function AdolescentesPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          DM CHAT VIEW (envuelve DmSimModule)
+          DM CHAT VIEW
       ══════════════════════════════════════════════════════ */}
       {showDmChat && (
         <DmChatView
@@ -4955,7 +5787,22 @@ export default function AdolescentesPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          MODAL DE MÓDULOS (lógica intacta)
+          REQUESTS VIEW
+      ══════════════════════════════════════════════════════ */}
+      {showRequests && (
+        <RequestsView
+          onClose={() => {
+            setShowRequests(false);
+            setActiveTab("home");
+          }}
+          onComplete={handleRequestsComplete}
+          onXp={handleXp}
+          onAction={() => setRequestsPending((p) => Math.max(0, p - 1))}
+        />
+      )}
+
+      {/* ══════════════════════════════════════════════════════
+          MODAL DE MÓDULOS 
       ══════════════════════════════════════════════════════ */}
       {activeModule && (
         <div className="module-overlay">
@@ -4987,6 +5834,7 @@ export default function AdolescentesPage() {
                       story_path: "Historia",
                       red_flags: "Señales",
                       screenshot_analysis: "Captura",
+                      requests: "Solicitudes",
                     }[activeModule]
                   }
                 </div>
@@ -5004,6 +5852,7 @@ export default function AdolescentesPage() {
                       story_path: "Lo que harías después",
                       red_flags: "¿Te hace ruido?",
                       screenshot_analysis: "Qué responderías",
+                      requests: "Revisión de seguimiento",
                     }[activeModule]
                   }
                 </div>

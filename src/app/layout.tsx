@@ -1,3 +1,6 @@
+// Layout raíz de la aplicación SafeNet. Define la estructura HTML base que envuelve
+// todas las páginas: configura las fuentes globales (Geist Sans y Geist Mono),
+// los metadatos del sitio y el contenedor principal con altura mínima completa.
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
