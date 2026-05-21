@@ -681,7 +681,7 @@ export default function App() {
                       <div 
                         key={item.id} 
                         className={`chat-row ${item.sender} animate-in`}
-                        ref={el => messagesRef.current[index] = el}
+                        ref={el => { messagesRef.current[index] = el; }}
                       >
                         {item.sender === "left" && (
                           <img src="/avatar.png" alt="Avatar de jose_alvarez" className="chat-avatar" />
