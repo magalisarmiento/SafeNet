@@ -1152,34 +1152,34 @@ type CrosswordClue = {
 
 const crosswordClues: CrosswordClue[] = [
   {
-    id: 1, direction: 'across', row: 0, col: 0, answer: 'GROOMER',
+    id: 1, direction: 'across', row: 5, col: 0, answer: 'GROOMER',
     clue: 'Persona adulta que se hace pasar por amigo en internet para manipular a chicos.',
     hint: 'Se gana la confianza poco a poco. Termina en “er” como “gamer”.',
     feedback: 'Muy bien: un groomer no siempre parece peligroso al principio. Suele empezar con halagos y construir confianza antes de pedir algo riesgoso.',
   },
   {
-    id: 2, direction: 'down', row: 0, col: 4, answer: 'BLOQUEAR',
+    id: 2, direction: 'down', row: 0, col: 5, answer: 'BLOQUEAR',
     clue: 'Acción que corta el contacto con alguien que te incomoda en internet.',
     hint: 'Está en casi todas las apps y sirve para que esa persona no pueda seguir escribiéndote.',
     feedback: 'Exacto: bloquear no es ser malo, es proteger tu espacio. Y si te incomodó, conviene también contarlo a un adulto.',
   },
   {
-    id: 3, direction: 'across', row: 3, col: 1, answer: 'AVISAR',
+    id: 3, direction: 'across', row: 2, col: 2, answer: 'DATOS',
+    clue: 'Información personal que no conviene compartir con desconocidos online.',
+    hint: 'Puede incluir tu nombre completo, dirección, escuela, teléfono o ubicación.',
+    feedback: 'Correcto: tus datos personales son parte de tu seguridad. Mantenerlos privados es una de las mejores formas de cuidarte.',
+  },
+  {
+    id: 4, direction: 'across', row: 6, col: 1, answer: 'AVISAR',
     clue: 'Lo que conviene hacer cuando algo online te incomoda o te da miedo.',
     hint: 'No tenés que resolverlo solo. Podés contárselo a un adulto de confianza.',
     feedback: 'Perfecto: pedir ayuda a tiempo puede cortar una situación riesgosa antes de que crezca.',
   },
   {
-    id: 4, direction: 'down', row: 2, col: 0, answer: 'PADRE',
+    id: 5, direction: 'across', row: 7, col: 2, answer: 'PADRE',
     clue: 'Adulto de confianza con quien podés hablar si algo online te preocupa (también puede ser mamá, abuela o tutor).',
     hint: 'Si pensás en tu familia más cercana, suele ser una de las primeras personas a quien acudir.',
     feedback: 'Muy bien: hablar con un adulto de confianza no es exagerar. Te ayuda a no estar solo con lo que pasa.',
-  },
-  {
-    id: 5, direction: 'across', row: 6, col: 2, answer: 'DATOS',
-    clue: 'Información personal que no conviene compartir con desconocidos online.',
-    hint: 'Puede incluir tu nombre completo, dirección, escuela, teléfono o ubicación.',
-    feedback: 'Correcto: tus datos personales son parte de tu seguridad. Mantenerlos privados es una de las mejores formas de cuidarte.',
   },
 ];
 
@@ -1193,7 +1193,14 @@ function buildCrosswordGrid(clues: CrosswordClue[]) {
       const r = clue.direction === 'across' ? clue.row : clue.row + i;
       const c = clue.direction === 'across' ? clue.col + i : clue.col;
       if (r < rows && c < cols) {
-        grid[r][c].letter = clue.answer[i];
+        const existing = grid[r][c].letter;
+        const incoming = clue.answer[i];
+        if (existing !== '' && existing !== incoming) {
+          console.warn(
+            `[Crucigrama] Conflicto en celda (${r},${c}): letra existente "${existing}", letra nueva "${incoming}" introducida por "${clue.answer}" (id ${clue.id}, ${clue.direction}).`
+          );
+        }
+        grid[r][c].letter = incoming;
         if (!grid[r][c].clueIds.includes(clue.id)) grid[r][c].clueIds.push(clue.id);
       }
     }
@@ -1215,9 +1222,18 @@ function CrosswordModule({ onComplete, onXp }: any) {
 
   const cellKey = (r: number, c: number) => `${r},${c}`;
 
+  const cluesAtCell = (r: number, c: number) =>
+    crosswordClues.filter(cl => {
+      if (cl.direction === 'across') {
+        return cl.row === r && c >= cl.col && c < cl.col + cl.answer.length;
+      }
+      return cl.col === c && r >= cl.row && r < cl.row + cl.answer.length;
+    });
+
   const handleInput = (r: number, c: number, value: string) => {
     const key = cellKey(r, c);
-    const newInputs = { ...userInputs, [key]: value.toUpperCase().slice(-1) };
+    const letter = value.toUpperCase().slice(-1);
+    const newInputs = { ...userInputs, [key]: letter };
     setUserInputs(newInputs);
 
     const newCompleted = new Set(completed);
@@ -1248,8 +1264,16 @@ function CrosswordModule({ onComplete, onXp }: any) {
       setTimeout(() => setPhase('result'), 1500);
     }
 
-    const activeC = crosswordClues.find(c => c.id === activeClue);
+    if (!letter) return;
+
+    const cluesHere = cluesAtCell(r, c);
+    const activeC =
+      cluesHere.find(cl => cl.id === activeClue) ??
+      cluesHere.find(cl => cl.direction === 'across') ??
+      cluesHere[0];
+
     if (activeC) {
+      if (activeC.id !== activeClue) setActiveClue(activeC.id);
       const next = activeC.direction === 'across' ? cellKey(r, c + 1) : cellKey(r + 1, c);
       if (inputRefs.current[next]) inputRefs.current[next].focus();
     }
@@ -1295,9 +1319,19 @@ function CrosswordModule({ onComplete, onXp }: any) {
                   maxLength={1}
                   value={userInputs[key] || ''}
                   onChange={e => handleInput(r, c, e.target.value)}
-                  onFocus={() => {
-                    const clue = crosswordClues.find(cl => cl.row === r && cl.col === c);
-                    if (clue) setActiveClue(clue.id);
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  onFocus={(e) => {
+                    e.currentTarget.select();
+                    const cluesHere = cluesAtCell(r, c);
+                    const starting = cluesHere.find(cl => cl.row === r && cl.col === c);
+                    if (starting) { setActiveClue(starting.id); return; }
+                    const stillValid = cluesHere.some(cl => cl.id === activeClue);
+                    if (!stillValid) {
+                      const fallback = cluesHere.find(cl => cl.direction === 'across') ?? cluesHere[0];
+                      if (fallback) setActiveClue(fallback.id);
+                    }
                   }}
                   style={{
                     width: '100%', height: '100%', textAlign: 'center',

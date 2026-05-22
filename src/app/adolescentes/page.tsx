@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { trackWorldEntry } from "@/lib/tracking";
@@ -43,14 +43,35 @@ type ModuleId =
 type NavTab = "home" | "search" | "dm" | "profile" | "requests";
 
 /* ════════════════════════════════════════════════════════════
-   CONSTANTES VISUALES
+   PALETA SAFENET — RED SOCIAL
 ════════════════════════════════════════════════════════════ */
-const ACCENT = "#74B3CE";
-const ACCENT_DIM = "#5A99B4";
-const BG_DARK = "#051024";
-const GLASS_BG = "rgba(255,255,255,0.03)";
-const GLASS_BORDER = "rgba(116,179,206,0.15)";
-const BRAND_GRADIENT = `linear-gradient(90deg,#FFFFFF 0%,${ACCENT} 55%,#FFFFFF 100%)`;
+const C = {
+  white: "#FFFFFF",
+  bgSoft: "#F8FAFC",
+  celeste: "#e5ebfa",
+  blue: "#0B5CFF",
+  blueHover: "#0a4fdc",
+  blueDark: "#061538",
+  blueDeep: "#102A43",
+  textMute: "#5B6B7A",
+  textSoft: "#7C8A99",
+  line: "#D8E3EC",
+  lineSoft: "#EEF2F7",
+  success: "#16A34A",
+  successSoft: "#DCFCE7",
+  danger: "#DC2626",
+  dangerSoft: "#FEE2E2",
+  warning: "#EA580C",
+  warningSoft: "#FFEDD5",
+};
+const ACCENT = C.blue;
+const ACCENT_DIM = C.blueHover;
+const BG_DARK = C.bgSoft;
+const GLASS_BG = C.white;
+const GLASS_BORDER = C.line;
+const BRAND_GRADIENT = `linear-gradient(135deg,${C.blue} 0%,${C.blueDeep} 100%)`;
+const FONT_DISPLAY = "'Space Grotesk',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
+const FONT_BODY = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 /* ════════════════════════════════════════════════════════════
    USUARIOS CONSISTENTES
@@ -360,26 +381,10 @@ function FeedbackBox({
   type: "success" | "danger" | "info" | "warn";
 }) {
   const s = {
-    success: {
-      bg: "rgba(39,174,96,0.12)",
-      border: "rgba(39,174,96,0.35)",
-      color: "#A9DFBF",
-    },
-    danger: {
-      bg: "rgba(255,60,80,0.12)",
-      border: "rgba(255,60,80,0.35)",
-      color: "#FF8A95",
-    },
-    info: {
-      bg: "rgba(116,179,206,0.12)",
-      border: "rgba(116,179,206,0.35)",
-      color: "#A5D2E5",
-    },
-    warn: {
-      bg: "rgba(255,200,0,0.1)",
-      border: "rgba(255,200,0,0.3)",
-      color: "#FFE08A",
-    },
+    success: { bg: C.successSoft, border: "#86EFAC", color: "#15803D" },
+    danger: { bg: C.dangerSoft, border: "#FCA5A5", color: "#B91C1C" },
+    info: { bg: C.celeste, border: "#c7d4f7", color: C.blueDark },
+    warn: { bg: C.warningSoft, border: "#FDBA74", color: "#9A3412" },
   }[type];
   return (
     <div
@@ -412,16 +417,16 @@ function XpPop({ amount, onDone }: { amount: number; onDone: () => void }) {
         bottom: "100px",
         right: "40px",
         zIndex: 9999,
-        background: "rgba(255,215,0,0.95)",
-        color: "#051024",
-        padding: "8px 16px",
-        borderRadius: "8px",
-        fontFamily: "'LEMON MILK',sans-serif",
-        fontSize: "14px",
-        fontWeight: "bold",
+        background: C.blue,
+        color: C.white,
+        padding: "10px 18px",
+        borderRadius: "999px",
+        fontFamily: FONT_DISPLAY,
+        fontSize: "13px",
+        fontWeight: 700,
+        letterSpacing: 0.3,
         animation: "xpPop 1.8s ease-out forwards",
-        boxShadow: "0 5px 15px rgba(255,215,0,0.2)",
-        border: "1px solid #FFF",
+        boxShadow: "0 10px 28px rgba(11,92,255,0.32)",
       }}
     >
       +{amount} XP
@@ -454,13 +459,13 @@ function ProgressBar({
           letterSpacing: "1px",
         }}
       >
-        <span style={{ color: "#FFFFFF", opacity: 0.7 }}>{label}</span>
-        <span style={{ color }}>{pct}%</span>
+        <span style={{ color: C.textMute }}>{label}</span>
+        <span style={{ color: C.blue }}>{pct}%</span>
       </div>
       <div
         style={{
-          height: "5px",
-          background: "rgba(255,255,255,0.07)",
+          height: "6px",
+          background: C.lineSoft,
           borderRadius: "99px",
           overflow: "hidden",
         }}
@@ -480,102 +485,71 @@ function ProgressBar({
 }
 
 /* ════════════════════════════════════════════════════════════
-   MÓDULO 1 — DM SIM
+   MÓDULO 1 — DM SIM (chat realista, estética SAFENET light)
 ════════════════════════════════════════════════════════════ */
+type DmChoice = {
+  text: string;
+  isSafe: boolean;
+  points: number;
+  signal: string;
+  level: "safe" | "warn" | "risk";
+  feedback: string;
+};
+
 const dmScript = [
-  {
-    from: "stranger",
-    text: "Che, creo que te vi en recomendados. ¿Vos subiste una historia del recital ayer?",
-  },
-  {
-    from: "stranger",
-    text: "Jajaja no, pero me salió tu perfil. Tenemos varios gustos parecidos.",
-  },
-  {
-    from: "stranger",
-    text: "Tranqui, no soy raro jajaja. ¿Vas al cole por la mañana o por la tarde?",
-  },
-  {
-    from: "stranger",
-    text: "Bien ahí. Igual no le cuentes a nadie que te escribí, capaz piensan cualquiera.",
-  },
-  {
-    from: "stranger",
-    text: "Te paso mi otro perfil. Por acá casi no hablo. O mandame una foto normal así sé que sos vos.",
-  },
+  { from: "stranger", text: "Che, creo que te vi en recomendados. ¿Vos subiste una historia del recital ayer?" },
+  { from: "stranger", text: "Jajaja no, pero me salió tu perfil. Igual tenemos varios gustos parecidos." },
+  { from: "stranger", text: "Posta tenés buen gusto. No mucha gente de acá sube cosas así." },
+  { from: "stranger", text: "Yo suelo conectarme tarde. ¿Vos a qué hora estás más libre?" },
+  { from: "stranger", text: "Me copa hablar con vos, sos re distinta a la gente que tengo en la lista jaja." },
+  { from: "stranger", text: "Igual no le cuentes a nadie que te escribí, capaz flashean cualquiera." },
+  { from: "stranger", text: "Por acá me da paja hablar. ¿Tenés WhatsApp o Telegram? O pasame tu otro perfil." },
+  { from: "stranger", text: "Dale, mandame una foto normal así sé que sos vos posta." },
 ];
 
-const dmChoices: Record<number, any[]> = {
+const dmChoices: Record<number, DmChoice[]> = {
   0: [
-    {
-      text: "Puede ser, no sé. ¿Nos conocemos?",
-      isSafe: true,
-      points: 25,
-      signal: "Contacto iniciado por un desconocido.",
-    },
-    {
-      text: "Sii, fui ayer. ¿Vos también?",
-      isSafe: false,
-      points: 0,
-      signal: "Contacto iniciado por un desconocido.",
-    },
+    { text: "Puede ser, pero primero decime de dónde me conocés.", isSafe: true, points: 25, signal: "Contacto iniciado por un desconocido.", level: "safe", feedback: "Bien. Pedir de dónde te conoce frena la conversación sin dar datos." },
+    { text: "Jaja sí, fui. ¿Vos también?", isSafe: false, points: 0, signal: "Contacto iniciado por un desconocido.", level: "risk", feedback: "Cuidado. Confirmar que estuviste en un lugar le da contexto sobre tu vida." },
   ],
   1: [
-    {
-      text: "Ahh ok. Igual no suelo hablar mucho con gente que no conozco.",
-      isSafe: true,
-      points: 25,
-      signal: "Falsa cercanía por gustos compartidos.",
-    },
-    {
-      text: "Qué gustos? capaz posta tenemos cosas en común.",
-      isSafe: false,
-      points: 0,
-      signal: "Falsa cercanía por gustos compartidos.",
-    },
+    { text: "Ahh ok. No suelo hablar mucho con gente que no conozco.", isSafe: true, points: 25, signal: "Falsa cercanía construida desde el primer mensaje.", level: "safe", feedback: "Bien. Marcaste distancia sin ser agresiva. Eso es suficiente." },
+    { text: "¿Qué gustos? Capaz tenemos cosas en común.", isSafe: false, points: 0, signal: "Falsa cercanía construida desde el primer mensaje.", level: "warn", feedback: "Ojo. La idea de “gustos en común” suele ser una excusa para sostener la charla." },
   ],
   2: [
-    {
-      text: "Prefiero no decir datos personales.",
-      isSafe: true,
-      points: 25,
-      signal: "Pregunta sobre rutina o colegio.",
-    },
-    {
-      text: "A la tarde, por?",
-      isSafe: false,
-      points: 0,
-      signal: "Pregunta sobre rutina o colegio.",
-    },
+    { text: "Gracias, igual prefiero seguir hablando por acá si es algo normal.", isSafe: true, points: 20, signal: "Halago sin contexto para bajar la guardia.", level: "warn", feedback: "Está bien. Un halago de alguien que no te conoce no significa nada concreto." },
+    { text: "Jaja gracias, vos también parecés copado.", isSafe: false, points: 0, signal: "Halago sin contexto para bajar la guardia.", level: "risk", feedback: "El halago apurado es una técnica clásica para crear cercanía falsa." },
   ],
   3: [
-    {
-      text: "Si tengo que esconderlo, prefiero no seguir hablando.",
-      isSafe: true,
-      points: 25,
-      signal: "Pedido de secreto.",
-    },
-    {
-      text: "Jaja tranqui, no digo nada.",
-      isSafe: false,
-      points: 0,
-      signal: "Pedido de secreto.",
-    },
+    { text: "Prefiero no decir mis horarios.", isSafe: true, points: 25, signal: "Pregunta sobre rutina o disponibilidad.", level: "safe", feedback: "Muy bien. Tus horarios son información sobre tu rutina, no se comparten." },
+    { text: "A la tarde suelo estar libre.", isSafe: false, points: 0, signal: "Pregunta sobre rutina o disponibilidad.", level: "risk", feedback: "Cuidado. Decir cuándo estás libre permite que alguien arme un patrón de tu rutina." },
   ],
   4: [
-    {
-      text: "No. Te bloqueo y lo voy a mostrar.",
-      isSafe: true,
-      points: 25,
-      signal: "Intento de mover la conversación o pedir una foto.",
-    },
-    {
-      text: "Bueno, una foto normal no pasa nada.",
-      isSafe: false,
-      points: 0,
-      signal: "Intento de mover la conversación o pedir una foto.",
-    },
+    { text: "No me copa que alguien que no conozco diga eso tan rápido.", isSafe: true, points: 25, signal: "Construcción acelerada de vínculo emocional.", level: "safe", feedback: "Bien. Cuando la cercanía se construye muy rápido, casi siempre hay una intención atrás." },
+    { text: "Jaja gracias, vos también me caés bien.", isSafe: false, points: 0, signal: "Construcción acelerada de vínculo emocional.", level: "warn", feedback: "Ojo. Devolver cercanía a un desconocido refuerza el vínculo que está armando." },
   ],
+  5: [
+    { text: "Si tengo que esconder que me hablás, prefiero cortar acá.", isSafe: true, points: 30, signal: "Pedido de secreto.", level: "safe", feedback: "Perfecto. El pedido de secreto es una de las señales más fuertes de manipulación." },
+    { text: "Tranqui, no digo nada.", isSafe: false, points: 0, signal: "Pedido de secreto.", level: "risk", feedback: "Aceptar el secreto te aísla. Es exactamente lo que busca." },
+  ],
+  6: [
+    { text: "No paso mis datos. Si querés hablar, es por acá.", isSafe: true, points: 30, signal: "Intento de mover la conversación a otra app.", level: "safe", feedback: "Muy bien. Cambiar de app borra el rastro y saca el sistema de reporte." },
+    { text: "Dale, pasame tu número.", isSafe: false, points: 0, signal: "Intento de mover la conversación a otra app.", level: "risk", feedback: "Salir de la plataforma reduce tu protección y le da acceso a un canal más privado." },
+  ],
+  7: [
+    { text: "Esto me hace ruido. Prefiero cortar y mostrarle esto a alguien de confianza.", isSafe: true, points: 35, signal: "Pedido de foto a un desconocido.", level: "safe", feedback: "Excelente. Guardar la captura y hablarlo con alguien de confianza es la mejor respuesta." },
+    { text: "Bueno, una foto normal no pasa nada.", isSafe: false, points: 0, signal: "Pedido de foto a un desconocido.", level: "risk", feedback: "Una foto “normal” es el primer paso para pedir cosas peores. Nunca se justifica." },
+  ],
+};
+
+type DmHistoryItem =
+  | { from: "stranger" | "player"; kind: "msg"; text: string; time: string }
+  | { from: "system"; kind: "feedback"; level: "safe" | "warn" | "risk"; text: string };
+
+const DM_FEEDBACK_STYLE: Record<"safe" | "warn" | "risk", { bg: string; color: string; border: string; label: string }> = {
+  safe: { bg: "#DCFCE7", color: "#15803D", border: "#86EFAC", label: "Buena decisión" },
+  warn: { bg: "#FFEDD5", color: "#9A3412", border: "#FDBA74", label: "Cuidado" },
+  risk: { bg: "#FEE2E2", color: "#B91C1C", border: "#FCA5A5", label: "Alerta" },
 };
 
 function DmSimModule({
@@ -585,8 +559,13 @@ function DmSimModule({
   onComplete: (pts: number) => void;
   onXp: (n: number) => void;
 }) {
-  const [history, setHistory] = useState<any[]>([
-    { from: "stranger", text: dmScript[0].text },
+  const nowTime = () => {
+    const d = new Date();
+    return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+  };
+
+  const [history, setHistory] = useState<DmHistoryItem[]>([
+    { from: "stranger", kind: "msg", text: dmScript[0].text, time: nowTime() },
   ]);
   const [step, setStep] = useState(0);
   const [pts, setPts] = useState(0);
@@ -595,331 +574,371 @@ function DmSimModule({
   const [phase, setPhase] = useState<"playing" | "result">("playing");
   const [xpPop, setXpPop] = useState(0);
   const chatRef = useRef<HTMLDivElement>(null);
-  
+  const totalSteps = Object.keys(dmChoices).length;
+
   useEffect(() => {
-    chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
+    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }, [history, typing]);
 
-  const handleChoice = (c: any) => {
-    const newH = [...history, { from: "player", text: c.text }];
-    setHistory(newH);
+  const handleChoice = (c: DmChoice) => {
+    setHistory((prev) => [
+      ...prev,
+      { from: "player", kind: "msg", text: c.text, time: nowTime() },
+      { from: "system", kind: "feedback", level: c.level, text: c.feedback },
+    ]);
     setChoicesMade((prev) => [...prev, c.isSafe]);
-    
+
     if (c.points > 0) {
       setPts((p) => p + c.points);
       setXpPop(c.points);
       onXp(c.points);
     }
-    
-    if (step + 1 >= Object.keys(dmChoices).length) {
-      setTimeout(() => setPhase("result"), 1200);
+
+    if (step + 1 >= totalSteps) {
+      setTimeout(() => setPhase("result"), 1400);
       return;
     }
     setTyping(true);
     setTimeout(() => {
       setTyping(false);
-      setHistory((prev) => [...prev, { ...dmScript[step + 1] }]);
+      setHistory((prev) => [...prev, { from: "stranger", kind: "msg", text: dmScript[step + 1].text, time: nowTime() }]);
       setStep((p) => p + 1);
-    }, 1600);
+    }, 1800);
   };
 
   if (phase === "result") {
     const detectedCount = choicesMade.filter(Boolean).length;
-    
+    const maxPts = Object.values(dmChoices).reduce((acc, opts) => acc + Math.max(...opts.map((o) => o.points)), 0);
     return (
-      <div style={{ textAlign: "center", padding: "10px 0", animation: "slideUpIn 0.3s ease" }}>
-        <h3
-          style={{
-            fontFamily: "'LEMON MILK',sans-serif",
-            fontSize: "22px",
-            color: "#FFF",
-            marginBottom: "8px",
-          }}
-        >
-          Conversación finalizada
-        </h3>
-        <p
-          style={{
-            color: "rgba(255,255,255,0.85)",
-            fontSize: "14px",
-            lineHeight: 1.6,
-            marginBottom: "24px",
-            maxWidth: "380px",
-            margin: "0 auto 24px",
-          }}
-        >
-          La conversación no empezó con una amenaza. Empezó con algo que parecía normal.
-        </p>
-        <div
-          style={{
-            background: "rgba(116,179,206,0.08)",
-            borderRadius: "14px",
-            padding: "16px",
-            marginBottom: "24px",
-            textAlign: "left",
-            border: "1px solid rgba(116,179,206,0.15)",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "11px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              color: ACCENT,
-              marginBottom: "10px",
-            }}
-          >
-            Señales observadas
+      <div style={{ padding: "4px 0", animation: "slideUpIn 0.3s ease" }}>
+        <div style={{ textAlign: "center", marginBottom: 22 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", borderRadius: 999, background: C.celeste, border: `1px solid #c7d4f7`, marginBottom: 14 }}>
+            <ShieldCheck size={14} color={C.blue} strokeWidth={2.5} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.blue, letterSpacing: 1.2, textTransform: "uppercase" }}>Conversación finalizada</span>
+          </div>
+          <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 22, color: C.blueDark, marginBottom: 10, fontWeight: 700, letterSpacing: -0.4 }}>
+            No empezó como una amenaza.
+          </h3>
+          <p style={{ color: C.textMute, fontSize: 14, lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
+            Empezó como una charla normal y fue escalando paso a paso. Así trabaja el grooming: gradual, cercano, casi invisible.
+          </p>
+        </div>
+
+        <div style={{ background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16, marginBottom: 16, boxShadow: "0 8px 22px rgba(6,21,56,0.04)" }}>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1.2, color: C.blue, marginBottom: 12, fontWeight: 700 }}>
+            Señales detectadas · {detectedCount}/{totalSteps}
           </div>
           {Object.keys(dmChoices).map((key, i) => {
             const signal = dmChoices[Number(key)][0].signal;
             const isDetected = choicesMade[i];
             return (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  alignItems: "flex-start",
-                  marginBottom: "8px",
-                }}
-              >
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", borderTop: i === 0 ? "none" : `1px solid ${C.lineSoft}` }}>
                 <div
                   style={{
-                    width: "6px",
-                    height: "6px",
+                    width: 10,
+                    height: 10,
                     borderRadius: "50%",
-                    background: isDetected ? "#A9DFBF" : "#FF8A95",
-                    marginTop: "5px",
+                    background: isDetected ? C.success : C.danger,
+                    boxShadow: `0 0 0 3px ${isDetected ? "rgba(22,163,74,0.18)" : "rgba(220,38,38,0.18)"}`,
+                    marginTop: 5,
                     flexShrink: 0,
                   }}
                 />
-                <span
-                  style={{
-                    fontSize: "13px",
-                    color: "rgba(255,255,255,0.8)",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {signal}
-                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, color: C.blueDark, fontWeight: 600, lineHeight: 1.4 }}>{signal}</div>
+                  <div style={{ fontSize: 12, color: isDetected ? C.success : C.danger, fontWeight: 600, marginTop: 2 }}>
+                    {isDetected ? "Detectada" : "No detectada"}
+                  </div>
+                </div>
               </div>
             );
           })}
         </div>
-        <div style={{ fontSize: "16px", fontWeight: "bold", color: "#FFF", marginBottom: "20px" }}>
-          Detectaste {detectedCount} de {Object.keys(dmChoices).length} señales.
+
+        <div style={{ background: C.celeste, border: `1px solid #c7d4f7`, borderRadius: 12, padding: "14px 16px", marginBottom: 18 }}>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1.2, color: C.blue, fontWeight: 700, marginBottom: 4 }}>Recomendación</div>
+          <div style={{ fontSize: 13.5, color: C.blueDark, lineHeight: 1.5 }}>
+            Guardá la conversación, no la borres, y mostrásela a alguien de confianza. Reportar y bloquear es válido en cualquier punto.
+          </div>
         </div>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <span style={{ fontSize: 13, color: C.textMute }}>Puntaje</span>
+          <span style={{ fontFamily: FONT_DISPLAY, fontSize: 18, fontWeight: 700, color: C.blueDark }}>{pts} <span style={{ color: C.textSoft, fontSize: 13, fontWeight: 500 }}>/ {maxPts} XP</span></span>
+        </div>
+
         <button
           suppressHydrationWarning
           onClick={() => onComplete(pts)}
-          style={{
-            padding: "14px 32px",
-            borderRadius: "12px",
-            background: ACCENT,
-            color: "#FFF",
-            border: "none",
-            fontFamily: "'LEMON MILK',sans-serif",
-            fontSize: "12px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
+          className="sf-btn sf-btn-primary sf-btn-block"
         >
-          VOLVER A MENSAJES
+          Volver a mensajes
         </button>
       </div>
     );
   }
+
   return (
     <div>
       {xpPop > 0 && <XpPop amount={xpPop} onDone={() => setXpPop(0)} />}
+
+      {/* Header del chat */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "12px",
-          padding: "12px 16px",
-          background: "rgba(0,0,0,0.3)",
-          borderRadius: "12px",
-          marginBottom: "16px",
-          border: "1px solid rgba(255,255,255,0.06)",
+          gap: 12,
+          padding: "12px 14px",
+          background: C.white,
+          borderRadius: 14,
+          marginBottom: 10,
+          border: `1px solid ${C.line}`,
+          boxShadow: "0 6px 16px rgba(6,21,56,0.04)",
         }}
       >
-        <div
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "50%",
-            overflow: "hidden",
-            flexShrink: 0,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <div style={{ width: 38, height: 38, borderRadius: "50%", overflow: "hidden", border: `2px solid ${C.line}` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+          <span
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: 11,
+              height: 11,
+              borderRadius: "50%",
+              background: C.success,
+              border: `2px solid ${C.white}`,
+            }}
+          />
         </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.blueDark }}>nicoo.raw</div>
+          <div style={{ fontSize: 11.5, color: C.textMute, display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.success }} />
+            Activo ahora
+          </div>
+        </div>
+        <MoreHorizontal size={20} color={C.blueDeep} style={{ flexShrink: 0 }} />
+      </div>
+
+      {/* Banner de advertencia */}
+      <div
+        style={{
+          background: C.dangerSoft,
+          border: "1px solid #FCA5A5",
+          color: "#B91C1C",
+          padding: "10px 14px",
+          borderRadius: 12,
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 10,
+        }}
+      >
+        <AlertTriangle size={16} strokeWidth={2.4} style={{ flexShrink: 0, marginTop: 2 }} />
         <div>
-          <div style={{ fontSize: "13px", fontWeight: "bold", color: "#FFF" }}>
-            nicoo.raw
-          </div>
-          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
-            Activo hace 2 min
-          </div>
+          <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 2 }}>Este usuario no te sigue</div>
+          <div style={{ fontSize: 11.5, color: "#7F1D1D", lineHeight: 1.45 }}>Respondé solo si te sentís cómodo. Es una simulación segura.</div>
         </div>
       </div>
-      <ProgressBar
-        label={`Mensaje ${step + 1} de ${Object.keys(dmChoices).length}`}
-        current={step + 1}
-        max={Object.keys(dmChoices).length}
-        color={ACCENT}
-      />
+
+      <div style={{ marginBottom: 12 }}>
+        <ProgressBar
+          label={`Mensaje ${step + 1} de ${totalSteps}`}
+          current={step + 1}
+          max={totalSteps}
+          color={C.blue}
+        />
+      </div>
+
+      {/* Área de chat */}
       <div
         ref={chatRef}
         style={{
-          background: "rgba(0,0,0,0.35)",
-          borderRadius: "14px",
-          border: "1px solid rgba(255,255,255,0.05)",
-          padding: "16px",
-          maxHeight: "280px",
+          background: C.bgSoft,
+          borderRadius: 18,
+          border: `1px solid ${C.line}`,
+          padding: "14px 14px 16px",
+          maxHeight: 320,
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          marginBottom: "16px",
+          gap: 10,
+          marginBottom: 14,
         }}
       >
-        {history.map((m, i) => (
-          <div key={i} style={{ animation: "slideUpIn 0.3s ease" }}>
-            {m.from === "stranger" && (
+        <div style={{ textAlign: "center", margin: "2px 0 6px" }}>
+          <span style={{ fontSize: 10.5, color: C.textSoft, background: C.white, padding: "3px 10px", borderRadius: 999, border: `1px solid ${C.line}`, fontWeight: 600, letterSpacing: 0.4 }}>Hoy</span>
+        </div>
+
+        {history.map((m, i) => {
+          if (m.kind === "feedback") {
+            const s = DM_FEEDBACK_STYLE[m.level];
+            return (
               <div
-                style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}
+                key={i}
+                style={{
+                  background: s.bg,
+                  border: `1px solid ${s.border}`,
+                  color: s.color,
+                  borderRadius: 12,
+                  padding: "10px 12px",
+                  fontSize: 12.5,
+                  lineHeight: 1.5,
+                  margin: "4px 6px",
+                  animation: "slideUpIn 0.3s ease",
+                }}
               >
-                <div
-                  style={{
-                    width: "26px",
-                    height: "26px",
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    flexShrink: 0,
-                  }}
-                >
+                <div style={{ fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 2 }}>{s.label}</div>
+                {m.text}
+              </div>
+            );
+          }
+          if (m.from === "stranger") {
+            return (
+              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-end", animation: "slideUpIn 0.3s ease" }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: `1px solid ${C.line}` }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div
                   style={{
-                    background: "rgba(116,179,206,0.1)",
-                    border: "1px solid rgba(116,179,206,0.12)",
-                    padding: "9px 13px",
-                    borderRadius: "16px 16px 16px 3px",
-                    fontSize: "13px",
-                    color: "#FFF",
-                    maxWidth: "82%",
+                    background: "#F1F5F9",
+                    border: `1px solid ${C.line}`,
+                    color: C.blueDark,
+                    padding: "10px 13px",
+                    borderRadius: "18px 18px 18px 4px",
+                    fontSize: 13.5,
+                    maxWidth: "78%",
                     lineHeight: 1.5,
+                    boxShadow: "0 2px 6px rgba(6,21,56,0.03)",
                   }}
                 >
                   {m.text}
+                  <div style={{ fontSize: 10, color: C.textSoft, marginTop: 4, fontWeight: 500 }}>{m.time}</div>
                 </div>
               </div>
-            )}
-            {m.from === "player" && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div
-                  style={{
-                    background: "rgba(90,153,180,0.18)",
-                    border: "1px solid rgba(90,153,180,0.2)",
-                    padding: "9px 13px",
-                    borderRadius: "16px 16px 3px 16px",
-                    fontSize: "13px",
-                    color: ACCENT,
-                    maxWidth: "82%",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {m.text}
+            );
+          }
+          return (
+            <div key={i} style={{ display: "flex", justifyContent: "flex-end", animation: "slideUpIn 0.3s ease" }}>
+              <div
+                style={{
+                  background: C.blue,
+                  border: `1px solid ${C.blue}`,
+                  color: C.white,
+                  padding: "10px 13px",
+                  borderRadius: "18px 18px 4px 18px",
+                  fontSize: 13.5,
+                  maxWidth: "78%",
+                  lineHeight: 1.5,
+                  boxShadow: "0 6px 14px rgba(11,92,255,0.22)",
+                }}
+              >
+                {m.text}
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.78)", marginTop: 4, fontWeight: 500, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
+                  {m.time}
+                  <Check size={10} strokeWidth={3} />
+                  <Check size={10} strokeWidth={3} style={{ marginLeft: -7 }} />
                 </div>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
+
         {typing && (
-          <div
-            style={{
-              paddingLeft: "38px",
-              display: "flex",
-              gap: "4px",
-              alignItems: "center",
-            }}
-          >
-            <span
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+            <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: `1px solid ${C.line}` }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://i.pravatar.cc/150?img=11" alt="nicoo.raw" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+            <div
               style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: ACCENT,
-                animation: "typingDot 1s infinite 0s",
+                background: "#F1F5F9",
+                border: `1px solid ${C.line}`,
+                padding: "10px 14px",
+                borderRadius: "18px 18px 18px 4px",
+                display: "flex",
+                gap: 4,
+                alignItems: "center",
               }}
-            />
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: ACCENT,
-                animation: "typingDot 1s infinite 0.2s",
-              }}
-            />
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: ACCENT,
-                animation: "typingDot 1s infinite 0.4s",
-              }}
-            />
+            >
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.textMute, animation: "typingDot 1s infinite 0s" }} />
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.textMute, animation: "typingDot 1s infinite 0.2s" }} />
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.textMute, animation: "typingDot 1s infinite 0.4s" }} />
+            </div>
           </div>
         )}
       </div>
+
+      {/* Opciones de respuesta */}
       {!typing && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div
-            style={{
-              fontSize: "10px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              color: "rgba(255,255,255,0.35)",
-              marginBottom: "4px",
-            }}
-          >
+        <div>
+          <div style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 1.2, color: C.textMute, marginBottom: 8, fontWeight: 700 }}>
             Responder
           </div>
-          {dmChoices[step]?.map((c, i) => (
-            <button
-              suppressHydrationWarning
-              key={i}
-              onClick={() => handleChoice(c)}
-              style={{
-                padding: "11px 15px",
-                borderRadius: "10px",
-                textAlign: "left",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "rgba(255,255,255,0.85)",
-                fontSize: "13px",
-                cursor: "pointer",
-                lineHeight: 1.4,
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(116,179,206,0.4)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")
-              }
-            >
-              {c.text}
-            </button>
-          ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+            {dmChoices[step]?.map((c, i) => (
+              <button
+                suppressHydrationWarning
+                key={i}
+                onClick={() => handleChoice(c)}
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: 14,
+                  textAlign: "left",
+                  background: C.white,
+                  border: `1.5px solid ${C.line}`,
+                  color: C.blueDark,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  lineHeight: 1.45,
+                  cursor: "pointer",
+                  transition: "background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease",
+                  fontFamily: "inherit",
+                  boxShadow: "0 4px 12px rgba(6,21,56,0.04)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = C.bgSoft;
+                  e.currentTarget.style.borderColor = C.blue;
+                  e.currentTarget.style.color = C.blue;
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                  e.currentTarget.style.boxShadow = "0 8px 18px rgba(11,92,255,0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = C.white;
+                  e.currentTarget.style.borderColor = C.line;
+                  e.currentTarget.style.color = C.blueDark;
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(6,21,56,0.04)";
+                }}
+              >
+                {c.text}
+              </button>
+            ))}
+          </div>
+
+          {/* Input simulado */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "10px 12px",
+              background: C.bgSoft,
+              border: `1px solid ${C.line}`,
+              borderRadius: 999,
+            }}
+          >
+            <Smile size={18} color={C.textSoft} strokeWidth={1.8} />
+            <div style={{ flex: 1, fontSize: 13, color: C.textSoft, fontStyle: "italic" }}>Elegí una respuesta arriba…</div>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.lineSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Send size={15} color={C.textSoft} strokeWidth={2} />
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -1046,7 +1065,7 @@ function ProfileDetectorModule({
         </div>
         <h3
           style={{
-            fontFamily: "'LEMON MILK',sans-serif",
+            fontFamily: "'Space Grotesk',Inter,sans-serif",
             fontSize: "20px",
             color: "#FFF",
             marginBottom: "16px",
@@ -1063,7 +1082,7 @@ function ProfileDetectorModule({
             background: ACCENT,
             color: "#FFF",
             border: "none",
-            fontFamily: "'LEMON MILK',sans-serif",
+            fontFamily: "'Space Grotesk',Inter,sans-serif",
             fontSize: "12px",
             fontWeight: "bold",
             cursor: "pointer",
@@ -1307,7 +1326,7 @@ function ProfileDetectorModule({
               background: ACCENT,
               color: "#FFF",
               border: "none",
-              fontFamily: "'LEMON MILK',sans-serif",
+              fontFamily: "'Space Grotesk',Inter,sans-serif",
               fontSize: "11px",
               fontWeight: "bold",
               cursor: "pointer",
@@ -1583,7 +1602,7 @@ function StoryPathModule({
             background: ACCENT,
             color: "#FFF",
             border: "none",
-            fontFamily: "'LEMON MILK',sans-serif",
+            fontFamily: "'Space Grotesk',Inter,sans-serif",
             fontSize: "12px",
             cursor: "pointer",
             fontWeight: "bold",
@@ -1776,7 +1795,7 @@ function RedFlagsModule({
       <div style={{ textAlign: "center" }}>
         <h3
           style={{
-            fontFamily: "'LEMON MILK',sans-serif",
+            fontFamily: "'Space Grotesk',Inter,sans-serif",
             fontSize: "20px",
             color: "#FFF",
             marginBottom: "20px",
@@ -1793,7 +1812,7 @@ function RedFlagsModule({
             background: ACCENT,
             color: "#FFF",
             border: "none",
-            fontFamily: "'LEMON MILK',sans-serif",
+            fontFamily: "'Space Grotesk',Inter,sans-serif",
             fontSize: "12px",
             fontWeight: "bold",
             cursor: "pointer",
@@ -2132,7 +2151,7 @@ function ScreenshotModule({
               background: ACCENT,
               color: "#FFF",
               border: "none",
-              fontFamily: "'LEMON MILK',sans-serif",
+              fontFamily: "'Space Grotesk',Inter,sans-serif",
               fontSize: "12px",
               fontWeight: "bold",
               cursor: "pointer",
@@ -2444,37 +2463,42 @@ function StoryViewer({
     }
   }, [story, slide, onClose]);
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); onClose(); }
+      else if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+    };
+    document.addEventListener("keydown", handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose, goNext, goPrev]);
+
   if (!story || !slide) return null;
 
   const user = USERS[story.user];
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 500,
-        background: "rgba(0,0,0,0.95)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        animation: "fadeIn 0.2s ease",
-      }}
+      className="story-overlay"
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
     >
+      <button
+        type="button"
+        className="story-close-btn"
+        aria-label="Cerrar historia"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+      >
+        <X size={22} strokeWidth={2.2} />
+      </button>
       <div
-        style={{
-          width: "100%",
-          maxWidth: 390,
-          height: "100%",
-          maxHeight: 720,
-          borderRadius: 20,
-          overflow: "hidden",
-          position: "relative",
-          backgroundColor: "#000",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.7)",
-          animation: "modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        }}
+        className="story-viewer"
         onClick={(e) => e.stopPropagation()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2577,21 +2601,6 @@ function StoryViewer({
               hace 2 h
             </div>
           </div>
-          <button
-            suppressHydrationWarning
-            onClick={onClose}
-            style={{
-              marginLeft: "auto",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "#FFF",
-              padding: 4,
-              display: "flex",
-            }}
-          >
-            <X size={22} strokeWidth={2} />
-          </button>
         </div>
 
         <div
@@ -2651,103 +2660,46 @@ function StoryViewer({
 
         <button
           suppressHydrationWarning
+          type="button"
+          className="story-tap-zone story-tap-left"
+          aria-label="Slide anterior"
           onClick={goPrev}
           onMouseDown={() => setPaused(true)}
           onMouseUp={() => setPaused(false)}
           onTouchStart={() => setPaused(true)}
           onTouchEnd={() => setPaused(false)}
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "40%",
-            height: "100%",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            zIndex: 5,
-          }}
         />
         <button
           suppressHydrationWarning
+          type="button"
+          className="story-tap-zone story-tap-right"
+          aria-label="Slide siguiente"
           onClick={goNext}
           onMouseDown={() => setPaused(true)}
           onMouseUp={() => setPaused(false)}
           onTouchStart={() => setPaused(true)}
           onTouchEnd={() => setPaused(false)}
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            width: "60%",
-            height: "100%",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            zIndex: 5,
-          }}
         />
 
-        {storyIndex > 0 && (
-          <div
-            style={{
-              position: "absolute",
-              left: -48,
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 20,
-            }}
-          >
-            <button
-              suppressHydrationWarning
-              onClick={goPrev}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.15)",
-                border: "none",
-                cursor: "pointer",
-                color: "#FFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ChevronLeft size={18} />
-            </button>
-          </div>
-        )}
-        {storyIndex < stories.length - 1 && (
-          <div
-            style={{
-              position: "absolute",
-              right: -48,
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 20,
-            }}
-          >
-            <button
-              suppressHydrationWarning
-              onClick={goNext}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.15)",
-                border: "none",
-                cursor: "pointer",
-                color: "#FFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        )}
+        <button
+          suppressHydrationWarning
+          type="button"
+          className="story-nav-btn story-nav-prev"
+          aria-label="Story anterior"
+          onClick={goPrev}
+          style={{ visibility: storyIndex > 0 || slideIndex > 0 ? "visible" : "hidden" }}
+        >
+          <ChevronLeft size={20} strokeWidth={2.2} />
+        </button>
+        <button
+          suppressHydrationWarning
+          type="button"
+          className="story-nav-btn story-nav-next"
+          aria-label="Story siguiente"
+          onClick={goNext}
+        >
+          <ChevronRight size={20} strokeWidth={2.2} />
+        </button>
       </div>
     </div>
   );
@@ -3120,11 +3072,18 @@ function DmChatView({
       </div>
 
       <div
+        className="module-inner"
         style={{
           flex: 1,
           overflowY: "auto",
-          background: "linear-gradient(180deg,#0d1117 0%,#051024 100%)",
+          background: C.bgSoft,
           padding: "20px 16px",
+          border: "none",
+          borderRadius: 0,
+          maxWidth: "none",
+          maxHeight: "none",
+          boxShadow: "none",
+          animation: "none",
         }}
       >
         <DmSimModule
@@ -3316,7 +3275,7 @@ function RequestsView({
                 width: "100%",
                 padding: "14px",
                 borderRadius: 10,
-                background: "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
+                background: "#0B5CFF",
                 color: "#FFF",
                 border: "none",
                 fontWeight: 700,
@@ -3391,7 +3350,7 @@ function RequestsView({
                             flex: 1,
                             padding: "10px 0",
                             borderRadius: 10,
-                            background: "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
+                            background: "#0B5CFF",
                             color: "#FFF",
                             border: "none",
                             fontWeight: 700,
@@ -3423,17 +3382,8 @@ function RequestsView({
                       <button
                         suppressHydrationWarning
                         onClick={() => handleReview(p.id)}
-                        style={{
-                          width: "100%",
-                          padding: "9px 0",
-                          borderRadius: 10,
-                          background: "none",
-                          color: ACCENT_DIM,
-                          border: `1px solid rgba(116,179,206,0.32)`,
-                          fontWeight: 700,
-                          fontSize: 13,
-                          cursor: "pointer",
-                        }}
+                        className="sf-btn sf-btn-ghost"
+                        style={{ width: "100%", borderRadius: 10, padding: "10px 0", fontSize: 13 }}
                       >
                         {expanded[p.id] ? "Ocultar detalles" : "Revisar más"}
                       </button>
@@ -3570,6 +3520,115 @@ function OngPost({
           <div className="ig-post-see-comments">
             Ver los {comments.length} comentarios
           </div>
+        )}
+        {comments.map((c, i) => (
+          <div key={i} className="ig-post-comment-preview">
+            <b>{c.user}</b>
+            {c.text}
+          </div>
+        ))}
+        <div className="ig-post-timestamp">{timestamp}</div>
+        <CommentInput />
+      </div>
+    </article>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   POST ONG con REEL embebido (Instagram)
+──────────────────────────────────────────────────────────── */
+function OngReelPost({
+  time,
+  reelUrl,
+  reelEmbedUrl,
+  reelTitle,
+  likeCount,
+  caption,
+  comments,
+  timestamp,
+  fallbackText = "Si el reel no carga, podés verlo en Instagram.",
+  fallbackCta = "Ver reel",
+}: {
+  time: string;
+  reelUrl: string;
+  reelEmbedUrl: string;
+  reelTitle: string;
+  likeCount: number;
+  caption: React.ReactNode;
+  comments: { user: string; text: string }[];
+  timestamp: string;
+  fallbackText?: string;
+  fallbackCta?: string;
+}) {
+  return (
+    <article className="ig-post">
+      <div className="ig-post-header">
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            overflow: "hidden",
+            position: "relative",
+            flexShrink: 0,
+          }}
+        >
+          <Image
+            src="/grooming-arg.png"
+            alt="Grooming Argentina"
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="32px"
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span className="ig-post-username">groomingargentina</span>
+            <BadgeCheck
+              size={14}
+              color="#0095f6"
+              fill="rgba(0,149,246,0.1)"
+              strokeWidth={2.5}
+            />
+            <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>•</span>
+            <span style={{ color: ACCENT_DIM, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Seguir</span>
+          </div>
+          <div className="ig-post-sublabel">Argentina · {time}</div>
+        </div>
+        <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
+      </div>
+
+      <div className="reel-embed-shell">
+        <iframe
+          src={reelEmbedUrl}
+          title={reelTitle}
+          loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+
+      <div className="reel-embed-fallback">
+        <span>{fallbackText}</span>
+        <a
+          href={reelUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sf-btn sf-btn-primary"
+          style={{ fontSize: 12, padding: "8px 16px" }}
+        >
+          {fallbackCta}
+        </a>
+      </div>
+
+      <div className="ig-post-footer">
+        <PostActionBar initialLikes={likeCount} />
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#061538", marginBottom: 5 }}>
+          {likeCount.toLocaleString("es-AR")} Me gusta
+        </div>
+        <div className="ig-post-caption">{caption}</div>
+        {comments.length > 0 && (
+          <div className="ig-post-see-comments">Ver los {comments.length} comentarios</div>
         )}
         {comments.map((c, i) => (
           <div key={i} className="ig-post-comment-preview">
@@ -3851,8 +3910,8 @@ function ExperiencePost({
             <div style={{ fontSize: 13, fontWeight: 600, color: "#061538" }}>
               nicoo.raw
             </div>
-            <div style={{ fontSize: 11, color: "#7C8A99" }}>
-              Solicitud de mensaje
+            <div style={{ fontSize: 11, color: C.textSoft }}>
+              ejemplo · simulación SAFENET
             </div>
           </div>
           <div
@@ -3903,12 +3962,13 @@ function ExperiencePost({
             textAlign: "center",
             marginTop: 12,
             fontSize: 11,
-            color: "#E94E5D",
+            color: C.blue,
             fontWeight: 700,
             letterSpacing: 0.4,
+            textTransform: "uppercase",
           }}
         >
-          nuevo mensaje · responder con cuidado
+          conversación de ejemplo · probá el simulador
         </div>
       </div>
     ),
@@ -3992,12 +4052,14 @@ function ExperiencePost({
           <div
             style={{
               textAlign: "center",
-              fontSize: 12,
-              color: "#E94E5D",
+              fontSize: 11,
+              color: C.blue,
               fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: 0.6,
             }}
           >
-            perfil reciente · revisar antes de aceptar
+            ejemplo · señales para entrenar el ojo
           </div>
         </div>
       </div>
@@ -4161,7 +4223,7 @@ function ExperiencePost({
             padding: "12px 16px",
             marginBottom: 12,
             borderRadius: 10,
-            background: "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
+            background: "#0B5CFF",
             color: "#FFF",
             border: "none",
             fontSize: 14,
@@ -4192,6 +4254,887 @@ function ExperiencePost({
         <CommentInput />
       </div>
     </article>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   POSTS NUEVOS — contenido educativo del feed
+════════════════════════════════════════════════════════════ */
+function GradientVisual({
+  from,
+  to,
+  icon,
+  badge,
+  title,
+  sub,
+}: {
+  from: string;
+  to: string;
+  icon: React.ReactNode;
+  badge: string;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        aspectRatio: "1/1",
+        background: `linear-gradient(135deg,${from} 0%,${to} 100%)`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: 26,
+        color: C.white,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 18% 18%, rgba(255,255,255,0.18), transparent 38%), radial-gradient(circle at 82% 82%, rgba(255,255,255,0.10), transparent 40%)",
+        }}
+      />
+      <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 12,
+            background: "rgba(255,255,255,0.18)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid rgba(255,255,255,0.28)",
+          }}
+        >
+          {icon}
+        </div>
+        <span
+          style={{
+            fontSize: 10.5,
+            fontWeight: 800,
+            letterSpacing: 1.4,
+            textTransform: "uppercase",
+            background: "rgba(255,255,255,0.18)",
+            border: "1px solid rgba(255,255,255,0.28)",
+            padding: "5px 10px",
+            borderRadius: 999,
+          }}
+        >
+          {badge}
+        </span>
+      </div>
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: 26,
+            fontWeight: 700,
+            lineHeight: 1.18,
+            marginBottom: 10,
+            letterSpacing: -0.4,
+          }}
+        >
+          {title}
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.5, opacity: 0.92, maxWidth: 320 }}>
+          {sub}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrivacyPost() {
+  return (
+    <article className="ig-post">
+      <div className="ig-post-header">
+        <Avatar src={USERS.sofi.avatar} size={32} />
+        <div style={{ flex: 1 }}>
+          <span className="ig-post-username">{USERS.sofi.handle}</span>
+          <div className="ig-post-sublabel">hace 6 h · Buenos Aires</div>
+        </div>
+        <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
+      </div>
+      <GradientVisual
+        from="#0B5CFF"
+        to="#061538"
+        icon={<ShieldCheck size={20} color="#FFF" strokeWidth={2.2} />}
+        badge="Privacidad"
+        title="Esa foto con uniforme dice más de lo que pensás."
+        sub="Logo del cole, esquina de la calle, horario fijo. Cualquiera puede armar tu rutina sin conocerte."
+      />
+      <div className="ig-post-footer">
+        <PostActionBar initialLikes={742} />
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.blueDark, marginBottom: 5 }}>742 Me gusta</div>
+        <div className="ig-post-caption">
+          <b>{USERS.sofi.handle}</b>
+          Antes de subir algo, revisá qué dato estás regalando sin querer: uniforme, ubicación, etiqueta de la escuela, hora fija. No es paranoia, es cuidarte.
+        </div>
+        <div className="ig-post-see-comments">Ver los 3 comentarios</div>
+        <div className="ig-post-comment-preview"><b>{USERS.caro.handle}</b> nunca lo pensé así jajaja</div>
+        <div className="ig-post-comment-preview"><b>{USERS.juani.handle}</b> me hace ruido cuando alguien etiqueta el cole en cada foto</div>
+        <div className="ig-post-timestamp">hace 6 horas</div>
+        <CommentInput />
+      </div>
+    </article>
+  );
+}
+
+function ResourcePost() {
+  return (
+    <article className="ig-post">
+      <div className="ig-post-header">
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            background: `linear-gradient(135deg,${C.blue} 0%,${C.blueDark} 100%)`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <ShieldCheck size={16} color="#FFF" strokeWidth={2.4} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span className="ig-post-username">safenet.ayuda</span>
+            <BadgeCheck size={14} color={C.blue} fill="rgba(11,92,255,0.12)" strokeWidth={2.5} />
+          </div>
+          <div className="ig-post-sublabel">Recurso recomendado</div>
+        </div>
+        <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
+      </div>
+      <div
+        style={{
+          padding: "32px 26px",
+          background: C.celeste,
+          borderTop: `1px solid ${C.line}`,
+          borderBottom: `1px solid ${C.line}`,
+        }}
+      >
+        <div
+          style={{
+            background: C.white,
+            borderRadius: 16,
+            padding: "22px 22px",
+            border: `1px solid ${C.line}`,
+            boxShadow: "0 8px 22px rgba(6,21,56,0.06)",
+          }}
+        >
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.blue, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
+            Línea de ayuda · 24 hs
+          </div>
+          <div style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, color: C.blueDark, marginBottom: 6, letterSpacing: -0.6 }}>
+            102
+          </div>
+          <div style={{ fontSize: 13.5, color: C.textMute, lineHeight: 1.55 }}>
+            Si algo te incomoda, podés hablar. Es gratis, anónimo y confidencial. No tenés que tener todo claro para llamar.
+          </div>
+        </div>
+      </div>
+      <div className="ig-post-footer">
+        <PostActionBar initialLikes={1834} />
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.blueDark, marginBottom: 5 }}>1.834 Me gusta</div>
+        <div className="ig-post-caption">
+          <b>safenet.ayuda</b>
+          Pedir ayuda no es exagerar. Guardalo en favoritos por si lo necesitás o por si lo necesita alguien de tu grupo.
+        </div>
+        <div className="ig-post-timestamp">hace 12 horas</div>
+        <CommentInput />
+      </div>
+    </article>
+  );
+}
+
+function EmotionalPressurePost() {
+  const alertPhrases = [
+    "“Si no me contestás, me enojo.”",
+    "“Pensé que eras mi amigo/a.”",
+    "“No le cuentes a nadie.”",
+    "“Si me querés, mandame una foto.”",
+    "“Me hacés sentir mal si no hablás conmigo.”",
+  ];
+  return (
+    <article className="ig-post">
+      <div className="ig-post-header">
+        <Avatar src={USERS.lucas.avatar} size={32} />
+        <div style={{ flex: 1 }}>
+          <span className="ig-post-username">{USERS.lucas.handle}</span>
+          <div className="ig-post-sublabel">hace 1 d</div>
+        </div>
+        <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
+      </div>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          background: `linear-gradient(160deg, ${C.celeste} 0%, #FFFFFF 70%)`,
+          padding: "26px 24px 28px",
+          borderTop: `1px solid ${C.line}`,
+          borderBottom: `1px solid ${C.line}`,
+          display: "flex",
+          flexDirection: "column",
+          gap: 18,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              background: C.white,
+              border: `1px solid ${C.line}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: "0 4px 12px rgba(11,92,255,0.10)",
+            }}
+          >
+            <AlertTriangle size={18} color={C.blue} strokeWidth={2.4} />
+          </div>
+          <span
+            style={{
+              fontSize: 10.5,
+              fontWeight: 800,
+              letterSpacing: 1.6,
+              textTransform: "uppercase",
+              color: C.blue,
+              background: C.white,
+              border: `1px solid ${C.line}`,
+              padding: "5px 11px",
+              borderRadius: 999,
+            }}
+          >
+            Señal de alerta
+          </span>
+        </div>
+
+        <div>
+          <h3
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: 30,
+              fontWeight: 800,
+              color: C.blueDark,
+              letterSpacing: -0.8,
+              lineHeight: 1.05,
+              margin: "0 0 8px",
+              textTransform: "uppercase",
+            }}
+          >
+            Presión emocional
+          </h3>
+          <p
+            style={{
+              fontSize: 14,
+              color: C.textMute,
+              lineHeight: 1.55,
+              margin: 0,
+              maxWidth: 420,
+            }}
+          >
+            Cuando alguien te hace sentir culpa para que le respondas, eso no está bien.
+          </p>
+        </div>
+
+        <div
+          style={{
+            background: C.white,
+            border: `1px solid ${C.line}`,
+            borderRadius: 14,
+            padding: "14px 16px",
+            boxShadow: "0 6px 16px rgba(6,21,56,0.05)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10.5,
+              fontWeight: 800,
+              letterSpacing: 1.4,
+              textTransform: "uppercase",
+              color: C.textMute,
+              marginBottom: 10,
+            }}
+          >
+            Frases que pueden estar manipulándote
+          </div>
+          <ul
+            style={{
+              listStyle: "none",
+              padding: 0,
+              margin: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            {alertPhrases.map((p, i) => (
+              <li
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  fontSize: 13.5,
+                  color: C.blueDark,
+                  lineHeight: 1.45,
+                  fontWeight: 500,
+                }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: 3,
+                    alignSelf: "stretch",
+                    background: C.blue,
+                    borderRadius: 2,
+                    marginTop: 3,
+                    marginBottom: 3,
+                    flexShrink: 0,
+                  }}
+                />
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div
+          style={{
+            background: C.blueDark,
+            color: C.white,
+            borderRadius: 14,
+            padding: "16px 18px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10.5,
+              fontWeight: 800,
+              letterSpacing: 1.6,
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.72)",
+              marginBottom: 6,
+            }}
+          >
+            Lo que es seguro saber
+          </div>
+          <div
+            style={{
+              fontSize: 14,
+              lineHeight: 1.55,
+              fontWeight: 500,
+            }}
+          >
+            Una amistad segura no te obliga, no te apura y no te hace sentir miedo. Si alguien te presiona, pedí ayuda a un adulto de confianza.
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: C.white,
+            border: `1.5px solid ${C.blue}`,
+            borderRadius: 12,
+            padding: "12px 16px",
+          }}
+        >
+          <ShieldCheck size={18} color={C.blue} strokeWidth={2.4} />
+          <span
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: 14,
+              fontWeight: 700,
+              color: C.blueDark,
+              letterSpacing: -0.1,
+            }}
+          >
+            Frená, no respondas por miedo y contalo.
+          </span>
+        </div>
+      </div>
+      <div className="ig-post-footer">
+        <PostActionBar initialLikes={1102} />
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.blueDark, marginBottom: 5 }}>1.102 Me gusta</div>
+        <div className="ig-post-caption">
+          <b>{USERS.lucas.handle}</b>
+          Cuando alguien usa enojo o culpa para que respondas, no es amor. Es presión. Bloquear o clavar el visto siempre es una opción válida.
+        </div>
+        <div className="ig-post-see-comments">Ver los 5 comentarios</div>
+        <div className="ig-post-comment-preview"><b>{USERS.sofi.handle}</b> no tengo por qué responder si no quiero</div>
+        <div className="ig-post-comment-preview"><b>{USERS.andrea.handle}</b> esto deberían enseñarlo en el cole</div>
+        <div className="ig-post-timestamp">hace 1 día</div>
+        <CommentInput />
+      </div>
+    </article>
+  );
+}
+
+function CarouselSignalsPost() {
+  type Slide = {
+    title: string;
+    intro?: string;
+    bullets?: string[];
+  };
+  const slides: Slide[] = [
+    {
+      title: "¿Sabés reconocer un perfil falso?",
+      intro:
+        "No todos los perfiles son verdaderos. Detrás de un perfil “perfecto” puede haber una identidad construida para manipular o generar confianza rápidamente.",
+    },
+    {
+      title: "Posibles indicadores de una identidad digital falsa",
+      bullets: [
+        "Fotos demasiado perfectas, genéricas o poco naturales.",
+        "Actividad reciente o incoherente: cuenta nueva con muchos seguidores o publicaciones de golpe.",
+        "Ausencia de entorno social real: pocos comentarios, pocas interacciones o falta de vínculos visibles.",
+      ],
+    },
+    {
+      title: "Dialogá sobre perfiles falsos",
+      bullets: [
+        "No todo el que te habla es quien dice ser.",
+        "Si alguien genera confianza demasiado rápido, prestá atención.",
+        "Si no lo conocés en la vida real, no es alguien de confianza.",
+        "No compartas fotos o datos personales con alguien que conociste en Internet.",
+        "Si algo te incomoda o te hace dudar, hablalo con alguien de confianza.",
+      ],
+    },
+  ];
+  const [idx, setIdx] = useState(0);
+  const slide = slides[idx];
+  return (
+    <article className="ig-post">
+      <div className="ig-post-header">
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            overflow: "hidden",
+            position: "relative",
+            flexShrink: 0,
+          }}
+        >
+          <Image
+            src="/grooming-arg.png"
+            alt="Grooming Argentina"
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="32px"
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span className="ig-post-username">groomingargentina</span>
+            <BadgeCheck
+              size={14}
+              color="#0095f6"
+              fill="rgba(0,149,246,0.1)"
+              strokeWidth={2.5}
+            />
+            <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>•</span>
+            <span
+              style={{
+                color: ACCENT_DIM,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Seguir
+            </span>
+          </div>
+          <div className="ig-post-sublabel">Argentina</div>
+        </div>
+        <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
+      </div>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          aspectRatio: "1/1",
+          background: `linear-gradient(135deg,${C.celeste} 0%,#FFFFFF 100%)`,
+          padding: 26,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span
+            style={{
+              fontSize: 10.5,
+              fontWeight: 800,
+              color: C.blue,
+              background: C.white,
+              padding: "5px 11px",
+              borderRadius: 999,
+              border: `1px solid ${C.line}`,
+              letterSpacing: 1.4,
+              textTransform: "uppercase",
+            }}
+          >
+            Perfiles falsos · {idx + 1}/{slides.length}
+          </span>
+          <div style={{ display: "flex", gap: 4 }}>
+            {slides.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: i === idx ? 18 : 6,
+                  height: 6,
+                  borderRadius: 99,
+                  background: i === idx ? C.blue : C.line,
+                  transition: "all .25s",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: 22,
+              fontWeight: 700,
+              color: C.blueDark,
+              marginBottom: 12,
+              letterSpacing: -0.4,
+              lineHeight: 1.2,
+              maxWidth: 380,
+            }}
+          >
+            {slide.title}
+          </div>
+          {slide.intro && (
+            <div
+              style={{
+                fontSize: 14,
+                color: C.textMute,
+                lineHeight: 1.55,
+                maxWidth: 380,
+              }}
+            >
+              {slide.intro}
+            </div>
+          )}
+          {slide.bullets && (
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                maxWidth: 380,
+              }}
+            >
+              {slide.bullets.map((b, i) => (
+                <li
+                  key={i}
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "flex-start",
+                    fontSize: 13.5,
+                    color: C.blueDark,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: C.blue,
+                      flexShrink: 0,
+                      marginTop: 7,
+                    }}
+                  />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {idx > 0 && (
+          <button
+            suppressHydrationWarning
+            onClick={() => setIdx(idx - 1)}
+            aria-label="Anterior"
+            style={{
+              position: "absolute",
+              left: 12,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: C.white,
+              border: `1px solid ${C.line}`,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 14px rgba(6,21,56,0.10)",
+            }}
+          >
+            <ChevronLeft size={18} color={C.blueDark} />
+          </button>
+        )}
+        {idx < slides.length - 1 && (
+          <button
+            suppressHydrationWarning
+            onClick={() => setIdx(idx + 1)}
+            aria-label="Siguiente"
+            style={{
+              position: "absolute",
+              right: 12,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: C.white,
+              border: `1px solid ${C.line}`,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 14px rgba(6,21,56,0.10)",
+            }}
+          >
+            <ChevronRight size={18} color={C.blueDark} />
+          </button>
+        )}
+      </div>
+      <div className="ig-post-footer">
+        <PostActionBar initialLikes={2104} />
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.blueDark, marginBottom: 5 }}>2.104 Me gusta</div>
+        <div className="ig-post-caption">
+          <b>groomingargentina</b>
+          Un perfil falso puede estar diseñado para generar confianza, manipular o engañar. Aprender a reconocer señales tempranas ayuda a cuidarse mejor en redes sociales.
+        </div>
+        <div className="ig-post-see-comments">Ver los 12 comentarios</div>
+        <div className="ig-post-timestamp">hace 2 días</div>
+        <CommentInput />
+      </div>
+    </article>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   SEMANA SAFENET — capa narrativa de 7 días
+════════════════════════════════════════════════════════════ */
+type WeekMission = {
+  day: number;
+  moduleId: ModuleId | null;
+  title: string;
+  mission: string;
+};
+
+const WEEK_MISSIONS: WeekMission[] = [
+  { day: 1, moduleId: "requests", title: "Solicitud nueva", mission: "Revisá quién quiere seguirte antes de aceptar." },
+  { day: 2, moduleId: "dm_sim", title: "Mensaje directo", mission: "Respondé sin dar datos personales ni salir de la app." },
+  { day: 3, moduleId: "profile_detector", title: "Perfil sospechoso", mission: "Detectá inconsistencias antes de confiar." },
+  { day: 4, moduleId: "story_path", title: "La conversación escala", mission: "Tomá decisiones seguras cuando aparece la presión emocional." },
+  { day: 5, moduleId: "red_flags", title: "Mensajes que hacen ruido", mission: "Marcá señales de manipulación, secreto o insistencia." },
+  { day: 6, moduleId: "screenshot_analysis", title: "Captura para analizar", mission: "Leé la conversación y elegí cómo actuar." },
+  { day: 7, moduleId: null, title: "Informe SAFENET", mission: "Revisá tu recorrido, tus fortalezas y lo que podés reforzar." },
+];
+
+function getCurrentMission(completed: Set<ModuleId>): WeekMission {
+  for (const m of WEEK_MISSIONS) {
+    if (m.moduleId === null) return m;
+    if (!completed.has(m.moduleId)) return m;
+  }
+  return WEEK_MISSIONS[WEEK_MISSIONS.length - 1];
+}
+
+function MissionBriefCard({
+  mission,
+  completedCount,
+  onStart,
+}: {
+  mission: WeekMission;
+  completedCount: number;
+  onStart: () => void;
+}) {
+  const pct = Math.min(100, Math.round((completedCount / 6) * 100));
+  const ctaLabel =
+    mission.moduleId === null
+      ? "Ver informe"
+      : mission.moduleId === "requests"
+      ? "Ver solicitudes"
+      : mission.moduleId === "dm_sim"
+      ? "Abrir mensajes"
+      : "Empezar misión";
+  return (
+    <div
+      style={{
+        background: C.white,
+        border: `1px solid ${C.line}`,
+        borderRadius: 18,
+        padding: "18px 18px 16px",
+        marginBottom: 18,
+        boxShadow: "0 10px 26px rgba(6,21,56,0.05)",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(120% 100% at 100% 0%, rgba(11,92,255,0.10) 0%, transparent 55%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "5px 11px",
+              borderRadius: 999,
+              background: C.celeste,
+              border: `1px solid #c7d4f7`,
+              color: C.blue,
+              fontSize: 10.5,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
+            <ShieldCheck size={12} strokeWidth={2.6} />
+            Día {mission.day} de {WEEK_MISSIONS.length}
+          </span>
+          <span
+            style={{
+              fontSize: 10.5,
+              color: C.textMute,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
+            Semana SAFENET
+          </span>
+        </div>
+        <h3
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: 19,
+            fontWeight: 700,
+            color: C.blueDark,
+            margin: 0,
+            letterSpacing: -0.3,
+            lineHeight: 1.25,
+          }}
+        >
+          {mission.title}
+        </h3>
+        <p
+          style={{
+            margin: "6px 0 14px",
+            color: C.textMute,
+            fontSize: 13.5,
+            lineHeight: 1.55,
+          }}
+        >
+          {mission.mission}
+        </p>
+        <div style={{ marginBottom: 14 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: 10.5,
+              fontWeight: 700,
+              color: C.textMute,
+              textTransform: "uppercase",
+              letterSpacing: 1,
+              marginBottom: 6,
+            }}
+          >
+            <span>Progreso de la semana</span>
+            <span style={{ color: C.blue }}>{completedCount}/6</span>
+          </div>
+          <div
+            style={{
+              height: 6,
+              background: C.lineSoft,
+              borderRadius: 99,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${pct}%`,
+                background: BRAND_GRADIENT,
+                borderRadius: 99,
+                transition: "width 0.7s ease",
+              }}
+            />
+          </div>
+        </div>
+        <button
+          suppressHydrationWarning
+          onClick={onStart}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "11px 18px",
+            borderRadius: 12,
+            background: C.blue,
+            color: C.white,
+            border: "none",
+            fontFamily: FONT_DISPLAY,
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: 0.2,
+            cursor: "pointer",
+            boxShadow: "0 8px 18px rgba(11,92,255,0.28)",
+            transition: "transform .18s ease, box-shadow .18s ease, background .18s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = C.blueHover;
+            e.currentTarget.style.transform = "translateY(-1px)";
+            e.currentTarget.style.boxShadow = "0 12px 24px rgba(11,92,255,0.32)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = C.blue;
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 8px 18px rgba(11,92,255,0.28)";
+          }}
+        >
+          {ctaLabel}
+          <ArrowRight size={15} strokeWidth={2.4} />
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -4235,6 +5178,22 @@ export default function AdolescentesPage() {
   };
   const openModule = (id: ModuleId) => setActiveModule(id);
 
+  const currentMission = getCurrentMission(completedModules);
+  const openMission = () => {
+    const id = currentMission.moduleId;
+    if (id === "requests") {
+      setActiveTab("requests");
+      setShowRequests(true);
+    } else if (id === "dm_sim") {
+      setActiveTab("dm");
+      setShowDmInbox(true);
+    } else if (id) {
+      setActiveModule(id);
+    } else {
+      setActiveTab("profile");
+    }
+  };
+
   const handleStorySeen = useCallback((i: number) => {
     setSeenStories((prev) => new Set([...prev, i]));
   }, []);
@@ -4266,33 +5225,37 @@ export default function AdolescentesPage() {
         color: "#061538",
         minHeight: "100vh",
         fontFamily:
-          "Outfit,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif",
+          "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif",
         position: "relative",
         overflowX: "hidden",
       }}
     >
       <style>{`
-        @import url('https://fonts.cdnfonts.com/css/lemon-milk');
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
+        body, button, input, textarea { font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+        .sf-display { font-family:'Space Grotesk',Inter,sans-serif; letter-spacing:-0.01em; }
 
         :root {
           --sf-blue-dark:#061538;
           --sf-blue-deep:#102A43;
-          --sf-blue-soft:#163A63;
-          --sf-celeste:#74B3CE;
-          --sf-celeste-soft:#BFE7F5;
+          --sf-blue:#0B5CFF;
+          --sf-blue-hover:#0a4fdc;
+          --sf-celeste:#e5ebfa;
+          --sf-celeste-strong:#c7d4f7;
           --sf-bg:#F8FAFC;
-          --sf-bg-blue:#EEF6FB;
+          --sf-bg-blue:#EEF2FF;
           --sf-line:#D8E3EC;
+          --sf-line-soft:#EEF2F7;
           --sf-text-muted:#5B6B7A;
           --sf-text-soft:#7C8A99;
           --sf-white:#FFFFFF;
-          --sf-danger:#E94E5D;
-          --sf-danger-soft:#FBE5E8;
-          --sf-success:#22C55E;
-          --sf-warn:#F0B445;
-          --sf-warn-soft:#FFF7E6;
+          --sf-danger:#DC2626;
+          --sf-danger-soft:#FEE2E2;
+          --sf-success:#16A34A;
+          --sf-success-soft:#DCFCE7;
+          --sf-warn:#EA580C;
+          --sf-warn-soft:#FFEDD5;
           --sf-shadow-soft:0 12px 32px rgba(6,21,56,.06);
           --sf-shadow-card:0 18px 44px rgba(6,21,56,.055);
         }
@@ -4613,6 +5576,43 @@ export default function AdolescentesPage() {
         }
         .ig-reel-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 
+        /* Embed reel de Instagram dentro de un post */
+        .reel-embed-shell {
+          width:100%;
+          background:#F8FAFC;
+          border-top:1px solid #D8E3EC;
+          border-bottom:1px solid #D8E3EC;
+          overflow:hidden;
+          display:flex;
+          justify-content:center;
+        }
+        .reel-embed-shell iframe {
+          width:100%;
+          max-width:420px;
+          min-height:640px;
+          border:0;
+          display:block;
+          background:#FFFFFF;
+        }
+        @media(max-width:520px){
+          .reel-embed-shell iframe { min-height:560px; }
+        }
+        .reel-embed-fallback {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:12px;
+          padding:10px 14px;
+          background:#F8FAFC;
+          border-bottom:1px solid #D8E3EC;
+          font-size:12px;
+          color:#5B6B7A;
+        }
+        .reel-embed-fallback a { text-decoration:none; }
+        @media(max-width:420px){
+          .reel-embed-fallback { flex-direction:column; align-items:flex-start; }
+        }
+
         /* Decision post buttons */
         .ig-decision-btn {
           width:100%;
@@ -4670,32 +5670,233 @@ export default function AdolescentesPage() {
         .xp-banner [style*="background: #EFEFEF"], .xp-banner [style*="background:#EFEFEF"] { background:#D8E3EC!important; }
         .xp-banner [style*="background: rgb"], .xp-banner [style*="background: #74B3CE"], .xp-banner [style*="background:#74B3CE"] { background:linear-gradient(90deg,var(--sf-blue-dark),var(--sf-celeste))!important; }
 
+        /* ══ BOTONES SAFENET — clases reutilizables ══ */
+        .sf-btn {
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          gap:8px;
+          border-radius:999px;
+          padding:10px 18px;
+          font-family:Inter,sans-serif;
+          font-weight:700;
+          font-size:13px;
+          line-height:1;
+          cursor:pointer;
+          transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+          text-decoration:none;
+          white-space:nowrap;
+          letter-spacing:.2px;
+        }
+        .sf-btn:active { transform:scale(.97); }
+        .sf-btn-primary {
+          background:#0B5CFF;
+          color:#FFFFFF;
+          border:1px solid #0B5CFF;
+          box-shadow:0 8px 22px rgba(11,92,255,.22);
+        }
+        .sf-btn-primary:hover { background:#084ee0; border-color:#084ee0; transform:translateY(-1px); box-shadow:0 12px 26px rgba(11,92,255,.32); }
+        .sf-btn-secondary {
+          background:#FFFFFF;
+          color:#061538;
+          border:1.5px solid #D8E3EC;
+        }
+        .sf-btn-secondary:hover { background:#F8FAFC; border-color:#0B5CFF; color:#0B5CFF; }
+        .sf-btn-ghost {
+          background:rgba(11,92,255,.08);
+          color:#0B5CFF;
+          border:1px solid rgba(11,92,255,.28);
+        }
+        .sf-btn-ghost:hover { background:rgba(11,92,255,.14); border-color:#0B5CFF; }
+        .sf-btn-danger {
+          background:rgba(220,38,38,.08);
+          color:#B91C1C;
+          border:1px solid rgba(220,38,38,.30);
+        }
+        .sf-btn-danger:hover { background:rgba(220,38,38,.14); border-color:#B91C1C; }
+        .sf-btn-success {
+          background:rgba(22,163,74,.10);
+          color:#15803D;
+          border:1px solid rgba(22,163,74,.32);
+        }
+        .sf-btn-success:hover { background:rgba(22,163,74,.18); border-color:#15803D; }
+        .sf-btn-icon {
+          width:40px;
+          height:40px;
+          padding:0;
+          border-radius:999px;
+          background:#FFFFFF;
+          color:#061538;
+          border:1px solid #D8E3EC;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+          transition:transform .18s ease, background .18s ease, border-color .18s ease;
+        }
+        .sf-btn-icon:hover { background:#F8FAFC; border-color:#0B5CFF; color:#0B5CFF; transform:translateY(-1px); }
+        .sf-btn-disabled,
+        .sf-btn[disabled],
+        .sf-btn:disabled {
+          background:#F1F5F9!important;
+          color:#94A3B8!important;
+          border:1px solid #D8E3EC!important;
+          cursor:not-allowed!important;
+          opacity:1!important;
+          box-shadow:none!important;
+          transform:none!important;
+        }
+        .sf-btn-block { width:100%; padding:13px 18px; font-size:14px; border-radius:14px; }
+        .sf-link {
+          background:transparent;
+          border:none;
+          color:#0B5CFF;
+          font-weight:700;
+          font-size:13px;
+          cursor:pointer;
+          padding:4px 6px;
+          border-radius:8px;
+          transition:background .15s ease;
+        }
+        .sf-link:hover { background:rgba(11,92,255,.08); }
+
+        /* ══ STORY VIEWER (capa modal independiente) ══ */
+        .story-overlay {
+          position:fixed;
+          inset:0;
+          z-index:9999;
+          background:rgba(6,21,56,.78);
+          backdrop-filter:blur(10px);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:24px;
+          animation:fadeIn .2s ease;
+        }
+        .story-viewer {
+          position:relative;
+          width:min(420px,100%);
+          height:min(760px,92vh);
+          border-radius:28px;
+          overflow:hidden;
+          background:#061538;
+          box-shadow:0 30px 80px rgba(0,0,0,.4);
+          animation:modalIn .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .story-close-btn {
+          position:absolute;
+          top:14px;
+          right:14px;
+          z-index:10001;
+          width:42px;
+          height:42px;
+          border-radius:999px;
+          border:1.5px solid rgba(255,255,255,.42);
+          background:rgba(6,21,56,.72);
+          color:#FFFFFF;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+          backdrop-filter:blur(8px);
+          transition:background .18s ease, transform .18s ease, border-color .18s ease;
+        }
+        .story-close-btn:hover { background:#0B5CFF; border-color:#FFFFFF; transform:scale(1.05); }
+        .story-nav-btn {
+          position:absolute;
+          top:50%;
+          transform:translateY(-50%);
+          z-index:10000;
+          width:40px;
+          height:40px;
+          border-radius:999px;
+          background:rgba(6,21,56,.55);
+          border:1.5px solid rgba(255,255,255,.32);
+          color:#FFFFFF;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+          backdrop-filter:blur(8px);
+          transition:background .18s ease, border-color .18s ease, transform .18s ease;
+        }
+        .story-nav-btn:hover { background:#0B5CFF; border-color:#FFFFFF; }
+        .story-nav-prev { left:14px; }
+        .story-nav-next { right:14px; }
+        .story-tap-zone {
+          position:absolute;
+          top:80px;
+          bottom:80px;
+          width:38%;
+          z-index:5;
+          background:transparent;
+          border:none;
+          cursor:pointer;
+        }
+        .story-tap-left { left:0; }
+        .story-tap-right { right:0; width:42%; }
+
         /* ── Module overlay ── */
         .module-overlay {
           position:fixed;
           inset:0;
           z-index:200;
-          background:rgba(5,16,36,.94);
+          background:rgba(6,21,56,.42);
           display:flex;
           align-items:center;
           justify-content:center;
           padding:20px;
           animation:fadeIn .25s ease;
-          backdrop-filter:blur(16px);
+          backdrop-filter:blur(8px);
         }
         .module-inner {
           max-width:560px;
           width:100%;
           max-height:90vh;
           overflow-y:auto;
-          background:linear-gradient(180deg,rgba(8,20,45,.99),rgba(5,16,36,.99));
-          border:1px solid rgba(116,179,206,.24);
-          border-radius:26px;
-          padding:36px;
+          background:#FFFFFF;
+          border:1px solid var(--sf-line);
+          border-radius:22px;
+          padding:28px;
           position:relative;
           animation:modalIn .35s cubic-bezier(.34,1.56,.64,1);
-          box-shadow:0 30px 90px rgba(0,0,0,.36);
+          box-shadow:0 30px 90px rgba(6,21,56,.18);
+          color:var(--sf-blue-dark);
         }
+        .module-inner h3, .module-inner strong, .module-inner b { color:var(--sf-blue-dark); }
+        /* Overrides para que los módulos legacy hereden estética light SAFENET */
+        .module-inner [style*="color: #FFF"],
+        .module-inner [style*="color:#FFF"],
+        .module-inner [style*="color: #FFFFFF"],
+        .module-inner [style*="color:#FFFFFF"] { color:var(--sf-blue-dark)!important; }
+        .module-inner [style*="color: rgba(255,255,255"],
+        .module-inner [style*="color:rgba(255,255,255"] { color:var(--sf-text-muted)!important; }
+        .module-inner [style*="background: rgba(0,0,0"],
+        .module-inner [style*="background:rgba(0,0,0"] { background:var(--sf-bg)!important; }
+        .module-inner [style*="background: rgba(116,179,206,0.1"],
+        .module-inner [style*="background:rgba(116,179,206,0.1"],
+        .module-inner [style*="background: rgba(116,179,206,0.08"],
+        .module-inner [style*="background:rgba(116,179,206,0.08"],
+        .module-inner [style*="background: rgba(116,179,206,0.09"],
+        .module-inner [style*="background:rgba(116,179,206,0.09"] { background:var(--sf-celeste)!important; }
+        .module-inner [style*="background: rgba(255,255,255,0.03"],
+        .module-inner [style*="background:rgba(255,255,255,0.03"],
+        .module-inner [style*="background: rgba(255,255,255,0.04"],
+        .module-inner [style*="background:rgba(255,255,255,0.04"],
+        .module-inner [style*="background: rgba(255,255,255,0.05"],
+        .module-inner [style*="background:rgba(255,255,255,0.05"] { background:#FFFFFF!important; }
+        .module-inner [style*="background: rgba(90,153,180"],
+        .module-inner [style*="background:rgba(90,153,180"] { background:var(--sf-blue)!important; color:#FFF!important; }
+        .module-inner [style*="border: 1px solid rgba(255,255,255"],
+        .module-inner [style*="border:1px solid rgba(255,255,255"],
+        .module-inner [style*="border: 1px solid rgba(116,179,206,0.1"],
+        .module-inner [style*="border:1px solid rgba(116,179,206,0.1"],
+        .module-inner [style*="border: 1px solid rgba(116,179,206,0.12"],
+        .module-inner [style*="border:1px solid rgba(116,179,206,0.12"],
+        .module-inner [style*="border: 1px solid rgba(116,179,206,0.15"],
+        .module-inner [style*="border:1px solid rgba(116,179,206,0.15"] { border-color:var(--sf-line)!important; }
+        .module-inner button[style*="background: rgb"][style*="color: #FFF"],
+        .module-inner button[style*="background:#74B3CE"] { background:var(--sf-blue)!important; color:#FFF!important; font-family:'Space Grotesk',Inter,sans-serif!important; }
 
         /* ── Mobile bottom nav ── */
         .bottom-nav {
@@ -4786,8 +5987,7 @@ export default function AdolescentesPage() {
         <div
           style={{
             minHeight: "100vh",
-            background:
-              "radial-gradient(circle at 22% 18%, rgba(116,179,206,0.18), transparent 35%), radial-gradient(circle at 78% 82%, rgba(22,58,99,0.55), transparent 38%), linear-gradient(160deg,#061538 0%,#0a1f47 100%)",
+            background: `radial-gradient(circle at 18% 12%, ${C.celeste} 0%, transparent 38%), radial-gradient(circle at 82% 88%, #dfe7fb 0%, transparent 42%), ${C.bgSoft}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -4797,71 +5997,45 @@ export default function AdolescentesPage() {
           <div
             style={{
               width: "100%",
-              maxWidth: 420,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(116,179,206,0.28)",
+              maxWidth: 440,
+              background: C.white,
+              border: `1px solid ${C.line}`,
               borderRadius: 22,
-              padding: "48px 40px",
-              boxShadow: "0 30px 80px rgba(0,0,0,0.36)",
-              backdropFilter: "blur(18px)",
+              padding: "44px 38px",
+              boxShadow: "0 30px 80px rgba(6,21,56,0.10)",
             }}
           >
-            <div
-              style={{
-                fontSize: "11px",
-                textTransform: "uppercase",
-                letterSpacing: "2px",
-                color: ACCENT,
-                marginBottom: "8px",
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+              <ShieldCheck size={22} color={C.blue} strokeWidth={2.4} />
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 14, color: C.blueDark, letterSpacing: 0.4 }}>SAFENET</span>
+            </div>
+            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1.6, color: C.blue, marginBottom: 8, fontWeight: 700 }}>
               Tu identidad
             </div>
-            <h2
-              style={{
-                fontFamily: "'LEMON MILK',sans-serif",
-                fontSize: "22px",
-                color: "#FFF",
-                marginBottom: "36px",
-              }}
-            >
+            <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: 24, color: C.blueDark, marginBottom: 10, fontWeight: 700, lineHeight: 1.2 }}>
               ¿Con qué nombre entrás?
             </h2>
+            <p style={{ fontSize: 13.5, color: C.textMute, marginBottom: 28, lineHeight: 1.5 }}>
+              Creá tu usuario para entrar a la red social simulada de SAFENET. Es una simulación segura para entrenar tu ojo.
+            </p>
             <div style={{ position: "relative", marginBottom: 16 }}>
-              <span
-                style={{
-                  position: "absolute",
-                  left: 16,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "rgba(255,255,255,0.3)",
-                  fontSize: 16,
-                }}
-              >
-                @
-              </span>
+              <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: C.textSoft, fontSize: 16, fontWeight: 600 }}>@</span>
               <input
                 suppressHydrationWarning
                 type="text"
                 value={username}
-                onChange={(e) =>
-                  setUsername(
-                    e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9_]/g, "")
-                      .slice(0, 20),
-                  )
-                }
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20))}
                 placeholder="tu_usuario"
                 style={{
                   width: "100%",
-                  padding: "16px 16px 16px 34px",
+                  padding: "15px 16px 15px 34px",
                   borderRadius: 12,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(116,179,206,0.25)",
-                  color: "#FFF",
+                  background: C.bgSoft,
+                  border: `1px solid ${C.line}`,
+                  color: C.blueDark,
                   outline: "none",
                   fontSize: 15,
+                  fontWeight: 500,
                 }}
               />
             </div>
@@ -4871,28 +6045,21 @@ export default function AdolescentesPage() {
               onClick={() => setView("world")}
               style={{
                 width: "100%",
-                padding: 16,
+                padding: 15,
                 borderRadius: 12,
-                background:
-                  username.length >= 3
-                    ? "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)"
-                    : "rgba(255,255,255,0.06)",
-                color: "#FFF",
+                background: username.length >= 3 ? C.blue : C.lineSoft,
+                color: username.length >= 3 ? C.white : C.textSoft,
                 border: "none",
-                fontFamily: "'LEMON MILK',sans-serif",
-                fontSize: 13,
-                fontWeight: "bold",
-                opacity: username.length >= 3 ? 1 : 0.5,
+                fontFamily: FONT_DISPLAY,
+                fontSize: 14,
+                fontWeight: 700,
                 cursor: username.length >= 3 ? "pointer" : "not-allowed",
-                boxShadow:
-                  username.length >= 3
-                    ? "0 10px 24px rgba(116,179,206,0.32)"
-                    : "none",
-                letterSpacing: 1.2,
-                transition: "transform 0.18s ease",
+                boxShadow: username.length >= 3 ? "0 10px 24px rgba(11,92,255,0.22)" : "none",
+                letterSpacing: 0.3,
+                transition: "transform 0.18s ease, box-shadow 0.18s ease",
               }}
             >
-              CONTINUAR
+              Entrar a la simulación
             </button>
           </div>
         </div>
@@ -4909,7 +6076,7 @@ export default function AdolescentesPage() {
               <ShieldCheck size={24} color="#061538" strokeWidth={2.5} />
               <span
                 style={{
-                  fontFamily: "'LEMON MILK',sans-serif",
+                  fontFamily: "'Space Grotesk',Inter,sans-serif",
                   fontSize: 16,
                   fontWeight: "bold",
                   color: "#061538",
@@ -5080,7 +6247,7 @@ export default function AdolescentesPage() {
                     onClick={() => setView("setup")}
                     style={{
                       background:
-                        "linear-gradient(135deg,#74B3CE 0%,#5A99B4 100%)",
+                        "#0B5CFF",
                       color: "#FFF",
                       border: "none",
                       borderRadius: 10,
@@ -5138,6 +6305,17 @@ export default function AdolescentesPage() {
                     >
                       {xp} XP · {completedModules.size}/6 señales
                     </div>
+                    <div
+                      style={{
+                        fontSize: 11.5,
+                        color: "#5B6B7A",
+                        fontStyle: "italic",
+                        marginTop: 4,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      Tu radar digital se entrena con cada decisión.
+                    </div>
                   </div>
                   <div
                     style={{
@@ -5188,28 +6366,33 @@ export default function AdolescentesPage() {
                 })}
               </div>
 
+              {/* ── MISIÓN DEL DÍA — Semana SAFENET ── */}
+              <MissionBriefCard
+                mission={currentMission}
+                completedCount={completedModules.size}
+                onStart={openMission}
+              />
+
               {/* ═══════════════════════════════════════════
                   FEED POSTS — ORDEN INTERCALADO
               ═══════════════════════════════════════════ */}
 
-              {/* 1. ONG — pantallas */}
-              <OngPost
+              {/* 1. ONG — TikTok deepfake */}
+              <OngReelPost
                 time="3 h"
-                imgSrc="/ime1.png"
-                imgAlt="Las pantallas no son juguetes"
+                reelUrl="https://www.tiktok.com/@tecnologiaparami/video/7589051546172738836"
+                reelEmbedUrl="https://www.tiktok.com/embed/v2/7589051546172738836"
+                reelTitle="Video sobre deepfakes y violencia digital"
                 likeCount={378}
-                likedBy={USERS.sofi.handle}
                 caption={
                   <>
-                    <b>groomingargentina</b>El mal uso de la Inteligencia Artificial (IA) 
-                    puede traducirse en nuevas formas de Bullying, Grooming o Abuso Cibernético.
+                    <b>groomingargentina</b>Los deepfakes también pueden usarse para manipular, engañar o ejercer violencia digital. Mirá este ejemplo y aprendé por qué es importante verificar antes de confiar.
                     <br />
                     <br />
-                    El Deep Fake es una forma de violencia digital que sufren, 
-                    en su mayoría, niñas y adolescentes. Parece real, pero es falso. Parece broma, pero es abuso.
+                    El Deep Fake es una forma de violencia digital que sufren, en su mayoría, niñas y adolescentes. Parece real, pero es falso. Parece broma, pero es abuso.
                     <br />
                     <br />
-                    #Grooming #Ciberseguridad #InfanciasDigitales #Deefakes
+                    #Grooming #Ciberseguridad #InfanciasDigitales #Deepfakes
                   </>
                 }
                 comments={[
@@ -5220,6 +6403,8 @@ export default function AdolescentesPage() {
                   { user: USERS.valen.handle, text: " Lo comparto." },
                 ]}
                 timestamp="36 semanas"
+                fallbackText="Si el video no carga, podés verlo en TikTok."
+                fallbackCta="Ver video en TikTok"
               />
 
               {/* 1B. REEL — video integrado */}
@@ -5247,18 +6432,8 @@ export default function AdolescentesPage() {
                 timestamp="hace 4 horas"
               />
 
-              {/* 2. EXPERIENCIA — DM Simulador */}
-              <ExperiencePost
-                moduleId="dm_sim"
-                user="valen"
-                time="5 h"
-                headline="Te llegó una solicitud de mensaje."
-                subline="Parece normal, pero algo no termina de cerrar."
-                ctaLabel="Responder ahora"
-                likeCount={912}
-                visualType="chat"
-                onStart={openModule}
-              />
+              {/* 2. POST EDUCATIVO — Privacidad / foto cotidiana */}
+              <PrivacyPost />
 
               {/* 3. DECISIÓN RÁPIDA */}
               <DecisionPost
@@ -5271,20 +6446,20 @@ export default function AdolescentesPage() {
                 explanation="Un ratio tan desproporcionado entre seguidores y seguidos, con tan pocas publicaciones y cuenta reciente, son señales clásicas de un perfil comprado o falso."
               />
 
-              {/* 4. ONG — deepfake */}
-              <OngPost
+              {/* 4. ONG — deepfake (reel embebido) */}
+              <OngReelPost
                 time="1 d"
-                imgSrc="/ime2.png"
-                imgAlt="Peligros de la IA"
+                reelUrl="https://www.instagram.com/reel/DYDk0KiIYAU/"
+                reelEmbedUrl="https://www.instagram.com/reel/DYDk0KiIYAU/embed"
+                reelTitle="Reel de Grooming Argentina sobre deepfake"
                 likeCount={214}
-                likedBy={USERS.juani.handle}
                 caption={
                   <>
                     <b>groomingargentina</b>La IA también se usa para hacerle
                     daño a menores.
                     <br />
                     <br />
-                    El #Deepfake permite crear imágenes íntimás falsas pero
+                    El #Deepfake permite crear imágenes íntimas falsas pero
                     hiperreales. El 90% están relacionados a contenido sexual.
                     Protejamos la huella digital de los más chicos.
                     <br />
@@ -5305,18 +6480,11 @@ export default function AdolescentesPage() {
                 timestamp="22 de agosto de 2025"
               />
 
-              {/* 5. EXPERIENCIA — Perfiles falsos */}
-              <ExperiencePost
-                moduleId="profile_detector"
-                user="sofi"
-                time="1 d"
-                headline="Este perfil empezó a seguirte."
-                subline="Antes de aceptar, miralo dos veces."
-                ctaLabel="Abrir perfil"
-                likeCount={654}
-                visualType="profile"
-                onStart={openModule}
-              />
+              {/* 5. POST EDUCATIVO — Carrusel señales */}
+              <CarouselSignalsPost />
+
+              {/* 5C. POST EMOCIONAL — Presión */}
+              <EmotionalPressurePost />
 
               {/* 6. DECISIÓN RÁPIDA */}
               <DecisionPost
@@ -5400,18 +6568,8 @@ export default function AdolescentesPage() {
                 explanation="Pedir cambiar de plataforma elimina el historial y los sistemás de reporte. Quedarte en la app donde empezó la conversación es lo correcto."
               />
 
-              {/* 11. EXPERIENCIA — Análisis de captura */}
-              <ExperiencePost
-                moduleId="screenshot_analysis"
-                user="andrea"
-                time="4 d"
-                headline="Te mandaron una captura por privado."
-                subline="La conversación escala rápido."
-                ctaLabel="Ver conversación"
-                likeCount={329}
-                visualType="chat"
-                onStart={openModule}
-              />
+              {/* 12. RECURSO — Línea de ayuda */}
+              <ResourcePost />
 
               {/* Footer del feed */}
               <div
@@ -5475,6 +6633,103 @@ export default function AdolescentesPage() {
                     </div>
                   </div>
                 </div>
+                {/* Semana SAFENET — lista de 7 días */}
+                <div
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    color: "#5B6B7A",
+                    marginBottom: 12,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ flex: "0 0 auto" }}>Semana SAFENET</span>
+                  <span
+                    aria-hidden
+                    style={{
+                      flex: 1,
+                      height: 1,
+                      background:
+                        "linear-gradient(90deg,rgba(11,92,255,0.32),transparent)",
+                    }}
+                  />
+                </div>
+                <div style={{ marginBottom: 22 }}>
+                  {WEEK_MISSIONS.map((m) => {
+                    const isDone =
+                      m.moduleId !== null && completedModules.has(m.moduleId);
+                    const allDone = completedModules.size >= 6;
+                    const isCurrent =
+                      m.day === currentMission.day &&
+                      !(m.moduleId === null && !allDone);
+                    const isPending = !isDone && !isCurrent;
+                    return (
+                      <div
+                        key={m.day}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: "7px 10px",
+                          marginBottom: 4,
+                          borderRadius: 10,
+                          background: isCurrent ? "#EEF2FF" : "transparent",
+                          border: isCurrent
+                            ? "1px solid #c7d4f7"
+                            : "1px solid transparent",
+                          opacity: isPending ? 0.55 : 1,
+                          transition: "background .2s ease",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: "50%",
+                            background: isDone
+                              ? "#22C55E"
+                              : isCurrent
+                              ? "#0B5CFF"
+                              : "#EEF2F7",
+                            color: isDone || isCurrent ? "#FFF" : "#7C8A99",
+                            fontSize: 11,
+                            fontWeight: 800,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                            boxShadow: isCurrent
+                              ? "0 0 0 3px rgba(11,92,255,0.18)"
+                              : isDone
+                              ? "0 0 0 3px rgba(34,197,94,0.18)"
+                              : "none",
+                          }}
+                        >
+                          {isDone ? <Check size={12} strokeWidth={3} /> : m.day}
+                        </div>
+                        <span
+                          style={{
+                            fontSize: 13.5,
+                            color: isDone
+                              ? "#7C8A99"
+                              : isCurrent
+                              ? "#061538"
+                              : "#5B6B7A",
+                            fontWeight: isCurrent ? 700 : 600,
+                            textDecoration: isDone ? "line-through" : "none",
+                          }}
+                        >
+                          {m.title}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
                 {/* Progreso de módulos */}
                 <div
                   style={{
@@ -5812,9 +7067,9 @@ export default function AdolescentesPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 24,
-                paddingBottom: 20,
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                marginBottom: 22,
+                paddingBottom: 18,
+                borderBottom: `1px solid ${C.lineSoft}`,
               }}
             >
               <div>
@@ -5822,9 +7077,10 @@ export default function AdolescentesPage() {
                   style={{
                     fontSize: 11,
                     textTransform: "uppercase",
-                    letterSpacing: 2,
-                    color: ACCENT,
+                    letterSpacing: 1.6,
+                    color: C.blue,
                     marginBottom: 6,
+                    fontWeight: 700,
                   }}
                 >
                   {
@@ -5840,9 +7096,10 @@ export default function AdolescentesPage() {
                 </div>
                 <div
                   style={{
-                    fontFamily: "'LEMON MILK',sans-serif",
-                    fontSize: 16,
-                    color: "#FFF",
+                    fontFamily: FONT_DISPLAY,
+                    fontSize: 18,
+                    color: C.blueDark,
+                    fontWeight: 700,
                   }}
                 >
                   {
@@ -5861,13 +7118,13 @@ export default function AdolescentesPage() {
                 suppressHydrationWarning
                 onClick={() => setActiveModule(null)}
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 36,
+                  height: 36,
                   borderRadius: "50%",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: 14,
+                  background: C.bgSoft,
+                  border: `1px solid ${C.line}`,
+                  color: C.blueDark,
+                  fontSize: 16,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -5876,15 +7133,13 @@ export default function AdolescentesPage() {
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.1)";
-                  e.currentTarget.style.color = "#FFF";
+                  e.currentTarget.style.background = C.celeste;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                  e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+                  e.currentTarget.style.background = C.bgSoft;
                 }}
               >
-                ✕
+                <X size={18} strokeWidth={2.2} />
               </button>
             </div>
             {activeModule === "dm_sim" && (
