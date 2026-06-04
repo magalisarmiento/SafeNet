@@ -1034,21 +1034,67 @@ export default function FamiliasPage() {
         .radar-featured-card {
           display: block;
           margin-top: 14px;
-          padding: 16px 18px 14px;
-          border-radius: 14px;
-          background: linear-gradient(180deg, ${C.bgSoft} 0%, ${C.blueSoft} 100%);
-          border: 1px solid rgba(216, 227, 236, 0.95);
-          border-top: 4px solid ${C.blue};
+          padding: 20px 22px 18px;
+          border-radius: 18px;
+          background:
+            radial-gradient(circle at 8% 0%, rgba(255,255,255,.14), transparent 38%),
+            linear-gradient(135deg, #005BFF 0%, #0746D8 52%, #061538 100%);
+          border: 1px solid rgba(255,255,255,.18);
+          box-shadow: 0 18px 48px -20px rgba(6,21,56,.42);
           text-decoration: none;
           color: inherit;
           transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .radar-featured-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: radial-gradient(circle at 86% 12%, rgba(255,255,255,.13), transparent 32%);
+        }
+
+        .radar-featured-card > * {
+          position: relative;
+          z-index: 1;
         }
 
         .radar-featured-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 12px 32px -16px rgba(11,92,255,.16);
-          border-color: rgba(11,92,255,.28);
-          border-top-color: ${C.blue};
+          box-shadow: 0 24px 56px -20px rgba(6,21,56,.50);
+          border-color: rgba(255,255,255,.28);
+        }
+
+        .radar-featured-card .radar-tag {
+          background: rgba(255,255,255,.18);
+          color: #ffffff;
+        }
+
+        .radar-featured-card .radar-source {
+          color: rgba(255,255,255,.72);
+        }
+
+        .radar-featured-card .radar-sep {
+          color: rgba(255,255,255,.38);
+        }
+
+        .radar-featured-card .radar-context {
+          color: rgba(255,255,255,.72);
+        }
+
+        .radar-featured-card .radar-featured-title {
+          color: #ffffff;
+        }
+
+        .radar-featured-card .radar-featured-description {
+          color: rgba(255,255,255,.86);
+        }
+
+        .radar-featured-card .radar-cta {
+          color: rgba(255,255,255,.9);
+          letter-spacing: 0.12em;
         }
 
         .radar-meta {

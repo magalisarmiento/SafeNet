@@ -45,45 +45,6 @@ const PlusMark = ({ top, left, right, bottom, size = 14, opacity = 0.5 }: any) =
   </span>
 );
 
-/* ============================================================
-   COUNT UP — animación
-   ============================================================ */
-function CountUp({ to, prefix = "", suffix = "", duration = 1400 }: any) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const triggered = useRef(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !ref.current) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setValue(to);
-      return;
-    }
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting && !triggered.current) {
-            triggered.current = true;
-            const start = performance.now();
-            const tick = (now: number) => {
-              const t = Math.min((now - start) / duration, 1);
-              const eased = 1 - Math.pow(1 - t, 3);
-              setValue(Math.round(to * eased));
-              if (t < 1) requestAnimationFrame(tick);
-            };
-            requestAnimationFrame(tick);
-          }
-        });
-      },
-      { threshold: 0.4 }
-    );
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [to, duration]);
-
-  return <span ref={ref}>{prefix}{value}{suffix}</span>;
-}
 
 /* ============================================================
    NAVBAR
@@ -306,9 +267,80 @@ function useSimulationEngine() {
 }
 
 /* ============================================================
+   MODAL DE AYUDA
+   ============================================================ */
+function HelpModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="help-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="help-modal-title"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="help-modal">
+        <div className="help-modal-header">
+          <h2 className="help-modal-title" id="help-modal-title">¿Necesitás ayuda?</h2>
+          <button className="help-close-button" onClick={onClose} aria-label="Cerrar panel de ayuda">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+
+        <div className="help-modal-content">
+          <p className="help-intro">
+            Si vos o alguien que conocés está atravesando una situación de grooming, no estás solo/a. Guardá la evidencia, no borres conversaciones y pedí ayuda a una persona adulta de confianza o a un canal especializado.
+          </p>
+
+          <div className="help-resources">
+            <div className="help-resource-card">
+              <p className="hrc-name">Línea 137</p>
+              <p className="hrc-desc">Asistencia y acompañamiento ante situaciones de violencia sexual, familiar o grooming.</p>
+              <div className="hrc-contacts">
+                <a href="tel:137" className="hrc-link" aria-label="Llamar a la Línea 137">📞 137</a>
+                <a href="https://wa.me/5491131331000" target="_blank" rel="noopener noreferrer" className="hrc-link" aria-label="WhatsApp Línea 137">WhatsApp +54 9 11 3133-1000</a>
+              </div>
+            </div>
+
+            <div className="help-resource-card">
+              <p className="hrc-name">Línea 102</p>
+              <p className="hrc-desc">Servicio gratuito y confidencial de atención para niñas, niños y adolescentes.</p>
+              <div className="hrc-contacts">
+                <a href="tel:102" className="hrc-link" aria-label="Llamar a la Línea 102">📞 102</a>
+              </div>
+            </div>
+
+            <div className="help-resource-card">
+              <p className="hrc-name">Grooming Argentina</p>
+              <p className="hrc-desc">Organización especializada en prevención y abordaje del grooming.</p>
+              <div className="hrc-contacts">
+                <a href="https://groomingarg.org/" target="_blank" rel="noopener noreferrer" className="hrc-link" aria-label="Sitio web de Grooming Argentina">groomingarg.org</a>
+                <a href="mailto:contacto@groomingarg.org" className="hrc-link" aria-label="Email Grooming Argentina">contacto@groomingarg.org</a>
+                <a href="https://wa.me/5491124811722" target="_blank" rel="noopener noreferrer" className="hrc-link" aria-label="WhatsApp Grooming Argentina">WhatsApp +54 9 11 2481-1722</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="help-emergency">
+            <strong>Si hay una emergencia o riesgo inmediato,</strong> contactá a los servicios de emergencia (911) o a una persona adulta de confianza.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    PÁGINA PRINCIPAL
    ============================================================ */
 export default function App() {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   const {
     step,
     activeAlerts,
@@ -573,6 +605,35 @@ export default function App() {
           .about-photo-wrap { max-width: 340px; margin: 0 auto; width: 100%; }
         }
 
+        /* BOTÓN FLOTANTE DE AYUDA */
+        .help-floating-button { position: fixed; bottom: 28px; right: 28px; z-index: 200; display: inline-flex; align-items: center; gap: 9px; padding: 14px 22px; background: ${C.blue}; color: ${C.white}; border: none; border-radius: 100px; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 8px 24px rgba(11,92,255,0.32); transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s ease; font-family: 'Inter', sans-serif; }
+        .help-floating-button:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(11,92,255,0.42); }
+        .help-floating-button:focus-visible { outline: 3px solid ${C.blue}; outline-offset: 4px; }
+        @media (max-width: 560px) { .help-floating-button { bottom: 20px; right: 16px; padding: 12px 18px; font-size: 12px; gap: 7px; } }
+
+        /* MODAL DE AYUDA */
+        .help-modal-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(6,21,56,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-end; justify-content: flex-end; padding: 28px; }
+        @media (max-width: 560px) { .help-modal-overlay { align-items: flex-end; justify-content: stretch; padding: 0; } }
+        .help-modal { background: ${C.white}; border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px -12px rgba(6,21,56,0.38); animation: sn-scale-in 0.35s cubic-bezier(0.16,1,0.3,1) forwards; scrollbar-width: thin; scrollbar-color: ${C.line} transparent; }
+        @media (max-width: 560px) { .help-modal { border-radius: 20px 20px 0 0; max-width: 100%; max-height: 88vh; } }
+        .help-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 28px 28px 0; }
+        .help-modal-title { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 22px; font-weight: 700; color: ${C.blueDark}; letter-spacing: -0.6px; line-height: 1.1; margin: 0; }
+        .help-close-button { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: ${C.bgSoft}; border: 1px solid ${C.line}; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${C.textMute}; transition: background .2s ease, color .2s ease; margin-top: 2px; }
+        .help-close-button:hover { background: ${C.celeste}; color: ${C.blueDark}; }
+        .help-close-button:focus-visible { outline: 3px solid ${C.blue}; outline-offset: 3px; }
+        .help-modal-content { padding: 16px 28px 28px; }
+        .help-intro { font-size: 14px; line-height: 1.65; color: ${C.blueDeep}; font-weight: 500; margin: 12px 0 24px; }
+        .help-resources { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .help-resource-card { border: 1px solid ${C.line}; border-radius: 12px; padding: 18px 20px; position: relative; overflow: hidden; }
+        .help-resource-card::before { content: ""; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; background: ${C.blue}; border-radius: 0 2px 2px 0; }
+        .hrc-name { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 13.5px; font-weight: 700; color: ${C.blueDark}; letter-spacing: 0.4px; text-transform: uppercase; margin: 0 0 4px; }
+        .hrc-desc { font-size: 12.5px; color: ${C.textMute}; font-weight: 500; line-height: 1.5; margin: 0 0 10px; }
+        .hrc-contacts { display: flex; flex-wrap: wrap; gap: 8px; }
+        .hrc-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: ${C.blue}; text-decoration: none; background: ${C.celeste}; padding: 5px 11px; border-radius: 100px; letter-spacing: 0.3px; transition: background .2s ease; white-space: nowrap; }
+        .hrc-link:hover { background: #d0dbf7; }
+        .help-emergency { background: ${C.bgSoft}; border: 1px solid ${C.line}; border-radius: 10px; padding: 14px 18px; font-size: 12.5px; color: ${C.textMute}; line-height: 1.6; font-weight: 500; }
+        .help-emergency strong { color: ${C.blueDeep}; font-weight: 700; }
+
         /* FOOTER */
         .footer { background: ${C.blueDark}; padding: 80px 32px 40px; color: ${C.white}; }
         .footer-inner { max-width: 1280px; margin: 0 auto; }
@@ -733,7 +794,7 @@ export default function App() {
               </h2>
             </div>
             <p className="stats-lead">
-              Estos datos reflejan por qué la prevención temprana y la concientización activa son fundamentales para anticipar señales en entornos digitales cotidianos.
+              Los datos muestran que el riesgo no empieza cuando aparece una amenaza explícita, sino mucho antes: en el desconocimiento, la naturalización del contacto con desconocidos y la falta de herramientas para detectar señales tempranas.
             </p>
           </div>
 
@@ -743,36 +804,46 @@ export default function App() {
                 <div className="stat-head">
                   <span className="stat-index">01</span>
                   <span className="stat-dot" />
-                  <span className="stat-tag">Inicio</span>
+                  <span className="stat-tag">Desconocimiento</span>
                 </div>
-                <h3 className="stat-number"><CountUp to={90} prefix="+" suffix="%" /></h3>
-                <p className="stat-text">De los vínculos de riesgo comienzan con conversaciones aparentemente normales y amigables.</p>
+                <h3 className="stat-number">7 de cada 10</h3>
+                <p className="stat-text">Niñas, niños y adolescentes no saben qué es el grooming, según el informe regional de Grooming LATAM 2024/2025.</p>
               </article>
 
               <article className="stat-item">
                 <div className="stat-head">
                   <span className="stat-index">02</span>
                   <span className="stat-dot" />
-                  <span className="stat-tag">Exposición</span>
+                  <span className="stat-tag">Contacto</span>
                 </div>
-                <h3 className="stat-number">1 de cada 5</h3>
-                <p className="stat-text">Adolescentes recibe mensajes de adultos desconocidos en sus redes sociales de uso diario.</p>
+                <h3 className="stat-number">6 de cada 10</h3>
+                <p className="stat-text">Mantuvieron conversaciones con desconocidos a través de redes sociales y/o juegos online.</p>
               </article>
 
               <article className="stat-item">
                 <div className="stat-head">
                   <span className="stat-index">03</span>
                   <span className="stat-dot" />
-                  <span className="stat-tag">Vulnerabilidad</span>
+                  <span className="stat-tag">Brecha digital</span>
                 </div>
-                <h3 className="stat-number"><CountUp to={60} suffix="%" /></h3>
-                <p className="stat-text">Admite no saber a quién recurrir de forma segura cuando se enfrenta a un pedido íntimo en línea.</p>
+                <h3 className="stat-number">64,9%</h3>
+                <p className="stat-text">Considera saber más de tecnología que sus padres o tutores. SafeNet parte de esa brecha: usar redes, apps o juegos no siempre significa saber reconocer riesgos, cuidar la privacidad o pedir ayuda a tiempo.</p>
               </article>
             </div>
 
             <div className="stats-panel-footer">
-              <span className="stats-source-label">Fuente</span>
-              <span className="stats-source-text">Grooming Argentina · Datos oficiales</span>
+              <span className="stats-source-label">Fuente estadística</span>
+              <span className="stats-source-text">
+                <a
+                  href="https://www.groomingarg.org/wp-content/uploads/2025/05/INFORME-2024-2025-GROOMING-LATAM.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "3px" }}
+                >
+                  Informe Grooming LATAM 2024/2025
+                </a>
+                {" · "}Red Grooming LATAM / Grooming Argentina
+              </span>
             </div>
           </div>
         </div>
@@ -918,6 +989,18 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* BOTÓN FLOTANTE DE AYUDA */}
+      <button
+        className="help-floating-button"
+        onClick={() => setHelpOpen(true)}
+        aria-label="Abrir panel de ayuda ante situaciones de grooming"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        Necesito ayuda
+      </button>
+
+      {helpOpen && <HelpModal onClose={() => setHelpOpen(false)} />}
 
       {/* ============================================================
           6. FOOTER
