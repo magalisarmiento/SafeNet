@@ -44,25 +44,6 @@ const IconShield = ({
   </svg>
 );
 
-const IconHeart = ({
-  size = 22,
-  color = C.blue,
-  strokeWidth = 2,
-}: IconProps) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden
-  >
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-);
 
 const IconEyeOff = ({
   size = 22,
@@ -476,6 +457,48 @@ export default function FamiliasPage() {
     "Supervisá el uso de dispositivos ubicándolos en áreas comunes.",
     "Evitá el uso de cámaras web con personas no conocidas físicamente.",
     "Mantené una actitud receptiva si te cuentan algo que les incomodó.",
+  ];
+
+  type HeroCase = {
+    tag: string;
+    source: string;
+    context?: string;
+    title: string;
+    description?: string;
+    url: string;
+  };
+
+  const heroCases: HeroCase[] = [
+    {
+      tag: "Redes sociales",
+      source: "La Nota SJ",
+      context: "Caso judicial",
+      title:
+        "Se hacía pasar por una mujer en redes para captar menores y fue condenado por grooming",
+      description:
+        "Un caso que muestra cómo una identidad falsa puede ser usada para iniciar vínculos de confianza con menores.",
+      url: "https://lanotasj.com.ar/se-hacia-pasar-por-una-mujer-en-redes-para-captar-menores-y-fue-condenado-por-grooming/",
+    },
+    {
+      tag: "Captación y engaño",
+      source: "La Nación",
+      title:
+        "Desde la cárcel de Sierra Chica hacía falsas propuestas de trabajo a adolescentes",
+      url: "https://www.lanacion.com.ar/seguridad/desde-la-carcel-de-sierra-chica-hacia-falsas-propuestas-de-trabajo-a-adolescentes-las-sometia-a-nid29042026/",
+    },
+    {
+      tag: "Clubes deportivos",
+      source: "TyC Sports",
+      title: "Independiente denunció tres casos de grooming en las Inferiores",
+      url: "https://www.tycsports.com/independiente/independiente-denuncio-tres-casos-de-grooming-en-las-inferiores-id731106.html",
+    },
+    {
+      tag: "Videojuegos",
+      source: "Unidiversidad",
+      title:
+        "Casos de grooming en plataformas de videojuegos: menos bloqueo y más educación",
+      url: "https://www.unidiversidad.com.ar/casos-de-grooming-en-plataformas-de-videojuegos-menos-bloqueo-y-mas-educacion",
+    },
   ];
 
   const actionSteps = [
@@ -938,6 +961,227 @@ export default function FamiliasPage() {
           margin-top: 2px;
         }
 
+        /* --- HERO RADAR PANEL --- */
+        .hero-radar-panel {
+          position: relative;
+          width: 100%;
+          max-width: 620px;
+          align-self: flex-start;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .radar-shell {
+          display: flex;
+          flex-direction: column;
+          background: ${C.white};
+          border: 1px solid rgba(216, 227, 236, 0.95);
+          border-radius: 24px;
+          padding: 24px 28px 22px;
+          box-shadow: 0 20px 56px rgba(6,21,56,.07);
+        }
+
+        .radar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .radar-title-wrap {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-width: 0;
+        }
+
+        .radar-line {
+          width: 32px;
+          height: 2px;
+          background: ${C.blue};
+          flex-shrink: 0;
+        }
+
+        .radar-kicker {
+          color: ${C.blue};
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          font-weight: 800;
+          font-size: 11px;
+          line-height: 1;
+          white-space: nowrap;
+        }
+
+        .radar-news-label {
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
+          color: ${C.textMute};
+          font-weight: 700;
+          font-size: 10.5px;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .radar-intro {
+          color: ${C.textMute};
+          font-size: 13px;
+          line-height: 1.5;
+          margin: 12px 0 0;
+          max-width: 100%;
+          font-weight: 500;
+        }
+
+        .radar-featured-card {
+          display: block;
+          margin-top: 14px;
+          padding: 16px 18px 14px;
+          border-radius: 14px;
+          background: linear-gradient(180deg, ${C.bgSoft} 0%, ${C.blueSoft} 100%);
+          border: 1px solid rgba(216, 227, 236, 0.95);
+          border-top: 4px solid ${C.blue};
+          text-decoration: none;
+          color: inherit;
+          transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .radar-featured-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px -16px rgba(11,92,255,.16);
+          border-color: rgba(11,92,255,.28);
+          border-top-color: ${C.blue};
+        }
+
+        .radar-meta {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin-bottom: 8px;
+        }
+
+        .radar-tag {
+          display: inline-flex;
+          align-items: center;
+          padding: 2px 8px;
+          border-radius: 999px;
+          background: rgba(11,92,255,.1);
+          color: ${C.blue};
+          font-size: 9.5px;
+          font-weight: 900;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+
+        .radar-source {
+          color: ${C.textMute};
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.01em;
+        }
+
+        .radar-sep {
+          color: ${C.line};
+          font-size: 11px;
+          font-weight: 400;
+          user-select: none;
+        }
+
+        .radar-context {
+          color: ${C.textMute};
+          font-size: 11px;
+          font-weight: 600;
+        }
+
+        .radar-featured-title {
+          font-family: 'Space Grotesk', 'Inter', sans-serif;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: ${C.blueDark};
+          font-size: clamp(14px, 1.25vw, 17px);
+          line-height: 1.28;
+          font-weight: 900;
+          margin: 0;
+        }
+
+        .radar-featured-description {
+          color: ${C.textMute};
+          font-size: 12.5px;
+          line-height: 1.45;
+          margin: 8px 0 0;
+          font-weight: 500;
+        }
+
+        .radar-cta {
+          display: inline-block;
+          margin-top: 10px;
+          color: ${C.blue};
+          font-size: 10.5px;
+          font-weight: 900;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+
+        .radar-list {
+          margin-top: 4px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .radar-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+          padding: 11px 0;
+          border-top: 1px solid rgba(216, 227, 236, 0.95);
+          text-decoration: none;
+          color: inherit;
+          transition: border-color .18s ease;
+        }
+
+        .radar-row:hover {
+          border-top-color: rgba(11,92,255,.18);
+        }
+
+        .radar-row-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 0;
+          flex: 1;
+        }
+
+        .radar-row-meta {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+
+        .radar-row-title {
+          font-family: 'Space Grotesk', 'Inter', sans-serif;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: ${C.blueDark};
+          font-weight: 900;
+          font-size: 12.5px;
+          line-height: 1.32;
+          margin: 0;
+        }
+
+        .radar-arrow {
+          color: ${C.blue};
+          font-size: 17px;
+          flex-shrink: 0;
+          line-height: 1;
+          transition: transform .18s ease;
+        }
+
+        .radar-row:hover .radar-arrow {
+          transform: translateX(4px);
+        }
+        /* --- FIN HERO RADAR PANEL --- */
+
         .family-panel {
           position: relative;
           min-height: 520px;
@@ -1332,6 +1576,71 @@ export default function FamiliasPage() {
           border-color: rgba(11,92,255,.28);
           background: ${C.white};
         }
+
+        /* --- SECCIÓN HUELLA DIGITAL FAMILIAR --- */
+        .footprint-section {
+          background: ${C.white};
+        }
+
+        .footprint-callout {
+          margin-top: 26px;
+          padding: 18px 22px 18px 20px;
+          border-left: 3px solid ${C.blue};
+          border-radius: 0 16px 16px 0;
+          background: ${C.blueSoft};
+          color: ${C.blueDark};
+          font-size: 14.5px;
+          line-height: 1.58;
+          font-weight: 700;
+        }
+
+        .footprint-bullets {
+          margin-top: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .footprint-bullet-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 14px 18px;
+          border: 1px solid ${C.line};
+          border-radius: 14px;
+          background: ${C.bgSoft};
+          transition: border-color .2s ease, background .2s ease;
+        }
+
+        .footprint-bullet-item:hover {
+          border-color: rgba(11,92,255,.22);
+          background: ${C.white};
+        }
+
+        .footprint-bullet-num {
+          font-family: 'Space Grotesk', 'Inter', sans-serif;
+          color: ${C.blue};
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 1.2px;
+          min-width: 26px;
+          line-height: 1;
+        }
+
+        .footprint-bullet-divider {
+          width: 1px;
+          height: 18px;
+          background: ${C.line};
+          flex-shrink: 0;
+        }
+
+        .footprint-bullet-text {
+          color: ${C.blueDark};
+          font-size: 14px;
+          font-weight: 700;
+          line-height: 1.4;
+        }
+        /* --- FIN HUELLA DIGITAL FAMILIAR --- */
 
         .signals-section {
           background: ${C.white};
@@ -2690,6 +2999,32 @@ export default function FamiliasPage() {
             align-items: flex-start;
           }
 
+          .hero-radar-panel {
+            max-width: 100%;
+          }
+
+          .radar-shell {
+            padding: 18px 20px 16px;
+            border-radius: 18px;
+          }
+
+          .radar-header {
+            flex-wrap: wrap;
+            gap: 6px;
+          }
+
+          .radar-featured-title {
+            font-size: 14px;
+          }
+
+          .radar-featured-description {
+            font-size: 12px;
+          }
+
+          .radar-row-title {
+            font-size: 12px;
+          }
+
           .ig-container {
             min-height: 500px;
           }
@@ -2758,48 +3093,67 @@ export default function FamiliasPage() {
             </div>
 
             <div
-              className="family-panel reveal delay-100"
-              aria-label="Panel visual de acompañamiento familiar"
+              className="hero-radar-panel reveal delay-100"
+              aria-label="Radar de casos reales de grooming en los medios"
             >
-              <div className="panel-card-main">
-                <div className="panel-top">
-                  <div>
-                    <div className="panel-kicker">Guía rápida</div>
-                    <h2 className="panel-title">Acompañar, detectar y actuar</h2>
+              <div className="radar-shell">
+                <div className="radar-header">
+                  <div className="radar-title-wrap">
+                    <div className="radar-line" aria-hidden />
+                    <span className="radar-kicker">Radar de casos reales</span>
                   </div>
-                  <div className="panel-status">
-                    <IconHeart size={24} color={C.blue} />
-                  </div>
+                  <span className="radar-news-label">En las noticias</span>
                 </div>
 
-                <div className="family-steps">
-                  <div className="family-step">
-                    <span className="family-step-number">01</span>
-                    <div>
-                      <h3>Conversá sin juzgar</h3>
-                      <p>
-                        Que pedir ayuda no se asocie con castigo o pérdida del
-                        celular.
-                      </p>
-                    </div>
+                <p className="radar-intro">
+                  Titulares recientes que muestran cómo el grooming aparece en
+                  redes, videojuegos, clubes y otros espacios cotidianos.
+                </p>
+
+                <a
+                  href={heroCases[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="radar-featured-card"
+                  aria-label={`Leer nota destacada: ${heroCases[0].title} — ${heroCases[0].source}`}
+                >
+                  <div className="radar-meta">
+                    <span className="radar-tag">{heroCases[0].tag}</span>
+                    <span className="radar-source">{heroCases[0].source}</span>
+                    {heroCases[0].context && (
+                      <>
+                        <span className="radar-sep" aria-hidden>·</span>
+                        <span className="radar-context">{heroCases[0].context}</span>
+                      </>
+                    )}
                   </div>
-                  <div className="family-step">
-                    <span className="family-step-number">02</span>
-                    <div>
-                      <h3>Reconocé patrones</h3>
-                      <p>
-                        Halagos excesivos, pedidos de secreto y cambio a chats
-                        privados.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="family-step">
-                    <span className="family-step-number">03</span>
-                    <div>
-                      <h3>Preservá evidencia</h3>
-                      <p>No borres chats, perfiles, audios, fotos ni enlaces.</p>
-                    </div>
-                  </div>
+                  <h2 className="radar-featured-title">{heroCases[0].title}</h2>
+                  {heroCases[0].description && (
+                    <p className="radar-featured-description">{heroCases[0].description}</p>
+                  )}
+                  <span className="radar-cta">Leer nota completa →</span>
+                </a>
+
+                <div className="radar-list">
+                  {heroCases.slice(1).map((item: HeroCase, i: number) => (
+                    <a
+                      key={i}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="radar-row"
+                      aria-label={`Leer nota: ${item.title} — ${item.source}`}
+                    >
+                      <div className="radar-row-content">
+                        <div className="radar-row-meta">
+                          <span className="radar-tag">{item.tag}</span>
+                          <span className="radar-source">{item.source}</span>
+                        </div>
+                        <p className="radar-row-title">{item.title}</p>
+                      </div>
+                      <span className="radar-arrow" aria-hidden>→</span>
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
@@ -2885,6 +3239,72 @@ export default function FamiliasPage() {
                 </div>
                 <a
                   href="https://www.instagram.com/reel/DX2d0c1DuZv/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ig-fallback"
+                >
+                  Abrir reel en Instagram
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="footprint-section border-bottom">
+          <div className="grid-frame section-pad">
+            <div className="case-grid">
+              <div className="reveal">
+                <span className="eyebrow">Huella digital familiar</span>
+                <h2 className="title-lg">
+                  Lo que compartimos también puede exponerlos
+                </h2>
+                <p className="lead" style={{ marginTop: 20 }}>
+                  Muchas veces las familias publican fotos, rutinas, uniformes,
+                  lugares o actividades de sus hijos sin imaginar que esa información
+                  puede ser usada por personas malintencionadas para acercarse con
+                  más facilidad.
+                </p>
+                <div className="footprint-callout">
+                  Publicar no siempre es peligroso, pero sí requiere criterio:
+                  cada dato visible puede ayudar a construir una falsa cercanía.
+                </div>
+                <div className="footprint-bullets">
+                  <div className="footprint-bullet-item">
+                    <span className="footprint-bullet-num">01</span>
+                    <span className="footprint-bullet-divider" aria-hidden />
+                    <span className="footprint-bullet-text">No publiques rutinas completas</span>
+                  </div>
+                  <div className="footprint-bullet-item">
+                    <span className="footprint-bullet-num">02</span>
+                    <span className="footprint-bullet-divider" aria-hidden />
+                    <span className="footprint-bullet-text">Evitá mostrar escuela, club o ubicación</span>
+                  </div>
+                  <div className="footprint-bullet-item">
+                    <span className="footprint-bullet-num">03</span>
+                    <span className="footprint-bullet-divider" aria-hidden />
+                    <span className="footprint-bullet-text">Pedí consentimiento antes de subir fotos</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="video-card reveal delay-100">
+                <div className="video-header">
+                  <span>Huella digital</span>
+                  <span className="video-header-right">Video educativo</span>
+                </div>
+                <div className="ig-container">
+                  <iframe
+                    src="https://www.instagram.com/reel/DYkyYZMSmqL/embed"
+                    title="Reel educativo sobre huella digital familiar"
+                    width="100%"
+                    height="540"
+                    allowFullScreen
+                    loading="lazy"
+                    className="ig-iframe"
+                  />
+                </div>
+                <a
+                  href="https://www.instagram.com/reel/DYkyYZMSmqL/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ig-fallback"

@@ -582,7 +582,9 @@ export default function App() {
         .footer-links { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
         .footer-links a { color: ${C.white}; font-size: 13px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; text-decoration: none; opacity: 0.75; transition: opacity .2s ease; }
         .footer-links a:hover { opacity: 1; }
-        .footer-bottom { padding-top: 32px; font-size: 12.5px; color: rgba(255,255,255,0.45); text-align: center; letter-spacing: 0.3px; }
+        .footer-bottom { padding-top: 32px; font-size: 12.5px; color: rgba(255,255,255,0.45); text-align: center; letter-spacing: 0.3px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .footer-linkedin { color: rgba(255,255,255,0.55); font-size: 12.5px; text-decoration: none; letter-spacing: 0.3px; transition: color .2s ease; }
+        .footer-linkedin:hover { color: ${C.white}; }
         @media (max-width: 700px) { .footer-top { grid-template-columns: 1fr; gap: 40px; } .footer { padding: 60px 24px 30px; } }
       `}</style>
 
@@ -899,15 +901,20 @@ export default function App() {
             <span className="eyebrow">Sobre el proyecto</span>
             <h2 className="about-title">UNA MOTIVACIÓN PERSONAL CON IMPACTO PREVENTIVO</h2>
             <p className="about-text">
-              Mi interés por esta problemática no surgió de manera casual. Hace algunos años, durante una tesina del colegio secundario, investigué por primera vez el grooming y desde entonces lo entendí como una problemática urgente, poco visibilizada y profundamente humana.
-
-La elección de estudiar Ciberseguridad también está vinculada con esa motivación: proteger a las personas en el mundo digital, concientizar sobre amenazas reales y desarrollar soluciones con impacto social.
-
-SAFENET nace de esa convicción. No es solo un proyecto académico, sino una forma de aplicar lo aprendido durante mi formación universitaria a un problema actual, sensible y concreto.
+              Soy Magalí Sarmiento, estudiante de la Licenciatura en Ciberseguridad y creadora de SAFENET.
             </p>
-            <blockquote className="about-quote">
-              SAFENET nace de una convicción: la tecnología también puede cuidar, prevenir y proteger.
-            </blockquote>
+            <p className="about-text">
+              Mi interés por el grooming no surgió de manera casual. Hace algunos años, durante una tesina del colegio secundario, investigué por primera vez esta problemática y desde entonces la entendí como una amenaza urgente, poco visibilizada y profundamente humana.
+            </p>
+            <p className="about-text">
+              Con el tiempo, mi formación en Ciberseguridad reforzó esa mirada: proteger en el mundo digital no se trata solo de sistemas, redes o herramientas técnicas, sino también de cuidar a las personas, generar conciencia y prevenir riesgos reales.
+            </p>
+            <p className="about-text">
+              SAFENET refleja esa forma de entender la ciberseguridad. No lo pienso únicamente como un proyecto académico, sino como una propuesta con sentido, capaz de unir mi recorrido, mi compromiso con la prevención y mi interés por construir soluciones que puedan ayudar a otros.
+            </p>
+            <p className="about-text">
+              Su propósito es acercar información clara, experiencias interactivas y herramientas educativas para que niños, adolescentes, familias y docentes puedan reconocer señales de riesgo, tomar mejores decisiones y pedir ayuda a tiempo.
+            </p>
           </div>
         </div>
       </section>
@@ -930,6 +937,17 @@ SAFENET nace de esa convicción. No es solo un proyecto académico, sino una for
           </div>
           <div className="footer-bottom">
             © 2026 SAFENET. Trabajo Final de Grado · Licenciatura en Ciberseguridad
+            <a
+              href="https://www.linkedin.com/in/magalisarmientoo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-linkedin"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{display:'inline-block',verticalAlign:'middle',marginRight:'6px'}}>
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+              linkedin.com/in/magalisarmientoo
+            </a>
           </div>
         </div>
       </footer>

@@ -90,6 +90,54 @@ const USERS = {
 };
 
 /* ════════════════════════════════════════════════════════════
+   FUENTES EXTERNAS — metadata de entidades reales
+════════════════════════════════════════════════════════════ */
+const SOURCE_PROFILES = {
+  groomingargentina: {
+    username: "groomingargentina",
+    subtitle: "Argentina",
+    avatarSrc: "/grooming-arg.png",
+    avatarAlt: "Grooming Argentina",
+    avatarFallback: "GA",
+    verified: true,
+  },
+  infobae: {
+    username: "infobae",
+    subtitle: "Medio digital · Video educativo",
+    avatarSrc: "/logos/infobae.png",
+    avatarAlt: "Infobae",
+    avatarFallback: "I",
+    verified: true,
+  },
+  incibe: {
+    username: "incibe",
+    subtitle: "Ciberseguridad · Prevención digital",
+    avatarSrc: "/logos/incibe.png",
+    avatarAlt: "INCIBE",
+    avatarFallback: "IN",
+    verified: true,
+  },
+  cybercouple: {
+    username: "cybercouple",
+    subtitle: "Creador digital · Seguridad online",
+    avatarSrc: "/logos/cybercouple.png",
+    avatarAlt: "Cybercouple",
+    avatarFallback: "C",
+    verified: false,
+  },
+  safenet: {
+    username: "safenet.ayuda",
+    subtitle: "Prevención digital · SAFENET",
+    avatarSrc: "/logos/safenet.png",
+    avatarAlt: "SAFENET",
+    avatarFallback: "SN",
+    verified: true,
+  },
+} as const;
+
+type SourceKey = keyof typeof SOURCE_PROFILES;
+
+/* ════════════════════════════════════════════════════════════
    DATOS DE STORIES
 ════════════════════════════════════════════════════════════ */
 type StorySlide = {
@@ -3429,6 +3477,7 @@ function OngPost({
   caption,
   comments,
   timestamp,
+  source = "groomingargentina",
 }: {
   time: string;
   imgSrc: string;
@@ -3438,52 +3487,30 @@ function OngPost({
   caption: React.ReactNode;
   comments: { user: string; text: string }[];
   timestamp: string;
+  source?: SourceKey;
 }) {
+  const profile = SOURCE_PROFILES[source];
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            overflow: "hidden",
-            position: "relative",
-            flexShrink: 0,
-          }}
-        >
-          <Image
-            src="/grooming-arg.png"
-            alt="Grooming Argentina"
-            fill
-            style={{ objectFit: "cover" }}
-            sizes="32px"
-          />
-        </div>
+        <SourceAvatar sourceKey={source} size={32} />
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span className="ig-post-username">groomingargentina</span>
-            <BadgeCheck
-              size={14}
-              color="#0095f6"
-              fill="rgba(0,149,246,0.1)"
-              strokeWidth={2.5}
-            />
-            <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>
-              •
-            </span>
-            <span
-              style={{
-                color: ACCENT_DIM,
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
+            <span className="ig-post-username">{profile.username}</span>
+            {profile.verified && (
+              <BadgeCheck
+                size={14}
+                color="#0095f6"
+                fill="rgba(0,149,246,0.1)"
+                strokeWidth={2.5}
+              />
+            )}
+            <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>•</span>
+            <span style={{ color: ACCENT_DIM, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
               Seguir
             </span>
           </div>
-          <div className="ig-post-sublabel">Argentina</div>
+          <div className="ig-post-sublabel">{profile.subtitle} · {time}</div>
         </div>
         <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
@@ -3535,6 +3562,60 @@ function OngPost({
 }
 
 /* ────────────────────────────────────────────────────────────
+   AVATAR DE FUENTE EXTERNA — logo con fallback de iniciales
+──────────────────────────────────────────────────────────── */
+function SourceAvatar({ sourceKey, size = 32 }: { sourceKey: SourceKey; size?: number }) {
+  const profile = SOURCE_PROFILES[sourceKey];
+  const [imgError, setImgError] = useState(false);
+
+  if (!imgError) {
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          overflow: "hidden",
+          flexShrink: 0,
+          position: "relative",
+          background: C.lineSoft,
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={profile.avatarSrc}
+          alt={profile.avatarAlt}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          onError={() => setImgError(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        flexShrink: 0,
+        background: `linear-gradient(135deg,${C.blue} 0%,${C.blueDark} 100%)`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: profile.avatarFallback.length > 1 ? 10 : 13,
+        fontWeight: 800,
+        color: "#FFF",
+        letterSpacing: 0.5,
+        border: `2px solid ${C.line}`,
+      }}
+    >
+      {profile.avatarFallback}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    POST ONG con REEL embebido (Instagram)
 ──────────────────────────────────────────────────────────── */
 function OngReelPost({
@@ -3548,6 +3629,7 @@ function OngReelPost({
   timestamp,
   fallbackText = "Si el reel no carga, podés verlo en Instagram.",
   fallbackCta = "Ver reel",
+  source = "groomingargentina",
 }: {
   time: string;
   reelUrl: string;
@@ -3559,41 +3641,29 @@ function OngReelPost({
   timestamp: string;
   fallbackText?: string;
   fallbackCta?: string;
+  source?: SourceKey;
 }) {
+  const profile = SOURCE_PROFILES[source];
+
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            overflow: "hidden",
-            position: "relative",
-            flexShrink: 0,
-          }}
-        >
-          <Image
-            src="/grooming-arg.png"
-            alt="Grooming Argentina"
-            fill
-            style={{ objectFit: "cover" }}
-            sizes="32px"
-          />
-        </div>
+        <SourceAvatar sourceKey={source} size={32} />
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span className="ig-post-username">groomingargentina</span>
-            <BadgeCheck
-              size={14}
-              color="#0095f6"
-              fill="rgba(0,149,246,0.1)"
-              strokeWidth={2.5}
-            />
+            <span className="ig-post-username">{profile.username}</span>
+            {profile.verified && (
+              <BadgeCheck
+                size={14}
+                color="#0095f6"
+                fill="rgba(0,149,246,0.1)"
+                strokeWidth={2.5}
+              />
+            )}
             <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>•</span>
             <span style={{ color: ACCENT_DIM, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Seguir</span>
           </div>
-          <div className="ig-post-sublabel">Argentina · {time}</div>
+          <div className="ig-post-sublabel">{profile.subtitle} · {time}</div>
         </div>
         <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
@@ -3654,6 +3724,7 @@ function ReelPost({
   likeCount,
   comments,
   timestamp,
+  externalSource,
 }: {
   user: keyof typeof USERS;
   time: string;
@@ -3662,18 +3733,27 @@ function ReelPost({
   likeCount: number;
   comments: { user: string; text: string }[];
   timestamp: string;
+  externalSource?: SourceKey;
 }) {
   const u = USERS[user];
+  const profile = externalSource ? SOURCE_PROFILES[externalSource] : null;
 
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <Avatar src={u.avatar} size={32} />
+        {profile ? (
+          <SourceAvatar sourceKey={externalSource!} size={32} />
+        ) : (
+          <Avatar src={u.avatar} size={32} />
+        )}
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span className="ig-post-username">{u.handle}</span>
+            <span className="ig-post-username">{profile ? profile.username : u.handle}</span>
+            {profile?.verified && (
+              <BadgeCheck size={14} color="#0095f6" fill="rgba(0,149,246,0.1)" strokeWidth={2.5} />
+            )}
           </div>
-          <div className="ig-post-sublabel">{time}</div>
+          <div className="ig-post-sublabel">{profile ? `${profile.subtitle} · ${time}` : time}</div>
         </div>
         <MoreHorizontal size={20} color="#061538" style={{ cursor: "pointer" }} />
       </div>
@@ -4350,36 +4430,196 @@ function GradientVisual({
   );
 }
 
-function PrivacyPost() {
+function FakeProfileReelPost() {
+  const [reelError, setReelError] = useState(false);
+  const reelUrl = "https://www.instagram.com/reel/DW7ADc8oTv_/";
+  const profile = SOURCE_PROFILES.incibe;
+
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <Avatar src={USERS.sofi.avatar} size={32} />
+        <SourceAvatar sourceKey="incibe" size={32} />
         <div style={{ flex: 1 }}>
-          <span className="ig-post-username">{USERS.sofi.handle}</span>
-          <div className="ig-post-sublabel">hace 6 h · Buenos Aires</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span className="ig-post-username">{profile.username}</span>
+            {profile.verified && (
+              <BadgeCheck size={14} color="#0095f6" fill="rgba(0,149,246,0.1)" strokeWidth={2.5} />
+            )}
+          </div>
+          <div className="ig-post-sublabel">{profile.subtitle} · hace 2 h</div>
         </div>
         <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
       </div>
-      <GradientVisual
-        from="#0B5CFF"
-        to="#061538"
-        icon={<ShieldCheck size={20} color="#FFF" strokeWidth={2.2} />}
-        badge="Privacidad"
-        title="Esa foto con uniforme dice más de lo que pensás."
-        sub="Logo del cole, esquina de la calle, horario fijo. Cualquiera puede armar tu rutina sin conocerte."
-      />
-      <div className="ig-post-footer">
-        <PostActionBar initialLikes={742} />
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.blueDark, marginBottom: 5 }}>742 Me gusta</div>
-        <div className="ig-post-caption">
-          <b>{USERS.sofi.handle}</b>
-          Antes de subir algo, revisá qué dato estás regalando sin querer: uniforme, ubicación, etiqueta de la escuela, hora fija. No es paranoia, es cuidarte.
+
+      {/* Área visual tipo Reel con fallback */}
+      <div style={{ position: "relative", width: "100%", aspectRatio: "9/16", maxHeight: 480, overflow: "hidden", background: "#000" }}>
+        {!reelError ? (
+          <iframe
+            src="https://www.instagram.com/reel/DW7ADc8oTv_/embed/"
+            style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+            onError={() => setReelError(true)}
+            title="Reel: Perfiles falsos generados con IA"
+          />
+        ) : (
+          /* Fallback visual cuando el embed no carga */
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              background: "linear-gradient(160deg,#0B1B3A 0%,#0B5CFF 60%,#061538 100%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 28,
+              color: C.white,
+              textAlign: "center",
+              position: "relative",
+            }}
+          >
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "radial-gradient(circle at 25% 20%, rgba(255,255,255,0.12), transparent 40%), radial-gradient(circle at 75% 80%, rgba(11,92,255,0.25), transparent 45%)",
+              }}
+            />
+            {/* Icono de play */}
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.15)",
+                border: "2px solid rgba(255,255,255,0.35)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 20,
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderTop: "12px solid transparent",
+                  borderBottom: "12px solid transparent",
+                  borderLeft: "20px solid #FFF",
+                  marginLeft: 4,
+                }}
+              />
+            </div>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: 1.6,
+                textTransform: "uppercase",
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.28)",
+                padding: "5px 12px",
+                borderRadius: 999,
+                marginBottom: 18,
+                position: "relative",
+              }}
+            >
+              🚨 Reel · IA y perfiles falsos
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 22,
+                fontWeight: 700,
+                lineHeight: 1.22,
+                marginBottom: 12,
+                letterSpacing: -0.3,
+                position: "relative",
+              }}
+            >
+              Perfiles perfectos que podrían ser falsos
+            </div>
+            <div
+              style={{
+                fontSize: 13.5,
+                lineHeight: 1.55,
+                opacity: 0.88,
+                maxWidth: 280,
+                position: "relative",
+              }}
+            >
+              La IA puede crear fotos y vidas que parecen reales, pero detrás puede haber un ciberdelincuente 😳
+            </div>
+          </div>
+        )}
+
+        {/* Badge "REEL" sobre el visual */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+            background: "rgba(0,0,0,0.55)",
+            color: "#FFF",
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: 1.2,
+            textTransform: "uppercase",
+            padding: "4px 9px",
+            borderRadius: 6,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          Reel
         </div>
-        <div className="ig-post-see-comments">Ver los 3 comentarios</div>
-        <div className="ig-post-comment-preview"><b>{USERS.caro.handle}</b> nunca lo pensé así jajaja</div>
-        <div className="ig-post-comment-preview"><b>{USERS.juani.handle}</b> me hace ruido cuando alguien etiqueta el cole en cada foto</div>
-        <div className="ig-post-timestamp">hace 6 horas</div>
+      </div>
+
+      <div className="ig-post-footer">
+        <PostActionBar initialLikes={1284} />
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.blueDark, marginBottom: 5 }}>1.284 Me gusta</div>
+        <div className="ig-post-caption">
+          <b>groomingargentina</b>{" "}
+          Perfiles perfectos que podrían ser falsos 🚨 La IA puede crear fotos y vidas que parecen reales, pero detrás puede haber un ciberdelincuente 😳.{" "}
+          <span style={{ color: C.textMute }}>⚠️ Antes de interactuar, verifica todo y desconfía.</span>
+        </div>
+
+        {/* Botón para abrir el reel original */}
+        <a
+          href={reelUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            width: "100%",
+            padding: "11px 16px",
+            marginBottom: 12,
+            borderRadius: 10,
+            background: C.celeste,
+            border: `1px solid #c7d4f7`,
+            color: C.blue,
+            fontSize: 13.5,
+            fontWeight: 700,
+            textDecoration: "none",
+            transition: "background 0.18s ease",
+            fontFamily: "inherit",
+            boxSizing: "border-box",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#d4ddf8")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = C.celeste)}
+        >
+          Ver reel completo en Instagram <ChevronRight size={15} strokeWidth={2.5} />
+        </a>
+
+        <div className="ig-post-see-comments">Ver los 18 comentarios</div>
+        <div className="ig-post-comment-preview"><b>{USERS.valen.handle}</b> me pasó exactamente eso, el perfil parecía real 😟</div>
+        <div className="ig-post-comment-preview"><b>{USERS.mateo.handle}</b> la IA ya genera caras que no existen, cómo sabés</div>
+        <div className="ig-post-timestamp">hace 2 horas</div>
         <CommentInput />
       </div>
     </article>
@@ -4387,29 +4627,17 @@ function PrivacyPost() {
 }
 
 function ResourcePost() {
+  const profile = SOURCE_PROFILES.safenet;
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            background: `linear-gradient(135deg,${C.blue} 0%,${C.blueDark} 100%)`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <ShieldCheck size={16} color="#FFF" strokeWidth={2.4} />
-        </div>
+        <SourceAvatar sourceKey="safenet" size={32} />
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span className="ig-post-username">safenet.ayuda</span>
+            <span className="ig-post-username">{profile.username}</span>
             <BadgeCheck size={14} color={C.blue} fill="rgba(11,92,255,0.12)" strokeWidth={2.5} />
           </div>
-          <div className="ig-post-sublabel">Recurso recomendado</div>
+          <div className="ig-post-sublabel">{profile.subtitle}</div>
         </div>
         <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
       </div>
@@ -4466,9 +4694,12 @@ function EmotionalPressurePost() {
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <Avatar src={USERS.lucas.avatar} size={32} />
+        <SourceAvatar sourceKey="safenet" size={32} />
         <div style={{ flex: 1 }}>
-          <span className="ig-post-username">{USERS.lucas.handle}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span className="ig-post-username">{SOURCE_PROFILES.safenet.username}</span>
+            <BadgeCheck size={14} color={C.blue} fill="rgba(11,92,255,0.12)" strokeWidth={2.5} />
+          </div>
           <div className="ig-post-sublabel">hace 1 d</div>
         </div>
         <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
@@ -4716,49 +4947,28 @@ function CarouselSignalsPost() {
   ];
   const [idx, setIdx] = useState(0);
   const slide = slides[idx];
+  const profile = SOURCE_PROFILES.groomingargentina;
   return (
     <article className="ig-post">
       <div className="ig-post-header">
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            overflow: "hidden",
-            position: "relative",
-            flexShrink: 0,
-          }}
-        >
-          <Image
-            src="/grooming-arg.png"
-            alt="Grooming Argentina"
-            fill
-            style={{ objectFit: "cover" }}
-            sizes="32px"
-          />
-        </div>
+        <SourceAvatar sourceKey="groomingargentina" size={32} />
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span className="ig-post-username">groomingargentina</span>
-            <BadgeCheck
-              size={14}
-              color="#0095f6"
-              fill="rgba(0,149,246,0.1)"
-              strokeWidth={2.5}
-            />
+            <span className="ig-post-username">{profile.username}</span>
+            {profile.verified && (
+              <BadgeCheck
+                size={14}
+                color="#0095f6"
+                fill="rgba(0,149,246,0.1)"
+                strokeWidth={2.5}
+              />
+            )}
             <span style={{ color: "#5B6B7A", fontSize: 14, margin: "0 3px" }}>•</span>
-            <span
-              style={{
-                color: ACCENT_DIM,
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
+            <span style={{ color: ACCENT_DIM, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
               Seguir
             </span>
           </div>
-          <div className="ig-post-sublabel">Argentina</div>
+          <div className="ig-post-sublabel">{profile.subtitle}</div>
         </div>
         <MoreHorizontal size={20} color={C.blueDark} style={{ cursor: "pointer" }} />
       </div>
@@ -6377,8 +6587,9 @@ export default function AdolescentesPage() {
                   FEED POSTS — ORDEN INTERCALADO
               ═══════════════════════════════════════════ */}
 
-              {/* 1. ONG — TikTok deepfake */}
+              {/* 1. CYBERCOUPLE — TikTok deepfake */}
               <OngReelPost
+                source="cybercouple"
                 time="3 h"
                 reelUrl="https://www.tiktok.com/@tecnologiaparami/video/7589051546172738836"
                 reelEmbedUrl="https://www.tiktok.com/embed/v2/7589051546172738836"
@@ -6386,7 +6597,7 @@ export default function AdolescentesPage() {
                 likeCount={378}
                 caption={
                   <>
-                    <b>groomingargentina</b>Los deepfakes también pueden usarse para manipular, engañar o ejercer violencia digital. Mirá este ejemplo y aprendé por qué es importante verificar antes de confiar.
+                    <b>cybercouple</b>{" "}Los deepfakes también pueden usarse para manipular, engañar o ejercer violencia digital. Mirá este ejemplo y aprendé por qué es importante verificar antes de confiar.
                     <br />
                     <br />
                     El Deep Fake es una forma de violencia digital que sufren, en su mayoría, niñas y adolescentes. Parece real, pero es falso. Parece broma, pero es abuso.
@@ -6407,15 +6618,16 @@ export default function AdolescentesPage() {
                 fallbackCta="Ver video en TikTok"
               />
 
-              {/* 1B. REEL — video integrado */}
+              {/* 1B. INFOBAE — video integrado */}
               <ReelPost
                 user="juani"
+                externalSource="infobae"
                 time="4 h"
                 videoId="5eAW5BY7Xyc"
                 likeCount={1487}
                 caption={
                   <>
-                    <b>{USERS.juani.handle}</b>
+                    <b>infobae</b>{" "}
                     Esto parece un reel más, pero pasa todos los días: alguien se acerca, halaga, gana confianza y después pide algo que no debería pedir.
                   </>
                 }
@@ -6432,8 +6644,8 @@ export default function AdolescentesPage() {
                 timestamp="hace 4 horas"
               />
 
-              {/* 2. POST EDUCATIVO — Privacidad / foto cotidiana */}
-              <PrivacyPost />
+              {/* 2. POST EDUCATIVO — Perfiles falsos con IA */}
+              <FakeProfileReelPost />
 
               {/* 3. DECISIÓN RÁPIDA */}
               <DecisionPost
